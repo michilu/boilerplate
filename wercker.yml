@@ -1,0 +1,84 @@
+box: blueoceans/golang:1.10.3
+
+build:
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - setup-go-workspace:
+      package-dir: github.com/michilu/boilerplate
+  - script:
+      name: setup cache for go
+      code: |
+        mkdir -p "$WERCKER_CACHE_DIR/go"
+        [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
+        export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
+  - script:
+      name: go module
+      code: |
+        ( type go1.11rc1 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc1 && go1.11rc1 download
+  - script:
+      name: version
+      code: |
+        go1.11rc1 version
+  - script:
+      name: build
+      code: |
+        make
+        ./boilerplate version
+        go1.11rc1 build
+        ./boilerplate version
+  - script:
+      name: test
+      code: |
+        make test
+  #after-steps:
+  #- slack-notifier:
+  #    url: $SLACK_URL
+
+lint:
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - setup-go-workspace:
+      package-dir: github.com/michilu/boilerplate
+  - script:
+      name: setup cache for go
+      code: |
+        mkdir -p "$WERCKER_CACHE_DIR/go"
+        [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
+        export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
+  - script:
+      name: Install golint
+        ( type golint > /dev/null 2>&1 ) || go get golang.org/x/lint/golint
+  - script:
+      name: Install reviewdog
+      code: |
+        ( type reviewdog > /dev/null 2>&1 ) || go get github.com/haya14busa/reviewdog/cmd/reviewdog
+        reviewdog -version
+  - script:
+      name: reviewdog
+      code: |
+        if [ -f .git/FETCH_HEAD ]; then
+        export CI_PULL_REQUEST=$(awk -F/ '{print $3}' .git/FETCH_HEAD)
+        export CI_REPO_OWNER=${WERCKER_GIT_OWNER}
+        export CI_REPO_NAME=${WERCKER_GIT_REPOSITORY}
+        export CI_COMMIT=${WERCKER_GIT_COMMIT}
+        go list ./... | xargs -L1 golint | reviewdog -f=golint -ci=common
+        else
+
+        THRESHOLD_WARN=${REVIEWDOG_THRESHOLD_WARN-5}
+        THRESHOLD_FAIL=${REVIEWDOG_THRESHOLD_FAIL-10}
+
+        LINTLINES=$(go list ./... | xargs -L1 golint | reviewdog -f=golint -diff="git diff remotes/origin/master" | tee /tmp/lint_results.txt | wc -l | tr -d " ")
+
+        cat /tmp/lint_results.txt
+        if [ "$LINTLINES" -ge "${THRESHOLD_FAIL}" ]; then echo "Time to tidy up: $LINTLINES lint warnings." > "$WERCKER_REPORT_MESSAGE_FILE"; fail "Time to tidy up."; fi
+        if [ "$LINTLINES" -ge "${THRESHOLD_WARN}" ]; then echo "You should be tidying soon: $LINTLINES lint warnings." > "$WERCKER_REPORT_MESSAGE_FILE"; warn "You should be tidying soon."; fi
+        if [ "$LINTLINES" -gt 0 ]; then echo "You are fairly tidy: $LINTLINES lint warnings." > "$WERCKER_REPORT_MESSAGE_FILE"; fi
+
+        fi
+  #after-steps:
+  #- slack-notifier:
+  #    url: $SLACK_URL

@@ -1,0 +1,6 @@
+/boilerplate
+
+*.h
+*.so
+/vendor
+go.sum
