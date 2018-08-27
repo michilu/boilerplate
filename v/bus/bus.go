@@ -1,9 +1,10 @@
 package bus
 
 import (
+	"fmt"
 	"sync"
 
-	"github.com/vardius/message-bus"
+	"github.com/michilu/message-bus"
 
 	"github.com/michilu/boilerplate/v/errs"
 	"github.com/michilu/boilerplate/v/log"
@@ -13,6 +14,8 @@ var (
 	bus messagebus.MessageBus
 	wg  sync.WaitGroup
 
+	register = make(map[string][]interface{})
+
 	// Publish publishes arguments to the given topic subscribers.
 	Publish func(topic string, args ...interface{})
 )
@@ -20,6 +23,19 @@ var (
 func init() {
 	bus = messagebus.New()
 	Publish = bus.Publish
+}
+
+func Register(topic fmt.Stringer, fn interface{}) {
+	const op = "bus.Register"
+	k := topic.String()
+	err := Subscribe(k, fn)
+	if err != nil {
+		log.Logger().Fatal().
+			Str("op", op).
+			Err(&errs.Error{Op: op, Err: err}).
+			Msg("error")
+	}
+	register[k] = append(register[k], fn)
 }
 
 // Subscribe subscribes to the given topic.

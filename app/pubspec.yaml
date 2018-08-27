@@ -1,0 +1,24 @@
+name: examples.hacker_news_pwa
+
+environment:
+  sdk: ">=2.0.0 <3.0.0"
+
+web:
+  compiler:
+    debug: dartdevc
+
+dependencies:
+  angular: ">=5.0.0 <6.0.0"
+  angular_router:
+  pwa:
+
+dev_dependencies:
+  angular_test:
+  build_runner:
+  build_test:
+  build_web_compilers:
+  pageloader:
+
+dependency_overrides:
+  hackernews:
+    path: ../hackernews/dart

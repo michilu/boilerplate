@@ -1,0 +1,6 @@
+deploy:
+- boilerplate-go.firebaseapp.com
+lighthouse:
+- /
+screenshot:
+- /

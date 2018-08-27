@@ -2,5 +2,16 @@
 
 *.h
 *.so
+.firebaserc
+/.bundle
+/app/build
+/app/pubspec.lock
+/app/test/**/*.g.dart
+/app/web/*.js
+/app/web/*.js.*
+/bench
+/hackernews/dart/pubspec.lock
 /vendor
+Gemfile.lock
 go.sum
+package-lock.json

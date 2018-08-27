@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "app/build/web",
+    "ignore": [
+      "firebase.json",
+      "**/*.js.map",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

@@ -1,6 +1,5 @@
-box: blueoceans/golang:1.10.3
-
-build:
+go:
+  box: blueoceans/golang:1.10
   steps:
   - script:
       name: set -x
@@ -15,28 +14,41 @@ build:
         export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
   - script:
       name: go module
-      code: |
-        ( type go1.11rc1 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc1 && go1.11rc1 download
+      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
   - script:
       name: version
       code: |
-        go1.11rc1 version
+        go version
+        go1.11rc2 version
   - script:
-      name: build
+      name: go build
       code: |
-        make
-        ./boilerplate version
-        go1.11rc1 build
-        ./boilerplate version
+        make golang
+        ./$(basename $(go list)) version
+  - script:
+      name: test `go get`
+      code: |
+        make go-get || ( git diff go.mod; fail 'fail "go get"' )
+        ./$(basename $(go list)) version
+
+go-get:
+  box: golang
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - script:
+      name: version
+      code: go version
+  - script:
+      name: go get
+      code: go get -v -u github.com/michilu/boilerplate
   - script:
       name: test
-      code: |
-        make test
-  #after-steps:
-  #- slack-notifier:
-  #    url: $SLACK_URL
+      code: boilerplate version
 
-lint:
+gopherjs:
+  box: blueoceans/golang:1.10
   steps:
   - script:
       name: set -x
@@ -50,8 +62,195 @@ lint:
         [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
         export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
   - script:
+      name: go module
+      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
+  - script:
+      name: install GopherJS
+      code: ( type gopherjs > /dev/null 2>&1 ) || go1.11rc2 get -u github.com/gopherjs/gopherjs
+  - script:
+      name: version
+      code: |
+        go version
+        go1.11rc2 version
+  - script:
+      name: gopherjs build
+      code: make gopherjs
+  - script:
+      name: output
+      code: tar czvf $WERCKER_OUTPUT_DIR/go.tar.gz ./*
+
+dart:
+  box: michilu/dart:2.0.0
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - install-packages:
+      packages: tar
+  - script:
+      name: input
+      code: tar xzvf go.tar.gz
+  - npm-install
+  - script:
+      name: setup cache for dart
+      code: export PUB_CACHE=$WERCKER_CACHE_DIR/pub_cache
+  - script:
+      name: build
+      code: make dart
+
+end-to-end:
+  box:
+    id: michilu/alpine-chrome
+    entrypoint: /bin/sh -c
+    cmd: bash
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - ytet5uy4/apk-add:
+      update: true
+      packages: curl jq tar py2-pip
+  - maestrohealthcaretechnologies/pip-install:
+      requirements_file:
+      packages_list: yq
+  - script:
+      name: run server
+      code: (cd $(jq -r .hosting.public firebase.json) && python -m SimpleHTTPServer) &
+  - script:
+      name: versions
+      code: chromium-browser --version
+  - script:
+      name: take a screenshot
+      # https://www.chromium.org/for-testers/enable-logging<Paste>
+      # https://chromium.googlesource.com/chromium/src/+/master/base/logging.h#343
+      code: |
+        yq -r '"http://localhost:8000"+.screenshot[]' assets/path.yaml|xargs bash -c \
+        'chromium-browser --headless --disable-gpu --no-sandbox \
+        --enable-logging=stderr --v=2 \
+        --screenshot=$(echo $0|tr / -).${WERCKER_GIT_COMMIT:0:7}.png --hide-scrollbars --window-size=412,732 \
+        $0'
+
+put-to-slack:
+  box: blueoceans/golang:1.10
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - setup-go-workspace
+  - script:
+      name: setup cache for go
+      code: |
+        mkdir -p "$WERCKER_CACHE_DIR/go"
+        if [ -z "$(go env GOPATH)" ]; then
+        export GOPATH=$WERCKER_CACHE_DIR/go
+        else
+        export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
+        fi
+        export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
+  - script:
+      name: put to slack
+      code: |
+        ( type slackcli > /dev/null 2>&1 ) || go get github.com/cixtor/slackcli
+        slackcli version
+        find . -maxdepth 1 -type f -name "*.png" -exec slackcli files.upload ci {} \;
+
+branch-deploy:
+  box:
+    id: michilu/netlifyctl
+    entrypoint: /bin/sh -c
+    cmd: bash
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - ytet5uy4/apk-add:
+      update: true
+      packages: curl jq
+  - script:
+      name: deploy to netlify
+      code: |
+        target=$(jq -r .hosting.public firebase.json)
+        netlifyctl deploy --access-token $NETLIFY_TOKEN --yes --base-directory $target --draft --site-id ${NETLIFY_BRANCH_DEPLOY_SITE_ID} --message ${WERCKER_GIT_COMMIT:0:7} | tee /tmp/netlifyctl.txt
+        ls -al $target
+  - script:
+      name: lighthouse
+      code: |
+        url=$(grep netlify.com /tmp/netlifyctl.txt | tr -d ' ')
+        bot="https://builder-dot-lighthouse-ci.appspot.com/stream?url=${url}"
+        curl -s ${bot} | grep 'data: done' | awk '{print $3}' | tee /tmp/lighthouse-html.txt
+        out=/tmp/lighthouse.json
+        curl -s -o ${out} $(curl -s "${bot}&format=json" | grep 'data: done' | awk '{print $3}')
+        version=$(cat ${out}|jq -r '.lighthouseVersion')
+        if [[ ${version} =~ ^3\. ]] ;then :;else fail "unsupported version: ${version}"; fi
+  - script:
+      name: lighthouse results
+      code: |
+        out=/tmp/slack-message.txt
+        echo branch-deploy to $(grep netlify.com /tmp/netlifyctl.txt | tr -d ' ') > ${out}
+        cat /tmp/lighthouse.json | jq -r '.categories[]|[.title,.score]|@tsv' >> ${out}
+        cat /tmp/lighthouse-html.txt >> ${out}
+        cat ${out}
+  after-steps:
+  - shoya/slack-notifier:
+      # https://app.wercker.com/steps/shoya/slack-notifier
+      url: $SLACK_URL
+      custom_message: $(cat /tmp/slack-message.txt)
+
+deploy:
+  box: devillex/docker-firebase
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - devillexio/firebase-deploy:
+      project: $FIREBASE_PROJECT
+      token: $FIREBASE_TOKEN
+  - install-packages:
+      packages: jq python-pip python-dev
+  - maestrohealthcaretechnologies/pip-install:
+      requirements_file:
+      packages_list: yq
+  - script:
+      name: lighthouse
+      code: |
+        export url=$(yq -r '"https://"+.deploy[]+"/"' assets/path.yaml)
+        bot="https://builder-dot-lighthouse-ci.appspot.com/stream?url=${url}"
+        curl -s ${bot} | grep 'data: done' | awk '{print $3}' | tee /tmp/lighthouse-html.txt
+        curl -s $(curl -s "${bot}&format=json" | grep 'data: done' | awk '{print $3}') | jq -r '.categories[]|[.title,.score]|@csv' | tr -d '"' | tr ',' '\t' | tee /tmp/lighthouse.txt
+  - script:
+      name: lighthouse results
+      code: |
+        out=/tmp/slack-message.txt
+        echo deploy to ${url} > ${out}
+        cat /tmp/lighthouse.txt >> ${out}
+        cat /tmp/lighthouse-html.txt >> ${out}
+        cat ${out}
+  after-steps:
+  - shoya/slack-notifier:
+      # https://app.wercker.com/steps/shoya/slack-notifier
+      url: $SLACK_URL
+      custom_message: $(cat /tmp/slack-message.txt)
+
+lint:
+  box: blueoceans/golang:1.10
+  steps:
+  - script:
+      name: set -x
+      code: set -x
+  - setup-go-workspace:
+      package-dir: github.com/michilu/boilerplate
+  - script:
+      name: setup cache for go
+      code: |
+        mkdir -p "$WERCKER_CACHE_DIR/go"
+        [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
+        export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
+  - script:
+      name: go module
+      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
+  - script:
       name: Install golint
-        ( type golint > /dev/null 2>&1 ) || go get golang.org/x/lint/golint
+      code: ( type golint > /dev/null 2>&1 ) || go get golang.org/x/lint/golint
   - script:
       name: Install reviewdog
       code: |
@@ -79,6 +278,3 @@ lint:
         if [ "$LINTLINES" -gt 0 ]; then echo "You are fairly tidy: $LINTLINES lint warnings." > "$WERCKER_REPORT_MESSAGE_FILE"; fi
 
         fi
-  #after-steps:
-  #- slack-notifier:
-  #    url: $SLACK_URL
