@@ -1,10 +1,17 @@
 PROJECT_SINCE:=$(shell git log --pretty=format:"%ad" --date=unix|tail -1)
 AUTO_COUNT_SINCE:=$(shell echo $$(((`date -u +%s`-$(PROJECT_SINCE))/(24*60*60))))
+AUTO_COUNT_YEAR:=$(shell echo $$(($(AUTO_COUNT_SINCE)/365)))
+AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
 AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
+CODEBASE_NUMBER:=0
+SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG)
+HASH:=$(shell git describe --always --dirty=+)
+BUILD:=$(shell LANG=en date -u +'%b %d %T %Y')
+
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
 
-GO:=$(shell (type go1.11rc2 > /dev/null 2>&1) && echo go1.11rc2 || echo go)
+GO:=go
 GOM:=GO111MODULE=on $(GO)
 GOPATH:=$(shell $(GO) env GOPATH)
 PKG:=$(shell $(GO) list)
@@ -14,7 +21,8 @@ GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
 GOSRC:=$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print)
 CEL:=$(shell find . -type d -name vendor -prune -or -type f -name "*.cel.txt" -print)
-GOGEN:=$(patsubst %.cel.txt,%_gen.go,$(CEL))
+GOCEL:=$(patsubst %.cel.txt,%_gen.go,$(CEL))
+#GOGEN:=$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print|xargs grep "^//go:generate " -l)
 
 APP_DIR_PATH:=app
 GOPHERJS:=$(APP_DIR_PATH)/web/gopher.js
@@ -56,24 +64,24 @@ vendor: go.mod
 %_gen.go: %.go %.cel.txt
 	go generate ./...
 
-$(GOBIN): vendor $(GOSRC)
-	$(GOM) build -ldflags=" \
--X main.serial=$(AUTO_COUNT_SINCE).$(AUTO_COUNT_LOG) \
--X main.hash=$(shell git describe --always --dirty=+) \
--X \"main.build=$(shell LANG=en date -u +'%b %d %T %Y')\" \
-"
-
 .PHONY: go-get
 go-get: $(GOSRC)
 	echo > go.mod
 	rm -rf vendor
 	$(GOM) build -ldflags=" \
--X main.serial=$(AUTO_COUNT_SINCE).$(AUTO_COUNT_LOG) \
--X main.hash=$(shell git describe --always --dirty=+) \
--X \"main.build=$(shell LANG=en date -u +'%b %d %T %Y')\" \
+-X main.serial=$(SERIAL) \
+-X main.hash=$(HASH) \
+-X \"main.build=$(BUILD)\" \
 "
 
-$(GOPHERJS): vendor $(GOSRC) $(GOGEN)
+$(GOBIN): vendor $(GOSRC) $(GOCEL)
+	$(GOM) build -ldflags=" \
+-X main.serial=$(SERIAL) \
+-X main.hash=$(HASH) \
+-X \"main.build=$(BUILD)\" \
+"
+
+$(GOPHERJS): vendor $(GOSRC) $(GOCEL)
 	@# https://github.com/gopherjs/gopherjs/issues/598#issuecomment-282563634
 	-find $(GOPATH)/pkg -depth 1 -type d -name "*_js" -exec rm -fr {} \;
 	-find $(GOPATH)/pkg -depth 1 -type d -name "*_js_min" -exec rm -fr {} \;

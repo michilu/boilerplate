@@ -1,5 +1,5 @@
 go:
-  box: blueoceans/golang:1.10
+  box: blueoceans/golang:1.11.2
   steps:
   - script:
       name: set -x
@@ -13,13 +13,8 @@ go:
         [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
         export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
   - script:
-      name: go module
-      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
-  - script:
       name: version
-      code: |
-        go version
-        go1.11rc2 version
+      code: go version
   - script:
       name: go build
       code: |
@@ -48,7 +43,7 @@ go-get:
       code: boilerplate version
 
 gopherjs:
-  box: blueoceans/golang:1.10
+  box: blueoceans/golang:1.11.2
   steps:
   - script:
       name: set -x
@@ -62,16 +57,13 @@ gopherjs:
         [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
         export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
   - script:
-      name: go module
-      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
-  - script:
       name: install GopherJS
-      code: ( type gopherjs > /dev/null 2>&1 ) || go1.11rc2 get -u github.com/gopherjs/gopherjs
+      code: ( type gopherjs > /dev/null 2>&1 ) || go get -u github.com/gopherjs/gopherjs
   - script:
       name: version
       code: |
         go version
-        go1.11rc2 version
+        gopherjs version
   - script:
       name: gopherjs build
       code: make gopherjs
@@ -94,6 +86,9 @@ dart:
   - script:
       name: setup cache for dart
       code: export PUB_CACHE=$WERCKER_CACHE_DIR/pub_cache
+  - script:
+      name: version
+      code: dart --version
   - script:
       name: build
       code: make dart
@@ -131,7 +126,7 @@ end-to-end:
         $0'
 
 put-to-slack:
-  box: blueoceans/golang:1.10
+  box: blueoceans/golang:1.11.2
   steps:
   - script:
       name: set -x
@@ -202,6 +197,11 @@ deploy:
   - script:
       name: set -x
       code: set -x
+  - npm-install:
+      options: -g firebase-tools
+  - script:
+      name: version
+      code: firebase --version
   - devillexio/firebase-deploy:
       project: $FIREBASE_PROJECT
       token: $FIREBASE_TOKEN
@@ -232,7 +232,7 @@ deploy:
       custom_message: $(cat /tmp/slack-message.txt)
 
 lint:
-  box: blueoceans/golang:1.10
+  box: blueoceans/golang:1.11.2
   steps:
   - script:
       name: set -x
@@ -245,9 +245,6 @@ lint:
         mkdir -p "$WERCKER_CACHE_DIR/go"
         [ -z "$(go env GOPATH)" ] && export GOPATH=$WERCKER_CACHE_DIR/go || export GOPATH=$WERCKER_CACHE_DIR/go:$(go env GOPATH)
         export PATH=$WERCKER_CACHE_DIR/go/bin:$PATH
-  - script:
-      name: go module
-      code: ( type go1.11rc2 > /dev/null 2>&1 ) || go get golang.org/dl/go1.11rc2 && go1.11rc2 download
   - script:
       name: Install golint
       code: ( type golint > /dev/null 2>&1 ) || go get golang.org/x/lint/golint

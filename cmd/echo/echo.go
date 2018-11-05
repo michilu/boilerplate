@@ -1,21 +1,21 @@
 package echo
 
 import (
+	"context"
+
 	valid "github.com/asaskevich/govalidator"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
 
-	"github.com/michilu/boilerplate/v/bus"
 	"github.com/michilu/boilerplate/v/errs"
 	"github.com/michilu/boilerplate/v/log"
-)
-
-const (
-	topic = "echo"
+	"github.com/michilu/boilerplate/v/pipe"
 )
 
 type (
+	topic string
+
 	flag struct {
 		filepath string
 	}
@@ -62,36 +62,26 @@ func preRunE(cmd *cobra.Command, args []string, f *flag) error {
 func run(cmd *cobra.Command, args []string, f *flag) {
 	const op = "cmd.echo.run"
 
-	err := bus.Subscribe(topic, echo)
-	if err != nil {
-		log.Logger().Fatal().
-			Str("op", op).
-			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
-	}
-	bus.Publish(topic, f.filepath)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	inCh, outCh := GetPipeString(ctx, echo, pipe.DefaultErrorHandler)
+
+	t := GetTopicString(topic("echo"))
+	t.Subscribe(inCh)
+	//t.Publish(ctx, outCh)
+
+	t.Publisher(ctx) <- f.filepath
+	<-outCh
 }
 
-func echo(s string) {
+//go:generate genny -in=../../v/pipe/pipe.go -out=gen-pipe-$GOFILE -pkg=$GOPACKAGE gen "Name=string InT=string OutT=string"
+//go:generate genny -in=../../v/topic/topic.go -out=gen-topic-$GOFILE -pkg=$GOPACKAGE gen "ChanT=string"
+
+func echo(s string) (string, error) {
 	const op = "cmd.echo.echo"
-
-	defer func() {
-		const op = "cmd.echo.echo#defer"
-		err := bus.Unsubscribe(topic, echo)
-		if err != nil {
-			log.Logger().Fatal().
-				Str("op", op).
-				Err(&errs.Error{Op: op, Err: err}).
-				Msg("error")
-		}
-	}()
-
-	log.Logger().Debug().
-		Str("op", op).
-		Str("s", s).
-		Msg("echo a file")
-
 	log.Logger().Info().
 		Str("op", op).
 		Msg(s)
+	return s, nil
 }

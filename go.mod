@@ -3,13 +3,13 @@ module github.com/michilu/boilerplate
 require (
 	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
+	github.com/cheekybits/genny v1.0.0
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20180825215210-0210a2f0f73c
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.0 // indirect
 	github.com/marusama/semaphore v0.0.0-20180118111339-567f17206eaa
-	github.com/michilu/message-bus v0.0.0-20180313082818-62c180f2c8d2
 	github.com/mitchellh/mapstructure v1.0.0 // indirect
 	github.com/pelletier/go-toml v1.2.0 // indirect
 	github.com/rs/zerolog v1.8.0

@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
 
-	"github.com/michilu/boilerplate/v/bus"
 	"github.com/michilu/boilerplate/v/errs"
 	"github.com/michilu/boilerplate/v/log"
 	"github.com/michilu/boilerplate/v/meta"
@@ -113,5 +112,4 @@ func Execute() {
 			Err(err).
 			Msg("error")
 	}
-	bus.Wait()
 }
