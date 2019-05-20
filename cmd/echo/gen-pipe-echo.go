@@ -14,7 +14,7 @@ import (
 // GetPipeString returns new input(chan<- String)/output(<-chan String) channels that embedded the given 'func(String) String'.
 func GetPipeString(
 	ctx context.Context,
-	fn func(string) (string, error),
+	fn func(string) ([]string, error),
 	fnErr func(error) bool,
 ) (
 	chan<- string,
@@ -46,15 +46,17 @@ func GetPipeString(
 				}
 				continue
 			}
-			select {
-			case <-ctx.Done():
-				err := ctx.Err()
-				if err != nil {
-					fnErr(&errs.Error{Op: op, Err: err})
+			for _, v := range o {
+				select {
+				case <-ctx.Done():
+					err := ctx.Err()
+					if err != nil {
+						fnErr(&errs.Error{Op: op, Err: err})
+					}
+					return
+				case outCh <- v:
+				default:
 				}
-				return
-			case outCh <- o:
-			default:
 			}
 		}
 	}()

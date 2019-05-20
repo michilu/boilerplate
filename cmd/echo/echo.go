@@ -78,10 +78,10 @@ func run(cmd *cobra.Command, args []string, f *flag) {
 //go:generate genny -in=../../v/pipe/pipe.go -out=gen-pipe-$GOFILE -pkg=$GOPACKAGE gen "Name=string InT=string OutT=string"
 //go:generate genny -in=../../v/topic/topic.go -out=gen-topic-$GOFILE -pkg=$GOPACKAGE gen "ChanT=string"
 
-func echo(s string) (string, error) {
+func echo(s string) ([]string, error) {
 	const op = "cmd.echo.echo"
 	log.Logger().Info().
 		Str("op", op).
 		Msg(s)
-	return s, nil
+	return []string{s}, nil
 }
