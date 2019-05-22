@@ -14,13 +14,13 @@ import (
 // GetPipeString returns new input(chan<- String)/output(<-chan String) channels that embedded the given 'func(String) String'.
 func GetPipeString(
 	ctx context.Context,
-	fn func(string) ([]string, error),
+	fn func(string) (string, error),
 	fnErr func(error) bool,
 ) (
 	chan<- string,
 	<-chan string,
 ) {
-	const op = "pipe.getPipeString"
+	const op = "pipe.GetPipeString"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
@@ -36,7 +36,58 @@ func GetPipeString(
 	outCh := make(chan string)
 
 	go func() {
-		const op = "pipe.getPipeString#go"
+		const op = op + "#go"
+		defer close(outCh)
+		for i := range inCh {
+			o, err := fn(i)
+			if err != nil {
+				if fnErr(&errs.Error{Op: op, Err: err}) {
+					return
+				}
+				continue
+			}
+			select {
+			case <-ctx.Done():
+				err := ctx.Err()
+				if err != nil {
+					fnErr(&errs.Error{Op: op, Err: err})
+				}
+				return
+			case outCh <- o:
+			default:
+			}
+		}
+	}()
+
+	return inCh, outCh
+}
+
+// GetFanoutString returns new input(chan<- String)/output(<-chan String) channels that embedded the given 'func(String) String'.
+func GetFanoutString(
+	ctx context.Context,
+	fn func(string) ([]string, error),
+	fnErr func(error) bool,
+) (
+	chan<- string,
+	<-chan string,
+) {
+	const op = "pipe.GetFanoutString"
+
+	if ctx == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
+	}
+	if fn == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fn' is nil"})
+	}
+	if fnErr == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
+	}
+
+	inCh := make(chan string)
+	outCh := make(chan string)
+
+	go func() {
+		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
 			o, err := fn(i)

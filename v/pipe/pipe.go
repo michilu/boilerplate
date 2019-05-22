@@ -18,13 +18,13 @@ type OutT generic.Type
 // GetPipeName returns new input(chan<- InT)/output(<-chan OutT) channels that embedded the given 'func(InT) OutT'.
 func GetPipeName(
 	ctx context.Context,
-	fn func(InT) ([]OutT, error),
+	fn func(InT) (OutT, error),
 	fnErr func(error) bool,
 ) (
 	chan<- InT,
 	<-chan OutT,
 ) {
-	const op = "pipe.getPipeName"
+	const op = "pipe.GetPipeName"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
@@ -40,7 +40,58 @@ func GetPipeName(
 	outCh := make(chan OutT)
 
 	go func() {
-		const op = "pipe.getPipeName#go"
+		const op = op + "#go"
+		defer close(outCh)
+		for i := range inCh {
+			o, err := fn(i)
+			if err != nil {
+				if fnErr(&errs.Error{Op: op, Err: err}) {
+					return
+				}
+				continue
+			}
+			select {
+			case <-ctx.Done():
+				err := ctx.Err()
+				if err != nil {
+					fnErr(&errs.Error{Op: op, Err: err})
+				}
+				return
+			case outCh <- o:
+			default:
+			}
+		}
+	}()
+
+	return inCh, outCh
+}
+
+// GetFanoutName returns new input(chan<- InT)/output(<-chan OutT) channels that embedded the given 'func(InT) OutT'.
+func GetFanoutName(
+	ctx context.Context,
+	fn func(InT) ([]OutT, error),
+	fnErr func(error) bool,
+) (
+	chan<- InT,
+	<-chan OutT,
+) {
+	const op = "pipe.GetFanoutName"
+
+	if ctx == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
+	}
+	if fn == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fn' is nil"})
+	}
+	if fnErr == nil {
+		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
+	}
+
+	inCh := make(chan InT)
+	outCh := make(chan OutT)
+
+	go func() {
+		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
 			o, err := fn(i)
