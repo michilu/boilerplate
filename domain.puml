@@ -1,0 +1,85 @@
+@startuml
+
+package "domain" {
+	class "Duration" as domain.Duration <<E,#FFCC00>> {
+		+Millis: int32
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetMillis(): int32
+		+Validate(): error
+	}
+}
+
+
+
+package "domain" {
+	interface "Durationer" as domain.Durationer {
+		+Descriptor(): ([]byte, []int)
+		+GetMillis(): int32
+		+ProtoMessage()
+		+Reset()
+		+String(): string
+		+Validate(): error
+		+XXX_DiscardUnknown()
+		+XXX_Marshal(: []byte, : bool): ([]byte, error)
+		+XXX_Merge(: proto.Message)
+		+XXX_Size(): int
+		+XXX_Unmarshal(: []byte): error
+	}
+}
+
+
+
+package "domain" {
+	class "Topic" as domain.Topic <<V,Orchid>>
+}
+
+
+
+package "domain" {
+	interface "TopicDurationer" as domain.TopicDurationer {
+		+Publish(ctx: context.Context, c: <-chan domain.Durationer)
+		+Publisher(ctx: context.Context): chan<- domain.Durationer
+		+Subscribe(c: chan<- domain.Durationer)
+	}
+}
+
+
+
+package "domain" {
+	class "mapDurationer" as domain.mapDurationer <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*domain.tDurationer
+		-get(topic: interface{}): domain.TopicDurationer
+	}
+}
+
+
+
+package "domain" {
+	class "tDurationer" as domain.tDurationer <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- domain.Durationer
+		+Publish(ctx: context.Context, c: <-chan domain.Durationer)
+		+Publisher(ctx: context.Context): chan<- domain.Durationer
+		+Subscribe(c: chan<- domain.Durationer)
+	}
+}
+
+
+
+	domain.Duration -up-|> domain.Durationer
+	domain.tDurationer -up-|> domain.TopicDurationer
+
+
+@enduml

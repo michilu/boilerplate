@@ -1,5 +1,5 @@
 go:
-  box: blueoceans/golang:1.11.2
+  box: blueoceans/golang:1.12.7
   steps:
   - script:
       name: set -x
@@ -23,7 +23,7 @@ go:
   - script:
       name: test `go get`
       code: |
-        make go-get || ( git diff go.mod; fail 'fail "go get"' )
+        make go-get || ( git diff go.mod; fail 'you need "GO111MODULE=on go get -u"' )
         ./$(basename $(go list)) version
 
 go-get:
@@ -43,7 +43,7 @@ go-get:
       code: boilerplate version
 
 gopherjs:
-  box: blueoceans/golang:1.11.2
+  box: blueoceans/golang:1.12.7
   steps:
   - script:
       name: set -x
@@ -126,7 +126,7 @@ end-to-end:
         $0'
 
 put-to-slack:
-  box: blueoceans/golang:1.11.2
+  box: golang
   steps:
   - script:
       name: set -x

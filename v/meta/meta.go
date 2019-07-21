@@ -1,93 +1,51 @@
 package meta
 
 import (
-	"fmt"
 	"runtime"
-	"time"
-
-	"gopkg.in/yaml.v2"
 
 	"github.com/michilu/boilerplate/v/errs"
+	"github.com/michilu/boilerplate/v/log"
+	"google.golang.org/grpc/codes"
+	"gopkg.in/yaml.v2"
 )
 
 const (
-	buildFmt = "Jan 2 15:04:05 2006"
+	op = "meta"
+
+	BuildFmt = "Jan 2 15:04:05 2006"
 )
 
 var (
-	m *meta
+	m Meta
 )
-
-type (
-	Meta struct {
-		Build  string
-		Hash   string
-		Name   string
-		SemVer string
-		Serial string
-	}
-
-	meta struct {
-		Build   time.Time `yaml:",omitempty"`
-		Hash    string    `yaml:",omitempty"`
-		Name    string    `yaml:",omitempty"`
-		SemVer  string    `yaml:",omitempty"`
-		Serial  string    `yaml:",omitempty"`
-		Runtime *runTime  `yaml:",omitempty"`
-	}
-
-	runTime struct {
-		Version string `yaml:",omitempty"`
-		Arch    string `yaml:",omitempty"`
-		Os      string `yaml:",omitempty"`
-	}
-)
-
-func (m meta) String() string {
-	o, err := yaml.Marshal(&m)
-	if err != nil {
-		panic(err)
-	}
-	return string(o)
-}
 
 // Set sets a meta data.
-func Set(v *Meta) error {
-	const op = "meta.Set"
-
-	m = &meta{
-		Name:   v.Name,
-		Hash:   v.Hash,
-		SemVer: v.SemVer,
-		Serial: v.Serial,
-		Runtime: &runTime{
-			Version: runtime.Version(),
-			Arch:    runtime.GOARCH,
-			Os:      runtime.GOOS,
-		},
+func Set(v *Meta) {
+	const op = op + ".Set"
+	v.Runtime = &Runtime{
+		Arch:    runtime.GOARCH,
+		Os:      runtime.GOOS,
+		Version: runtime.Version(),
 	}
-
-	if v.Build == "" {
-		return nil
+	if err := v.Validate(); err != nil {
+		const op = op + ".Validate"
+		log.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
 	}
-	t, err := time.Parse(buildFmt, v.Build)
-	if err != nil {
-		return &errs.Error{Op: op, Err: err}
-	}
-	m.Build = t
-
-	return nil
+	m = *v
 }
 
-// Get returns a fmt.Stringer.
-func Get() fmt.Stringer {
-	return *m
+// Yaml returns Meta as YAML.
+func Yaml() (string, error) {
+	const op = op + ".Yaml"
+	b, err := yaml.Marshal(&m)
+	if err != nil {
+		const op = op + ".yaml.Marshal"
+		return "", &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+	}
+	return string(b), nil
 }
 
 // Name returns a name.
 func Name() string {
-	if m == nil {
-		return ""
-	}
-	return m.Name
+	return m.GetName()
 }

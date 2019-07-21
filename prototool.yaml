@@ -1,0 +1,17 @@
+# https://github.com/uber/prototool/
+protoc:
+  version: 3.9.0
+  includes:
+  - vendor
+lint:
+  rules:
+    remove: # https://godoc.org/github.com/uber/prototool/internal/lint#pkg-variables
+    - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX
+generate:
+  go_options:
+    import_path: .
+  plugins:
+  - name: go
+    type: go
+    flags: plugins=grpc
+    output: .

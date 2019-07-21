@@ -6,10 +6,13 @@ AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
 CODEBASE_NUMBER:=0
 SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG)
 HASH:=$(shell git describe --always --dirty=+)
+BRANCH:=$(shell git symbolic-ref --short HEAD)
 BUILD:=$(shell LANG=en date -u +'%b %d %T %Y')
 
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
+
+PUML:=$(wildcard *.puml)
 
 GO:=go
 GOM:=GO111MODULE=on $(GO)
@@ -19,7 +22,14 @@ GOBIN:=$(notdir $(PKG))
 GOLIST:=$(shell $(GO) list ./...)
 GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
-GOSRC:=$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print)
+PROTO_DIR:=domain
+PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
+PB_GO:=$(PROTO:.proto=.pb.go)
+VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
+VO_GO:=$(shell find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print)
+
+GOFILE:=$(filter-out %.pb.go $(VO_GO),$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print))
+GOSRC:=$(GOFILE) $(PB_GO)
 CEL:=$(shell find . -type d -name vendor -prune -or -type f -name "*.cel.txt" -print)
 GOCEL:=$(patsubst %.cel.txt,%_gen.go,$(CEL))
 #GOGEN:=$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print|xargs grep "^//go:generate " -l)
@@ -32,10 +42,21 @@ GOLIB:=$(LIBGO:.go=.so)
 .SUFFIXES: .go .so
 .go.so: vendor
 	$(GO) build -buildmode=c-shared -o $@ $<
+%.pb.go: %.proto
+	prototool all $<
+%.validator.pb.go: %.proto
+	( type protoc > /dev/null 2>&1 ) && protoc --govalidators_out=$(dir $<) -I $(dir $<) -I vendor $<
 
 
 .PHONY: all
-all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
+all: $(PUML) $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
+.PHONY: uml
+uml: $(PUML) $(VO_GO)
+$(PUML): $(GOSRC)
+	gouml init --file domain --out domain.puml
+$(VALIDATOR_PB_GO): vendor
+.PHONY: proto
+proto: vendor $(PB_GO) $(VALIDATOR_PB_GO)
 .PHONY: golang
 golang: $(GOBIN) $(GOLIB)
 .PHONY: gopherjs
@@ -60,25 +81,35 @@ endif
 
 vendor: go.mod
 	$(GOM) mod vendor
+	$(GOM) mod tidy
 
+$(VO_GO): $(filter-out $(VO_GO),$(GOSRC))
+	go generate ./...
+	for file in $$(find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print); do\
+  sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
+  chmod 644 $$file;\
+  done
 %_gen.go: %.go %.cel.txt
 	go generate ./...
+	chmod 644 $$(find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print)
 
 .PHONY: go-get
 go-get: $(GOSRC)
 	echo > go.mod
 	rm -rf vendor
 	$(GOM) build -ldflags=" \
--X main.serial=$(SERIAL) \
--X main.hash=$(HASH) \
+-X \"main.branch=$(BRANCH)\" \
 -X \"main.build=$(BUILD)\" \
+-X main.hash=$(HASH) \
+-X main.serial=$(SERIAL) \
 "
 
 $(GOBIN): vendor $(GOSRC) $(GOCEL)
 	$(GOM) build -ldflags=" \
--X main.serial=$(SERIAL) \
--X main.hash=$(HASH) \
+-X \"main.branch=$(BRANCH)\" \
 -X \"main.build=$(BUILD)\" \
+-X main.hash=$(HASH) \
+-X main.serial=$(SERIAL) \
 "
 
 $(GOPHERJS): vendor $(GOSRC) $(GOCEL)

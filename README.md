@@ -35,11 +35,11 @@ make deploy
 
 # environment variables for Wercker
 
-see: https://app.wercker.com/<organization>/<application>/environment
+see: https://app.wercker.com/<organization\>/<application\>/environment
 
 - `FIREBASE_PROJECT`: needs by the deploy step. see: https://console.firebase.google.com/
 - `FIREBASE_TOKEN`: needs by the deploy step, via `$(firebase login:ci)`. see: https://github.com/firebase/firebase-tools#using-with-ci-systems
-- `NETLIFY_BRANCH_DEPLOY_SITE_ID`: `API ID(UUID4)` on https://app.netlify.com/sites/<site-name>/settings/general
+- `NETLIFY_BRANCH_DEPLOY_SITE_ID`: `API ID(UUID4)` on https://app.netlify.com/sites/<site-name\>/settings/general
 - `NETLIFY_TOKEN`: https://app.netlify.com/account/applications/personal
 - `SLACK_TOKEN`: needs by the ['slackcli'](https://github.com/cixtor/slackcli) command. see: https://api.slack.com/custom-integrations/legacy-tokens
 - `SLACK_URL`: needs by the 'slack-notifier' step. see: https://slack.com/apps/A0F7XDUAZ-incoming-webhooks

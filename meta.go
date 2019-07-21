@@ -1,14 +1,15 @@
 package main
 
 import (
+	"time"
+
 	"github.com/michilu/boilerplate/v/cmd"
-	"github.com/michilu/boilerplate/v/errs"
-	"github.com/michilu/boilerplate/v/log"
 	"github.com/michilu/boilerplate/v/meta"
 )
 
 // override by ldflags.
 var (
+	branch string
 	build  string
 	hash   string
 	serial string
@@ -16,18 +17,23 @@ var (
 
 func init() {
 	const op = "main.init"
-	err := meta.Set(&meta.Meta{
-		Build:  build,
-		Hash:   hash,
+	m := &meta.Meta{
 		Name:   name,
-		SemVer: semVer,
+		Semver: semver,
 		Serial: serial,
-	})
-	if err != nil {
-		log.Logger().Fatal().
-			Str("op", op).
-			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
 	}
+	if build != "" {
+		t, err := time.Parse(meta.BuildFmt, build)
+		if err == nil {
+			m.Build = t
+		}
+	}
+	if branch != "" || hash != "" {
+		m.Vcs = &meta.Vcs{
+			Branch: branch,
+			Hash:   hash,
+		}
+	}
+	meta.Set(m)
 	cmd.Init(ns)
 }
