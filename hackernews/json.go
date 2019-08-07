@@ -5,7 +5,7 @@ package hackernews
 import (
 	"encoding/json"
 
-	"github.com/michilu/boilerplate/v/errs"
+	"github.com/michilu/boilerplate/service/errs"
 )
 
 type (
@@ -24,7 +24,7 @@ type (
 )
 
 func jsonUnmarshalFeed(b []byte) ([]feed, error) {
-	const op = "hackernews.jsonUnmarshalFeed!gopherjs"
+	const op = op + ".jsonUnmarshalFeed!gopherjs"
 	var (
 		v []feed
 	)
@@ -36,7 +36,7 @@ func jsonUnmarshalFeed(b []byte) ([]feed, error) {
 }
 
 func jsonUnmarshalItem(b []byte) (*feed, error) {
-	const op = "hackernews.jsonUnmarshalItem!gopherjs"
+	const op = op + ".jsonUnmarshalItem!gopherjs"
 	var (
 		v feed
 	)

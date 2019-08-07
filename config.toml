@@ -1,0 +1,3 @@
+[service.update]
+channel='release'
+url='https://michilu.github.io/boilerplate/'

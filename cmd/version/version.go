@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/codes"
 
-	"github.com/michilu/boilerplate/v/errs"
-	"github.com/michilu/boilerplate/v/log"
-	"github.com/michilu/boilerplate/v/meta"
+	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/meta"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 const (
@@ -22,7 +22,7 @@ func New() (*cobra.Command, error) {
 			const op = op + ".Run"
 			s, err := meta.Yaml()
 			if err != nil {
-				log.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
+				slog.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
 			}
 			cmd.Print(s)
 		},

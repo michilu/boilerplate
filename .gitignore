@@ -9,8 +9,12 @@
 /app/test/**/*.g.dart
 /app/web/*.js
 /app/web/*.js.*
+/assets/gox
+/assets/update
 /bench
+/docs
 /hackernews/dart/pubspec.lock
+/update
 /vendor
 Gemfile.lock
 go.sum

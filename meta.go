@@ -3,24 +3,32 @@ package main
 import (
 	"time"
 
-	"github.com/michilu/boilerplate/v/cmd"
-	"github.com/michilu/boilerplate/v/meta"
+	"github.com/michilu/boilerplate/service/meta"
+	"github.com/michilu/boilerplate/service/slog"
+)
+
+const (
+	name = "boilerplate"
 )
 
 // override by ldflags.
 var (
-	branch string
-	build  string
-	hash   string
-	serial string
+	semver  = "0.0.0.0-alpha"
+	branch  string
+	build   string
+	channel string
+	hash    string
+	serial  string
+	tag     string
 )
 
-func init() {
-	const op = "main.init"
+func initMeta() {
+	const op = op + ".initMeta"
 	m := &meta.Meta{
-		Name:   name,
-		Semver: semver,
-		Serial: serial,
+		Name:    name,
+		Semver:  semver,
+		Channel: channel,
+		Serial:  serial,
 	}
 	if build != "" {
 		t, err := time.Parse(meta.BuildFmt, build)
@@ -28,12 +36,16 @@ func init() {
 			m.Build = t
 		}
 	}
-	if branch != "" || hash != "" {
+	if branch != "" || hash != "" || tag != "" {
 		m.Vcs = &meta.Vcs{
 			Branch: branch,
 			Hash:   hash,
+			Tag:    tag,
 		}
 	}
-	meta.Set(m)
-	cmd.Init(ns)
+	err := meta.Set(m)
+	if err != nil {
+		const op = op + ".meta.Set"
+		slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+	}
 }

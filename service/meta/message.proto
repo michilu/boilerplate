@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package michilu.boilerplate.service.meta;
+
+option go_package = "meta";
+option java_multiple_files = true;
+option java_outer_classname = "MessageProto";
+option java_package = "com.michilu.boilerplate.service.meta";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+// go-proto-validators: https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
+
+// Meta is ValueObject of meta infomation
+message Meta {
+  string name = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  string semver = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  string channel = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  Runtime runtime = 4 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
+  string serial = 5;
+  string build = 6;
+  Vcs vcs = 7;
+}
+
+// Runtime is ValueObject of Runtime
+message Runtime {
+  string version = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  string arch = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  string os = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+// Vcs is ValueObject of VCS
+message Vcs {
+  string hash = 1;
+  string branch = 2;
+  string tag = 3;
+}

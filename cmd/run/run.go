@@ -1,7 +1,8 @@
-package update
+package run
 
 import (
 	"context"
+	"time"
 
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	op = "cmd.update"
+	op = "cmd.run"
 )
 
 type (
@@ -22,8 +23,8 @@ type (
 // New returns a new command.
 func New() (*cobra.Command, error) {
 	c := &cobra.Command{
-		Use:   "update",
-		Short: "update",
+		Use:   "run",
+		Short: "run",
 		Run:   run,
 	}
 	return c, nil
@@ -38,20 +39,29 @@ func run(cmd *cobra.Command, args []string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	t := topic("update")
-	tTerminate := terminate.GetTopicStruct(t)
-	tTick := now.GetTopicTimeTime(t)
+	tTerminate := terminate.GetTopicStruct(topic("terminate"))
+	tUpdate := now.GetTopicTimeTime(topic("update"))
 
 	{
-		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, pipe.DefaultErrorHandler)
+		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, ErrorHandler)
 		tTerminate.Publish(ctx, oCh)
-		tTick.Subscribe(iCh)
+		tUpdate.Subscribe(iCh)
+	}
+	{
+		ticker := time.NewTicker(3 * time.Second)
+		defer ticker.Stop()
+		tUpdate.Publish(ctx, ticker.C)
 	}
 	{
 		iCh, oCh := terminate.GetPipeStruct(ctx, terminate.Terminate, pipe.DefaultErrorHandler)
 		tTerminate.Subscribe(iCh)
-
-		tTick.Publisher(ctx) <- now.Now()
 		<-oCh
 	}
+}
+
+// ErrorHandler ...
+func ErrorHandler(err error) bool {
+	const op = op + ".ErrorHandler"
+	slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+	return false
 }

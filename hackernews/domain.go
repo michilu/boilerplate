@@ -1,5 +1,9 @@
 package hackernews
 
+const (
+	op = "hackernews"
+)
+
 type (
 	// HackerNews is a interface of HackerNews.
 	HackerNews interface {

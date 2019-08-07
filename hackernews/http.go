@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/michilu/boilerplate/v/errs"
+	"github.com/michilu/boilerplate/service/errs"
 )
 
 func httpGet(u string) ([]byte, error) {
-	const op = "hackernews.httpGet!gopherjs"
+	const op = op + ".httpGet!gopherjs"
 	r, err := http.Get(u)
 	if err != nil {
 		return nil, &errs.Error{Op: op, Err: err}

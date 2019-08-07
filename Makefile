@@ -5,9 +5,17 @@ AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
 AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
 CODEBASE_NUMBER:=0
 SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG)
+TAG:=$(shell git describe --tags)
 HASH:=$(shell git describe --always --dirty=+)
 BRANCH:=$(shell git symbolic-ref --short HEAD)
 BUILD:=$(shell LANG=en date -u +'%b %d %T %Y')
+LDFLAGS:=-ldflags=" \
+-X \"main.branch=$(BRANCH)\" \
+-X \"main.build=$(BUILD)\" \
+-X \"main.tag=$(TAG)\" \
+-X main.hash=$(HASH) \
+-X main.serial=$(SERIAL) \
+"
 
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
@@ -53,7 +61,9 @@ all: $(PUML) $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 .PHONY: uml
 uml: $(PUML) $(VO_GO)
 $(PUML): $(GOSRC)
-	gouml init --file domain --out domain.puml
+	for i in domain service; do\
+  gouml init --file $$i --out $$i/$$i.puml;\
+  done
 $(VALIDATOR_PB_GO): vendor
 .PHONY: proto
 proto: vendor $(PB_GO) $(VALIDATOR_PB_GO)
@@ -97,20 +107,22 @@ $(VO_GO): $(filter-out $(VO_GO),$(GOSRC))
 go-get: $(GOSRC)
 	echo > go.mod
 	rm -rf vendor
-	$(GOM) build -ldflags=" \
--X \"main.branch=$(BRANCH)\" \
--X \"main.build=$(BUILD)\" \
--X main.hash=$(HASH) \
--X main.serial=$(SERIAL) \
-"
+	$(GOM) build $(LDFLAGS)
 
 $(GOBIN): vendor $(GOSRC) $(GOCEL)
-	$(GOM) build -ldflags=" \
--X \"main.branch=$(BRANCH)\" \
--X \"main.build=$(BUILD)\" \
--X main.hash=$(HASH) \
--X main.serial=$(SERIAL) \
-"
+	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
+
+.PHONY: channel
+channel: vendor $(GOSRC) $(GOCEL)
+	GO111MODULE=on gox -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
+ $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
+	go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
+
+.PHONY: release
+release: vendor $(GOSRC) $(GOCEL)
+	GO111MODULE=on gox -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
+ $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
+	go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
 $(GOPHERJS): vendor $(GOSRC) $(GOCEL)
 	@# https://github.com/gopherjs/gopherjs/issues/598#issuecomment-282563634
@@ -197,6 +209,8 @@ clean:
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
 	rm -rf vendor $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
+	find assets -type d -name assets -delete
+	find . -type f -name "vo-*.go" -exec chmod -x {} \;
 
 .PHONY: test
 test: vendor

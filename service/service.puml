@@ -1,0 +1,346 @@
+@startuml
+
+package "terminate" {
+	interface "TopicStruct" as terminate.TopicStruct {
+		+Publish(ctx: context.Context, c: <-chan struct{})
+		+Publisher(ctx: context.Context): chan<- struct{}
+		+Subscribe(c: chan<- struct{})
+	}
+}
+
+
+
+package "terminate" {
+	class "mapStruct" as terminate.mapStruct <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*terminate.tStruct
+		-get(topic: interface{}): terminate.TopicStruct
+	}
+}
+
+
+
+package "terminate" {
+	class "tStruct" as terminate.tStruct <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- struct{}
+		+Publish(ctx: context.Context, c: <-chan struct{})
+		+Publisher(ctx: context.Context): chan<- struct{}
+		+Subscribe(c: chan<- struct{})
+	}
+}
+
+
+
+package "topics" {
+	interface "ChanT" as topics.ChanT
+}
+
+
+
+package "topics" {
+	interface "TopicChanT" as topics.TopicChanT {
+		+Publish(ctx: context.Context, c: <-chan topics.ChanT)
+		+Publisher(ctx: context.Context): chan<- topics.ChanT
+		+Subscribe(c: chan<- topics.ChanT)
+	}
+}
+
+
+
+package "topics" {
+	class "mapChanT" as topics.mapChanT <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*topics.tChanT
+		-get(topic: interface{}): topics.TopicChanT
+	}
+}
+
+
+
+package "topics" {
+	class "tChanT" as topics.tChanT <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- topics.ChanT
+		+Publish(ctx: context.Context, c: <-chan topics.ChanT)
+		+Publisher(ctx: context.Context): chan<- topics.ChanT
+		+Subscribe(c: chan<- topics.ChanT)
+	}
+}
+
+
+
+package "cmd" {
+	class "flags" as cmd.flags <<V,Orchid>> {
+		-config: string
+		-debug: bool
+		-parallel: int
+	}
+}
+
+
+
+package "cmd" {
+	class "opt" as cmd.opt <<V,Orchid>> {
+		+C: string
+	}
+}
+
+
+
+package "meta" {
+	class "Meta" as meta.Meta <<E,#FFCC00>> {
+		+Name: string
+		+Semver: string
+		+Channel: string
+		+Runtime: *meta.Runtime
+		+Serial: string
+		+Build: time.Time
+		+Vcs: *meta.Vcs
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetName(): string
+		+GetSemver(): string
+		+GetChannel(): string
+		+GetRuntime(): *meta.Runtime
+		+GetSerial(): string
+		+GetBuild(): time.Time
+		+GetVcs(): *meta.Vcs
+		+Validate(): error
+		+JSON(): []byte
+		+MarshalZerologObject(e: zerolog.Event)
+	}
+}
+
+	meta.Meta --> meta.Runtime
+	meta.Meta --> meta.Vcs
+
+	meta.Meta ..> meta.Runtime : <<return>> 
+	meta.Meta ..> meta.Vcs : <<return>> 
+
+package "meta" {
+	class "Runtime" as meta.Runtime <<E,#FFCC00>> {
+		+Version: string
+		+Arch: string
+		+Os: string
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetVersion(): string
+		+GetArch(): string
+		+GetOs(): string
+		+Validate(): error
+	}
+}
+
+
+
+package "meta" {
+	class "Vcs" as meta.Vcs <<E,#FFCC00>> {
+		+Hash: string
+		+Branch: string
+		+Tag: string
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetHash(): string
+		+GetBranch(): string
+		+GetTag(): string
+		+Validate(): error
+	}
+}
+
+
+
+package "semaphore" {
+	interface "Semaphore" as semaphore.Semaphore {
+		+Acquire(ctx: context.Context, n: int): error
+		+GetCount(): int
+		+GetLimit(): int
+		+Release(n: int): int
+		+SetLimit(limit: int)
+		+TryAcquire(n: int): bool
+	}
+}
+
+
+
+package "pipe" {
+	interface "InT" as pipe.InT
+}
+
+
+
+package "pipe" {
+	interface "OutT" as pipe.OutT
+}
+
+
+
+package "slog" {
+	class "HookMeta" as slog.HookMeta <<V,Orchid>> {
+		+Run(e: zerolog.Event, level: zerolog.Level, msg: string)
+	}
+}
+
+
+
+package "slog" {
+	class "consoleWriter" as slog.consoleWriter <<V,Orchid>> {
+		+ConsoleWriter: zerolog.ConsoleWriter
+		+WriteLevel(l: zerolog.Level, p: []byte): (int, error)
+	}
+}
+
+
+
+package "config" {
+	class "kv" as config.kv <<V,Orchid>> {
+		-k: string
+		-v: interface{}
+	}
+}
+
+
+
+package "errs" {
+	class "Error" as errs.Error <<V,Orchid>> {
+		+Code: fmt.Stringer
+		+Message: string
+		+Op: string
+		+Err: error
+		+Error(): string
+	}
+}
+
+
+
+package "now" {
+	interface "TopicTimeTime" as now.TopicTimeTime {
+		+Publish(ctx: context.Context, c: <-chan time.Time)
+		+Publisher(ctx: context.Context): chan<- time.Time
+		+Subscribe(c: chan<- time.Time)
+	}
+}
+
+
+
+package "now" {
+	class "mapTimeTime" as now.mapTimeTime <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*now.tTimeTime
+		-get(topic: interface{}): now.TopicTimeTime
+	}
+}
+
+
+
+package "now" {
+	class "tTimeTime" as now.tTimeTime <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- time.Time
+		+Publish(ctx: context.Context, c: <-chan time.Time)
+		+Publisher(ctx: context.Context): chan<- time.Time
+		+Subscribe(c: chan<- time.Time)
+	}
+}
+
+
+
+	terminate.TopicStruct -up-|> topics.ChanT
+	terminate.TopicStruct -up-|> pipe.InT
+	terminate.TopicStruct -up-|> pipe.OutT
+	terminate.mapStruct -up-|> topics.ChanT
+	terminate.mapStruct -up-|> pipe.InT
+	terminate.mapStruct -up-|> pipe.OutT
+	terminate.tStruct -up-|> terminate.TopicStruct
+	terminate.tStruct -up-|> topics.ChanT
+	terminate.tStruct -up-|> pipe.InT
+	terminate.tStruct -up-|> pipe.OutT
+	topics.ChanT -up-|> pipe.InT
+	topics.ChanT -up-|> pipe.OutT
+	topics.TopicChanT -up-|> topics.ChanT
+	topics.TopicChanT -up-|> pipe.InT
+	topics.TopicChanT -up-|> pipe.OutT
+	topics.mapChanT -up-|> topics.ChanT
+	topics.mapChanT -up-|> pipe.InT
+	topics.mapChanT -up-|> pipe.OutT
+	topics.tChanT -up-|> topics.ChanT
+	topics.tChanT -up-|> topics.TopicChanT
+	topics.tChanT -up-|> pipe.InT
+	topics.tChanT -up-|> pipe.OutT
+	cmd.flags -up-|> topics.ChanT
+	cmd.flags -up-|> pipe.InT
+	cmd.flags -up-|> pipe.OutT
+	cmd.opt -up-|> topics.ChanT
+	cmd.opt -up-|> pipe.InT
+	cmd.opt -up-|> pipe.OutT
+	meta.Meta -up-|> topics.ChanT
+	meta.Meta -up-|> pipe.InT
+	meta.Meta -up-|> pipe.OutT
+	meta.Runtime -up-|> topics.ChanT
+	meta.Runtime -up-|> pipe.InT
+	meta.Runtime -up-|> pipe.OutT
+	meta.Vcs -up-|> topics.ChanT
+	meta.Vcs -up-|> pipe.InT
+	meta.Vcs -up-|> pipe.OutT
+	semaphore.Semaphore -up-|> topics.ChanT
+	semaphore.Semaphore -up-|> pipe.InT
+	semaphore.Semaphore -up-|> pipe.OutT
+	pipe.InT -up-|> topics.ChanT
+	pipe.InT -up-|> pipe.OutT
+	pipe.OutT -up-|> topics.ChanT
+	pipe.OutT -up-|> pipe.InT
+	slog.HookMeta -up-|> topics.ChanT
+	slog.HookMeta -up-|> pipe.InT
+	slog.HookMeta -up-|> pipe.OutT
+	slog.consoleWriter -up-|> topics.ChanT
+	slog.consoleWriter -up-|> pipe.InT
+	slog.consoleWriter -up-|> pipe.OutT
+	config.kv -up-|> topics.ChanT
+	config.kv -up-|> pipe.InT
+	config.kv -up-|> pipe.OutT
+	errs.Error -up-|> topics.ChanT
+	errs.Error -up-|> pipe.InT
+	errs.Error -up-|> pipe.OutT
+	now.TopicTimeTime -up-|> topics.ChanT
+	now.TopicTimeTime -up-|> pipe.InT
+	now.TopicTimeTime -up-|> pipe.OutT
+	now.mapTimeTime -up-|> topics.ChanT
+	now.mapTimeTime -up-|> pipe.InT
+	now.mapTimeTime -up-|> pipe.OutT
+	now.tTimeTime -up-|> topics.ChanT
+	now.tTimeTime -up-|> pipe.InT
+	now.tTimeTime -up-|> pipe.OutT
+	now.tTimeTime -up-|> now.TopicTimeTime
+
+
+@enduml

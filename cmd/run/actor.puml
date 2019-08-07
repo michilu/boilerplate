@@ -1,0 +1,21 @@
+@startuml
+
+queue update..time.Time[
+topic("update")
+--
+time.Time
+]
+
+queue run..struct[
+topic("terminate")
+--
+struct{}
+]
+
+actor ticker.C
+ticker.C->update..time.Time
+update..time.Time->update
+update->run..struct
+run..struct->cmd.run
+
+@enduml

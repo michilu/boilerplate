@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/michilu/boilerplate/v/errs"
+	"github.com/michilu/boilerplate/service/errs"
 )
 
 const (
@@ -31,7 +31,7 @@ func NewHackerNewsAPI(baseUrl string) HackerNews {
 }
 
 func (h *hnAPI) GetFeed(n string, p int) (interface{}, error) {
-	const op = "hackernews.hnAPI.GetFeed"
+	const op = op + ".hnAPI.GetFeed"
 	var (
 		url = strings.Join([]string{h.b, "/", n, "/", strconv.FormatInt(int64(p), 10), ".json"}, "")
 	)
@@ -52,7 +52,7 @@ func (h *hnAPI) GetFeed(n string, p int) (interface{}, error) {
 }
 
 func (h *hnAPI) GetItem(i string) (interface{}, error) {
-	const op = "hackernews.hnAPI.GetItem"
+	const op = op + ".hnAPI.GetItem"
 	var (
 		url = strings.Join([]string{h.b, "/item/", i, ".json"}, "")
 	)

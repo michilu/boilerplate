@@ -3,20 +3,17 @@
 # Install
 Use `go get -u github.com/michilu/boilerplate`.
 
-Or, if requires [Go modules](https://github.com/golang/go/wiki/Modules) (go1.11 and higher), as below.
-
-```console
-go get -d github.com/michilu/boilerplate
-cd $(go env GOPATH)/src/github.com/michilu/boilerplate
-GO111MODULE=on go install
-```
-
 # build
 
 ```console
 make
 ```
-
+```console
+make golang
+```
+```console
+make gox
+```
 ```console
 make gopherjs
 ```
@@ -52,7 +49,9 @@ see: https://app.wercker.com/<organization>/<application>/workflows
 ![](assets/wercker-workflow.png)
 
 # tools
-- [PlantUML Editor](https://plantuml-editor.kkeisuke.com/)
+- [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
+- [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
+- [PlantUML - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml)
 - [XML Pretty Print](https://jsonformatter.org/xml-pretty-print)
 
 # optimize
