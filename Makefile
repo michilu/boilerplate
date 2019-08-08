@@ -216,6 +216,10 @@ clean:
 test: vendor
 	$(GO) test $(PKG)/...
 
+.PHONY: pprof
+pprof:
+	pprof -http=: localhost:8888/debug/pprof/profile
+
 .PHONY: bench
 bench:
 	$(GO) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt

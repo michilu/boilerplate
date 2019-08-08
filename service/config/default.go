@@ -13,6 +13,7 @@ type (
 
 var (
 	config = []kv{
+		{"service.pprof.addr", ":8888"},
 		{"service.update.channel", "release"},
 		{"service.update.url", "http://localhost:8000/"},
 	}
