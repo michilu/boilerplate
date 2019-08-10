@@ -34,9 +34,9 @@ PROTO_DIR:=domain
 PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
 VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
-VO_GO:=$(shell find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print)
+IF_GO:=$(shell find . -type d -name vendor -prune -or -type f -name "entity-*.go" -print -or -type f -name "vo-*.go" -print)
 
-GOFILE:=$(filter-out %.pb.go $(VO_GO),$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print))
+GOFILE:=$(filter-out %.pb.go $(IF_GO),$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print))
 GOSRC:=$(GOFILE) $(PB_GO)
 CEL:=$(shell find . -type d -name vendor -prune -or -type f -name "*.cel.txt" -print)
 GOCEL:=$(patsubst %.cel.txt,%_gen.go,$(CEL))
@@ -59,7 +59,7 @@ GOLIB:=$(LIBGO:.go=.so)
 .PHONY: all
 all: $(PUML) $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 .PHONY: uml
-uml: $(PUML) $(VO_GO)
+uml: $(PUML) $(IF_GO)
 $(PUML): $(GOSRC)
 	for i in domain service; do\
   gouml init --file $$i --out $$i/$$i.puml;\
@@ -93,7 +93,7 @@ vendor: go.mod
 	$(GOM) mod vendor
 	$(GOM) mod tidy
 
-$(VO_GO): $(filter-out $(VO_GO),$(GOSRC))
+$(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 	go generate ./...
 	for file in $$(find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print); do\
   sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
@@ -210,6 +210,7 @@ clean:
 	rm -rf vendor $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
+	find . -type f -name "entity-*.go" -exec chmod -x {} \;
 	find . -type f -name "vo-*.go" -exec chmod -x {} \;
 
 .PHONY: test

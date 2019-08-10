@@ -9,12 +9,13 @@ import (
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-	"github.com/michilu/boilerplate/service/errs"
-	"github.com/michilu/boilerplate/service/now"
-	"github.com/michilu/boilerplate/service/slog"
 	"github.com/pkg/profile"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
+
+	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/now"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 const (

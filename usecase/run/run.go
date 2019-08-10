@@ -4,33 +4,24 @@ import (
 	"context"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
 	"github.com/michilu/boilerplate/service/update"
-	"github.com/spf13/cobra"
 )
 
 const (
-	op = "cmd.run"
+	op = "usecase.run"
 )
 
 type (
 	topic string
 )
 
-// New returns a new command.
-func New() (*cobra.Command, error) {
-	c := &cobra.Command{
-		Use:   "run",
-		Short: "run",
-		Run:   run,
-	}
-	return c, nil
-}
-
-func run(cmd *cobra.Command, args []string) {
+func Run(_ *cobra.Command, _ []string) {
 	const op = op + ".run"
 	{
 		slog.Logger().Debug().Str("op", op).Msg("start")

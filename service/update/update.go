@@ -3,12 +3,13 @@ package update
 import (
 	"time"
 
+	"github.com/spf13/viper"
+	"google.golang.org/grpc/codes"
+
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/go-selfupdate/selfupdate"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc/codes"
 )
 
 const (

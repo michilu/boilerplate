@@ -1,6 +1,7 @@
 package meta
 
 import (
+	// https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
 	_ "github.com/mwitkow/go-proto-validators"
 )
 

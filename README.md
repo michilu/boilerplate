@@ -3,26 +3,57 @@
 # Install
 Use `go get -u github.com/michilu/boilerplate`.
 
-# build
-
-```console
-make
-```
-```console
-make golang
-```
-```console
-make gox
-```
-```console
-make gopherjs
-```
-
 # develop
 
-```console
-make serve
-```
+## build
+
+- `make`
+
+- `make golang`
+- `make proto`
+- `make gox`:       cross compile
+- `make channel`:   push out self update files to develop channel
+- `make release`:   push out self update files to release channel
+- `make uml`:       generate PlantUML from Go codes
+
+- `make gopherjs`
+- `make serve`
+
+- `make clean`:     clean up
+
+## DDD
+
+Each directory contains:
+- `domain`: Domain Service, Entity, Value Object, Repository Interface
+  - Layered architecture: Domain
+  - Hexagonal architecture: Domain Model
+  - Onion architecture: Domain Model, Domain Service
+  - Clean architecture: Entities
+- `usecase`: Use Case, Handler of Entity/Value Object
+  - Layered architecture: Application
+  - Hexagonal architecture: Application
+  - Onion architecture: Application Service
+  - Clean architecture: Use Cases, Controllers
+- `infra`: Repository
+  - Layered architecture: Infrastructure
+  - Hexagonal architecture: Adapter
+  - Onion architecture: Infrastructure
+  - Clean architecture: Gateways
+- `presentation`: Endpoint
+  - Layered architecture: User Interface, Presentation
+  - Hexagonal architecture: Adapter
+  - Onion architecture: User Interface
+  - Clean architecture: Presentaters
+
+## dependencies
+
+- [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
+  - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
+
+- [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
+- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
+- [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
+- [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 
 # deploy
 

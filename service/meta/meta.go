@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"runtime"
 
-	"github.com/michilu/boilerplate/service/errs"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/yaml.v2"
+
+	"github.com/michilu/boilerplate/service/errs"
 )
 
 const (

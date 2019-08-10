@@ -9,8 +9,6 @@ option java_package = "com.michilu.boilerplate.service.meta";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 
-// go-proto-validators: https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
-
 // Meta is ValueObject of meta infomation
 message Meta {
   string name = 1 [

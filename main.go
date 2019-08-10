@@ -4,12 +4,13 @@ import (
 	"context"
 	_ "net/http/pprof"
 
-	"github.com/michilu/boilerplate/cmd/run"
-	"github.com/michilu/boilerplate/cmd/update"
-	"github.com/michilu/boilerplate/cmd/version"
+	"github.com/spf13/cobra"
+
+	"github.com/michilu/boilerplate/presentation/cmd/run"
+	"github.com/michilu/boilerplate/presentation/cmd/update"
+	"github.com/michilu/boilerplate/presentation/cmd/version"
 	"github.com/michilu/boilerplate/service/pprof"
 	"github.com/michilu/boilerplate/service/slog"
-	"github.com/spf13/cobra"
 )
 
 const (

@@ -5,9 +5,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	cfg "github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/slog"
-	"github.com/spf13/viper"
 )
 
 func config() {
