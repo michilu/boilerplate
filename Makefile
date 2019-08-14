@@ -34,7 +34,11 @@ PROTO_DIR:=domain
 PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
 VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
-IF_GO:=$(shell find . -type d -name vendor -prune -or -type f -name "entity-*.go" -print -or -type f -name "vo-*.go" -print)
+IF_GO:=$(shell find . -type d -name vendor -prune\
+ -or -type f -name "entity-*.go" -print\
+ -or -type f -name "vo-*.go" -print\
+ -or -type f -name "if-*.go" -print\
+)
 
 GOFILE:=$(filter-out %.pb.go $(IF_GO),$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print))
 GOSRC:=$(GOFILE) $(PB_GO)
@@ -95,13 +99,8 @@ vendor: go.mod
 
 $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 	go generate ./...
-	for file in $$(find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print); do\
-  sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
-  chmod 644 $$file;\
-  done
 %_gen.go: %.go %.cel.txt
 	go generate ./...
-	chmod 644 $$(find . -type d -name vendor -prune -or -type f -name "vo-*.go" -print)
 
 .PHONY: go-get
 go-get: $(GOSRC)
@@ -210,8 +209,14 @@ clean:
 	rm -rf vendor $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
-	find . -type f -name "entity-*.go" -exec chmod -x {} \;
-	find . -type f -name "vo-*.go" -exec chmod -x {} \;
+	for file in $$(find . -type d -name vendor -prune\
+ -or -type f -name "entity-*.go" -print\
+ -or -type f -name "vo-*.go" -print\
+ -or -type f -name "if-*.go" -print\
+); do\
+  sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
+  chmod -x $$file;\
+  done
 
 .PHONY: test
 test: vendor

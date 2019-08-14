@@ -4,30 +4,30 @@ import (
 	"context"
 	"time"
 
-	"github.com/spf13/cobra"
-
+	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
 	"github.com/michilu/boilerplate/service/update"
-)
-
-const (
-	op = "usecase.run"
+	"google.golang.org/grpc/codes"
 )
 
 type (
 	topic string
 )
 
-func Run(_ *cobra.Command, _ []string) {
-	const op = op + ".run"
+func Dataflow(ctx context.Context) {
+	const op = op + ".Dataflow"
 	{
 		slog.Logger().Debug().Str("op", op).Msg("start")
 		defer slog.Logger().Debug().Str("op", op).Msg("end")
 	}
-	ctx, cancel := context.WithCancel(context.Background())
+	if ctx == nil {
+		slog.Logger().Fatal().Str("op", op).
+			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}).Msg("error")
+	}
+	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	tTerminate := terminate.GetTopicStruct(topic("terminate"))

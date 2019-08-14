@@ -24,12 +24,12 @@ Use `go get -u github.com/michilu/boilerplate`.
 ## DDD
 
 Each directory contains:
-- `domain`: Domain Service, Entity, Value Object, Repository Interface
+- `domain`: Domain Service, Domain Rule, Entity, Value Object, Repository Interface
   - Layered architecture: Domain
   - Hexagonal architecture: Domain Model
   - Onion architecture: Domain Model, Domain Service
   - Clean architecture: Entities
-- `usecase`: Use Case, Handler of Entity/Value Object
+- `application`: Application, Handler of Entity/Value Object
   - Layered architecture: Application
   - Hexagonal architecture: Application
   - Onion architecture: Application Service
@@ -44,14 +44,18 @@ Each directory contains:
   - Hexagonal architecture: Adapter
   - Onion architecture: User Interface
   - Clean architecture: Presentaters
+- `usecase`: Use Case, Requirements
+  - The context in Agile software development, not DDD.
 
 ## dependencies
 
+### protobuf
 - [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
   - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
+- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
+- [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
 
 - [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
-- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
 - [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 

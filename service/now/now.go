@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	op = "now"
+	op = "service/now"
 )
 
 var (

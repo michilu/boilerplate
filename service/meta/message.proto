@@ -3,9 +3,6 @@ syntax = "proto3";
 package michilu.boilerplate.service.meta;
 
 option go_package = "meta";
-option java_multiple_files = true;
-option java_outer_classname = "MessageProto";
-option java_package = "com.michilu.boilerplate.service.meta";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 

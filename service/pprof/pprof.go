@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	op = "pprof"
+	op = "service/pprof"
 )
 
 func Run() error {

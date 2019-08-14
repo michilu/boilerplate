@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	op = "meta"
+	op = "service/meta"
 
 	BuildFmt = "Jan 2 15:04:05 2006"
 )

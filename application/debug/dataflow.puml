@@ -1,0 +1,23 @@
+@startuml
+
+queue debug..struct[
+topic("debug")
+--
+struct{}
+]
+
+queue debug..Clienter[
+topic("debug")
+--
+context.Context
+Clienter
+]
+
+actor cmd.run
+cmd.run->debug..struct
+debug..struct->config
+config->debug..Clienter
+debug..Clienter->connect
+connect->debug..struct
+
+@enduml

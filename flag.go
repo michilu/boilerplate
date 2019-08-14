@@ -11,8 +11,8 @@ var (
 type (
 	flags struct {
 		config   string
-		debug    bool
 		ellipsis bool
+		verbose  bool
 	}
 )
 
@@ -25,6 +25,6 @@ func initFlag() {
 	f := flag
 	defaultConfig := "config.toml"
 	rootCmd.PersistentFlags().StringVar(&f.config, "config", defaultConfig, "config file")
-	rootCmd.PersistentFlags().BoolVar(&f.debug, "debug", false, "debug mode")
+	rootCmd.PersistentFlags().BoolVar(&f.verbose, "verbose", false, "verbose")
 	rootCmd.PersistentFlags().BoolVar(&f.ellipsis, "ellipsis", false, "print ellipsis")
 }

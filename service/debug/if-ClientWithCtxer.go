@@ -1,15 +1,17 @@
 // Created by interfacer; DO NOT EDIT
 
-package client
+package debug
 
 import (
+	"context"
 	"github.com/golang/protobuf/proto"
 )
 
-// Debuger is an interface generated for "github.com/michilu/boilerplate/service/client.Debug".
-type Debuger interface {
+// ClientWithCtxer is an interface generated for "github.com/michilu/boilerplate/service/debug.ClientWithCtx".
+type ClientWithCtxer interface {
 	Descriptor() ([]byte, []int)
-	GetPort() uint32
+	GetCtx() context.Context
+	GetId() string
 	ProtoMessage()
 	Reset()
 	String() string

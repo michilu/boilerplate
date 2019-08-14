@@ -1,5 +1,5 @@
 package topic
 
 const (
-	op = "service.topic"
+	op = "service/topic"
 )

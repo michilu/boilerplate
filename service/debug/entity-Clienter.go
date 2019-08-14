@@ -1,15 +1,14 @@
 // Created by interfacer; DO NOT EDIT
 
-package client
+package debug
 
 import (
 	"github.com/golang/protobuf/proto"
 )
 
-// Clienter is an interface generated for "github.com/michilu/boilerplate/service/client.Client".
+// Clienter is an interface generated for "github.com/michilu/boilerplate/service/debug.Client".
 type Clienter interface {
 	Descriptor() ([]byte, []int)
-	GetDebug() *Debug
 	GetId() string
 	ProtoMessage()
 	Reset()

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	op = "service.semaphore"
+	op = "service/semaphore"
 )
 
 var (

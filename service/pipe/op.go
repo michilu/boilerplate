@@ -1,5 +1,5 @@
 package pipe
 
 const (
-	op = "service.pipe"
+	op = "service/pipe"
 )

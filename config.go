@@ -15,7 +15,7 @@ func config() {
 	const op = op + ".config"
 	f := flag
 
-	if f.debug {
+	if f.verbose {
 		err := slog.SetLevel("debug")
 		if err != nil {
 			const op = op + ".slog.SetLevel"
@@ -38,7 +38,7 @@ func config() {
 			"-", "_",
 			".", "_",
 		))
-		cfg.SetDefault()
+		cfg.SetDefault(defaults)
 	}
 
 	slog.Logger().Debug().Str("op", op).Str("config", viper.ConfigFileUsed()).Msg("using config file")
@@ -56,7 +56,7 @@ func debugOn() {
 	f := flag
 	e.
 		Str("op", op).
-		Bool("debug", f.debug).
+		Bool("verbose", f.verbose).
 		Str("config", fmt.Sprintf("%v", viper.AllSettings())).
 		Msg("flag")
 }

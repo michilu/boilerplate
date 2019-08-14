@@ -4,7 +4,7 @@ package terminate
 //go:generate genny -in=../pipe/pipe.go -out=gen-pipe-struct.go -pkg=$GOPACKAGE gen "Name=struct InT=struct{} OutT=struct{}"
 
 const (
-	op = "terminate"
+	op = "service/terminate"
 )
 
 // Terminate is terminator.

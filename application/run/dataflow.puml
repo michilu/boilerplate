@@ -6,16 +6,16 @@ topic("update")
 time.Time
 ]
 
-queue run..struct[
+queue update..struct[
 topic("terminate")
 --
 struct{}
 ]
 
-actor ticker.C
+actor cmd.run
 ticker.C->update..time.Time
 update..time.Time->update
-update->run..struct
-run..struct->cmd.run
+update->update..struct
+update..struct->cmd.run
 
 @enduml

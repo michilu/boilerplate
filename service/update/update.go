@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	op = "update"
+	op = "service/update"
 )
 
 // Update ...

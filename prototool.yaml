@@ -5,8 +5,11 @@ protoc:
   - vendor
 lint:
   rules:
-    remove: # https://godoc.org/github.com/uber/prototool/internal/lint#pkg-variables
+    remove: # prototool lint --list-all-linters
     - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX
+    - FILE_OPTIONS_REQUIRE_JAVA_MULTIPLE_FILES
+    - FILE_OPTIONS_REQUIRE_JAVA_OUTER_CLASSNAME
+    - FILE_OPTIONS_REQUIRE_JAVA_PACKAGE
 generate:
   go_options:
     import_path: .

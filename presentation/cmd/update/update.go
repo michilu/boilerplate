@@ -3,7 +3,7 @@ package update
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/michilu/boilerplate/usecase/update"
+	"github.com/michilu/boilerplate/application/update"
 )
 
 // New returns a new command.

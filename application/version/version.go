@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	op = "usecase.version"
+	op = "application/version"
 )
 
 func Run(cmd *cobra.Command, _ []string) {

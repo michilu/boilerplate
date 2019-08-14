@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	op = "service.cmd"
+	op = "service/cmd"
 )
 
 var (

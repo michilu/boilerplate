@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	op = "servic.errs"
+	op = "servic/errs"
 )
 
 // Error defines a standard application error.

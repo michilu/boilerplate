@@ -3,7 +3,7 @@ package run
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/michilu/boilerplate/usecase/run"
+	"github.com/michilu/boilerplate/application/run"
 )
 
 // New returns a new command.
