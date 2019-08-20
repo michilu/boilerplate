@@ -34,6 +34,7 @@ var (
 
 type Flag struct {
 	Config   string
+	Debug    bool
 	Parallel int
 	Pprof    bool
 	Verbose  bool
@@ -44,6 +45,9 @@ func initFlag(command *cobra.Command) {
 
 	f.StringVar(&flag.Config, "config", "config.toml", "config file")
 	viper.BindPFlag("service.config.file", f.Lookup("config"))
+
+	f.BoolVar(&flag.Debug, "debug", false, "debug")
+	viper.BindPFlag("service.slog.debug", f.Lookup("debug"))
 
 	f.IntVarP(&flag.Parallel, "parallel", "p", runtime.NumCPU(), "parallel")
 	viper.BindPFlag("service.semaphore.parallel", f.Lookup("parallel"))

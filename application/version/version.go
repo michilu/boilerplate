@@ -1,6 +1,8 @@
 package version
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/codes"
 
@@ -18,6 +20,7 @@ func Run(cmd *cobra.Command, _ []string) {
 	s, err := meta.Yaml()
 	if err != nil {
 		slog.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
+		return
 	}
-	cmd.Print(s)
+	fmt.Printf("%s", s)
 }

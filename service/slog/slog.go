@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -20,26 +21,26 @@ func SetTimeFieldFormat() {
 }
 
 // SetDefaultLogger sets up the zerolog.Logger
-func SetDefaultLogger(verbose bool) {
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-
-	var w io.Writer = os.Stdout
-	if !verbose {
-		SetTimeFieldFormat()
-	} else {
-		w = newConsoleWriter()
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+func SetDefaultLogger() {
+	{
+		level := zerolog.InfoLevel
+		if viper.GetBool("service.slog.verbose") {
+			level = zerolog.DebugLevel
+		}
+		zerolog.SetGlobalLevel(level)
 	}
-
-	logger = zerolog.New(zerolog.MultiLevelWriter(
-		w,
-	)).
-		Hook(&HookMeta{}).
-		With().
-		Caller().
-		Timestamp().
-		Logger()
-	log.SetOutput(logger)
+	{
+		var w io.Writer = os.Stdout
+		if viper.GetBool("service.slog.debug") {
+			w = newConsoleWriter()
+		} else {
+			SetTimeFieldFormat()
+		}
+		logger = zerolog.New(zerolog.MultiLevelWriter(
+			w,
+		)).Hook(&HookMeta{}).With().Caller().Timestamp().Logger()
+		log.SetOutput(logger)
+	}
 	log.SetFlags(0)
 }
 

@@ -28,7 +28,7 @@ func init() {
 
 func initialize(v []config.KV) {
 	const op = op + ".initialize"
-	slog.SetDefaultLogger(viper.GetBool("service.slog.verbose"))
+	slog.SetDefaultLogger()
 	semaphore.Init(viper.GetInt("service.semaphore.parallel"))
 	{
 		s := viper.GetString("service.config.file")
@@ -49,7 +49,7 @@ func initialize(v []config.KV) {
 		))
 		config.SetDefault(v)
 	}
-	LoggingConfig()
+	slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg("config")
 }
 
 func NewCommand(
