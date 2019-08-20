@@ -6,18 +6,12 @@ import (
 	"os"
 
 	"github.com/rs/zerolog"
-
-	"github.com/michilu/boilerplate/application/flag"
 )
 
 var (
 	logger          zerolog.Logger
 	timeFieldFormat string
 )
-
-func Init() {
-	SetDefaultLogger()
-}
 
 // SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 func SetTimeFieldFormat() {
@@ -26,12 +20,11 @@ func SetTimeFieldFormat() {
 }
 
 // SetDefaultLogger sets up the zerolog.Logger
-func SetDefaultLogger() {
+func SetDefaultLogger(verbose bool) {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 
 	var w io.Writer = os.Stdout
-	f := flag.Get()
-	if !f.Verbose {
+	if !verbose {
 		SetTimeFieldFormat()
 	} else {
 		w = newConsoleWriter()

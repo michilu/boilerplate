@@ -6,9 +6,9 @@ import (
 	"github.com/michilu/boilerplate/service/pprof"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/michilu/boilerplate/application/debug"
-	"github.com/michilu/boilerplate/application/flag"
 )
 
 const (
@@ -23,8 +23,7 @@ func Run(_ *cobra.Command, _ []string) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	f := flag.Get()
-	if f.Pprof {
+	if viper.GetBool("service.pprof.enable") {
 		go pprof.Profile(ctx)
 		go pprof.Run()
 	}

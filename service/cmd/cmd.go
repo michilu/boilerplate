@@ -6,11 +6,10 @@ import (
 
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/meta"
+	"github.com/michilu/boilerplate/service/semaphore"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/michilu/boilerplate/application/flag"
 )
 
 const (
@@ -29,19 +28,19 @@ func init() {
 
 func initialize(v []config.KV) {
 	const op = op + ".initialize"
-
-	slog.Init()
-
+	slog.SetDefaultLogger(viper.GetBool("service.slog.verbose"))
+	semaphore.Init(viper.GetInt("service.semaphore.parallel"))
 	{
-		f := flag.Get()
-		_, err := os.Stat(f.Config)
+		s := viper.GetString("service.config.file")
+		_, err := os.Stat(s)
 		if err == nil {
-			viper.SetConfigFile(f.Config)
+			viper.SetConfigFile(s)
 			err := viper.ReadInConfig()
 			if err != nil {
 				const op = op + ".viper.ReadInConfig"
 				slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
 			}
+			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg("config")
 		}
 		viper.AutomaticEnv()
 		viper.SetEnvKeyReplacer(strings.NewReplacer(
@@ -50,11 +49,7 @@ func initialize(v []config.KV) {
 		))
 		config.SetDefault(v)
 	}
-
-	slog.Logger().Debug().Str("op", op).Str("config", viper.ConfigFileUsed()).Msg("using config file")
-
-	debugOn()
-	setSem()
+	LoggingConfig()
 }
 
 func NewCommand(

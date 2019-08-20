@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 const (
@@ -19,10 +20,17 @@ var (
 	semaphore *sem.Semaphore
 )
 
-type (
-	// Semaphore counting resizable semaphore synchronization primitive.
-	Semaphore = sem.Semaphore
-)
+func Init(parallel int) {
+	const op = op + ".Init"
+	err := SetParallel(parallel)
+	if err != nil {
+		slog.Logger().Fatal().Str("op", op).Int("value", parallel).
+			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
+	}
+}
+
+// Semaphore counting resizable semaphore synchronization primitive.
+type Semaphore = sem.Semaphore
 
 // SetParallel sets a given number to the parallelism number.
 func SetParallel(i int) error {

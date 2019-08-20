@@ -2,12 +2,13 @@ package main
 
 import (
 	_ "net/http/pprof"
+	"runtime"
 
 	"github.com/michilu/boilerplate/service/cmd"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"github.com/michilu/boilerplate/application/flag"
 	"github.com/michilu/boilerplate/presentation/cmd/run"
 	"github.com/michilu/boilerplate/presentation/cmd/update"
 	"github.com/michilu/boilerplate/presentation/cmd/version"
@@ -19,17 +20,41 @@ const (
 
 var (
 	defaults = []config.KV{
-		{"service.pprof.addr", ":8888"},
-		{"service.update.channel", "release"},
-		{"service.update.url", "http://localhost:8000/"},
+		{K: "service.pprof.addr", V: ":8888"},
+		{K: "service.update.channel", V: "release"},
+		{K: "service.update.url", V: "http://localhost:8000/"},
 	}
 	subCmd = []func() (*cobra.Command, error){
 		run.New,
 		update.New,
 		version.New,
 	}
+	flag = &Flag{}
 )
 
+type Flag struct {
+	Config   string
+	Parallel int
+	Pprof    bool
+	Verbose  bool
+}
+
+func initFlag(command *cobra.Command) {
+	f := command.PersistentFlags()
+
+	f.StringVar(&flag.Config, "config", "config.toml", "config file")
+	viper.BindPFlag("service.config.file", f.Lookup("config"))
+
+	f.IntVarP(&flag.Parallel, "parallel", "p", runtime.NumCPU(), "parallel")
+	viper.BindPFlag("service.semaphore.parallel", f.Lookup("parallel"))
+
+	f.BoolVar(&flag.Pprof, "pprof", false, "launch pprof")
+	viper.BindPFlag("service.pprof.enable", f.Lookup("pprof"))
+
+	f.BoolVar(&flag.Verbose, "verbose", false, "verbose")
+	viper.BindPFlag("service.slog.verbose", f.Lookup("verbose"))
+}
+
 func main() {
-	cmd.NewCommand(defaults, flag.InitCmdFlag, subCmd).Execute()
+	cmd.NewCommand(defaults, initFlag, subCmd).Execute()
 }
