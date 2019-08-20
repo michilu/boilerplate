@@ -1,0 +1,53 @@
+@startuml
+
+package "debug" {
+	class "Config" as debug.Config <<V,Orchid>> {
+		-ctx: context.Context
+		-clientRepo: invalid type
+		+Config(_: struct{}): (invalid type, error)
+		+Connect(m: invalid type): (struct{}, error)
+	}
+}
+
+
+
+package "debug" {
+	interface "Configer" as debug.Configer {
+		+Config(: struct{}): (invalid type, error)
+		+Connect(: invalid type): (struct{}, error)
+	}
+}
+
+
+
+package "debug" {
+	class "clientRepository" as debug.clientRepository <<E,#FFCC00>> {
+		+Config(ctx: context.Context): (invalid type, error)
+		+Connect(m: invalid type): error
+	}
+}
+
+
+
+package "debug" {
+	class "topic" as debug.topic <<V,Orchid>>
+}
+
+
+
+package "run" {
+	class "topic" as run.topic <<V,Orchid>>
+}
+
+
+
+package "update" {
+	class "topic" as update.topic <<V,Orchid>>
+}
+
+
+
+	debug.Config -up-|> debug.Configer
+
+
+@enduml

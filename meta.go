@@ -22,8 +22,8 @@ var (
 	tag     string
 )
 
-func initMeta() {
-	const op = op + ".initMeta"
+func init() {
+	const op = op + ".init"
 	m := &meta.Meta{
 		Name:    name,
 		Semver:  semver,

@@ -5,7 +5,6 @@ import (
 	"runtime"
 
 	valid "github.com/asaskevich/govalidator"
-
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 )

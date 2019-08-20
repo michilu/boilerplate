@@ -10,8 +10,7 @@ import (
 )
 
 func newConsoleWriter() io.Writer {
-	return &consoleWriter{
-		zerolog.ConsoleWriter{
-			Out: os.Stdout,
-		}}
+	return zerolog.ConsoleWriter{
+		Out: os.Stdout,
+	}
 }

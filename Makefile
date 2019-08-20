@@ -20,8 +20,6 @@ LDFLAGS:=-ldflags=" \
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
 
-PUML:=$(wildcard *.puml)
-
 GO:=go
 GOM:=GO111MODULE=on $(GO)
 GOPATH:=$(shell $(GO) env GOPATH)
@@ -61,11 +59,10 @@ GOLIB:=$(LIBGO:.go=.so)
 
 
 .PHONY: all
-all: $(PUML) $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
+all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 .PHONY: uml
-uml: $(PUML) $(IF_GO)
-$(PUML): $(GOSRC)
-	for i in domain service; do\
+uml:
+	for i in domain application service usecase; do\
   gouml init --file $$i --out $$i/$$i.puml;\
   done
 $(VALIDATOR_PB_GO): vendor

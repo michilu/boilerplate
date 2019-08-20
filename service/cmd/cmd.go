@@ -2,16 +2,15 @@ package cmd
 
 import (
 	"os"
-	"path/filepath"
+	"strings"
 
-	valid "github.com/asaskevich/govalidator"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"google.golang.org/grpc/codes"
-
-	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/slog"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/michilu/boilerplate/application/flag"
 )
 
 const (
@@ -19,101 +18,60 @@ const (
 )
 
 var (
-	app *cobra.Command
+	rootCmd *cobra.Command
 )
 
-// Init is initializer.
-func Init(ns []func() (*cobra.Command, error)) {
-	app = &cobra.Command{
-		Use:   meta.Name(),
-		Short: "A command-line tool that copies the Go files from the bazel-bin directory to anywhere.",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			return preRunE(cmd, args, flag)
-		},
+func init() {
+	rootCmd = &cobra.Command{
+		Use: meta.Name(),
 	}
-	initFlag()
-	cobra.OnInitialize(initialize)
-	addCommand(ns)
 }
 
-func preRunE(cmd *cobra.Command, args []string, f *flags) error {
-	const op = op + ".preRunE"
-	ok, err := valid.ValidateStruct(&opt{f.config})
-	if err != nil {
-		return &errs.Error{Op: op, Err: err}
-	}
-	if !ok {
-		return &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "invalid arguments"}
-	}
-	return nil
-}
-
-func initialize() {
+func initialize(v []config.KV) {
 	const op = op + ".initialize"
-	f := flag
 
-	if f.debug {
-		err := slog.SetLevel("debug")
-		if err != nil {
-			slog.Logger().Fatal().
-				Str("op", op).
-				Err(&errs.Error{Op: op, Err: err}).
-				Msg("error")
+	slog.Init()
+
+	{
+		f := flag.Get()
+		_, err := os.Stat(f.Config)
+		if err == nil {
+			viper.SetConfigFile(f.Config)
+			err := viper.ReadInConfig()
+			if err != nil {
+				const op = op + ".viper.ReadInConfig"
+				slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+			}
 		}
+		viper.AutomaticEnv()
+		viper.SetEnvKeyReplacer(strings.NewReplacer(
+			"-", "_",
+			".", "_",
+		))
+		config.SetDefault(v)
 	}
 
-	switch f.config {
-	case "":
-		viper.AddConfigPath(filepath.Dir(os.Args[0]))
-		viper.SetConfigName(meta.Name())
-	default:
-		viper.SetConfigFile(f.config)
-	}
+	slog.Logger().Debug().Str("op", op).Str("config", viper.ConfigFileUsed()).Msg("using config file")
 
-	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
-	switch err.(type) {
-	case nil,
-		viper.ConfigFileNotFoundError:
-	default:
-		slog.Logger().Fatal().
-			Str("op", op).
-			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
-	}
-
-	slog.Logger().Debug().
-		Str("op", op).
-		Str("config", viper.ConfigFileUsed()).
-		Msg("using config file")
-
-	debugFlag()
+	debugOn()
 	setSem()
 }
 
-func addCommand(ns []func() (*cobra.Command, error)) {
-	const op = op + ".addCommand"
-	for _, n := range ns {
-		c, err := n()
+func NewCommand(
+	defaults []config.KV,
+	initCmdFlag func(*cobra.Command),
+	subCmd []func() (*cobra.Command, error),
+) *cobra.Command {
+	const op = op + ".NewCommand"
+	initCmdFlag(rootCmd)
+	cobra.OnInitialize(func() { initialize(defaults) })
+	for _, f := range subCmd {
+		const op = op + ".subCmd"
+		c, err := f()
 		if err != nil {
-			slog.Logger().Fatal().
-				Str("op", op).
-				Err(&errs.Error{Op: op, Err: err}).
-				Msg("error")
+			slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
 		}
-		app.AddCommand(c)
+		rootCmd.AddCommand(c)
 	}
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the app.
-func Execute() {
-	const op = op + ".Execute"
-	err := app.Execute()
-	if err != nil {
-		slog.Logger().Fatal().
-			Str("op", op).
-			Err(err).
-			Msg("error")
-	}
+	return rootCmd
 }

@@ -3,10 +3,12 @@ package run
 import (
 	"context"
 
+	"github.com/michilu/boilerplate/service/pprof"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 
 	"github.com/michilu/boilerplate/application/debug"
+	"github.com/michilu/boilerplate/application/flag"
 )
 
 const (
@@ -21,6 +23,11 @@ func Run(_ *cobra.Command, _ []string) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+	f := flag.Get()
+	if f.Pprof {
+		go pprof.Profile(ctx)
+		go pprof.Run()
+	}
 	go debug.Dataflow(ctx)
 	Dataflow(ctx)
 }

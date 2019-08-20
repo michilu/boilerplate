@@ -1,15 +1,23 @@
 package slog
 
 import (
+	"io"
 	"log"
+	"os"
 
 	"github.com/rs/zerolog"
+
+	"github.com/michilu/boilerplate/application/flag"
 )
 
 var (
 	logger          zerolog.Logger
 	timeFieldFormat string
 )
+
+func Init() {
+	SetDefaultLogger()
+}
 
 // SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 func SetTimeFieldFormat() {
@@ -20,8 +28,18 @@ func SetTimeFieldFormat() {
 // SetDefaultLogger sets up the zerolog.Logger
 func SetDefaultLogger() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+
+	var w io.Writer = os.Stdout
+	f := flag.Get()
+	if !f.Verbose {
+		SetTimeFieldFormat()
+	} else {
+		w = newConsoleWriter()
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
 	logger = zerolog.New(zerolog.MultiLevelWriter(
-		newConsoleWriter(),
+		w,
 	)).
 		Hook(&HookMeta{}).
 		With().
@@ -30,16 +48,6 @@ func SetDefaultLogger() {
 		Logger()
 	log.SetOutput(logger)
 	log.SetFlags(0)
-}
-
-// SetLevel sets the global override for log level.
-func SetLevel(s string) error {
-	l, err := zerolog.ParseLevel(s)
-	if err != nil {
-		return err
-	}
-	zerolog.SetGlobalLevel(l)
-	return nil
 }
 
 // Logger returns the root logger.

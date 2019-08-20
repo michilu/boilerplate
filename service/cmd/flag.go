@@ -2,64 +2,41 @@ package cmd
 
 import (
 	"fmt"
-	"runtime"
 
 	"github.com/michilu/boilerplate/service/errs"
-	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/semaphore"
 	"github.com/michilu/boilerplate/service/slog"
+	"github.com/spf13/viper"
+
+	"github.com/michilu/boilerplate/application/flag"
 )
 
-var (
-	flag *flags
-)
-
-type (
-	flags struct {
-		config   string
-		debug    bool
-		parallel int
-	}
-
-	opt struct {
-		C string `valid:"fileexists"`
-	}
-)
-
-func initFlag() {
-	flag = &flags{}
-	f := flag
-	app.PersistentFlags().StringVar(&f.config, "config", "", fmt.Sprintf("config file (default is %s.yaml)", meta.Name()))
-	app.PersistentFlags().BoolVar(&f.debug, "debug", false, "debug mode")
-	app.PersistentFlags().IntVarP(&f.parallel, "parallel", "p", runtime.NumCPU(), "parallel")
+type opt struct {
+	C string `valid:"fileexists"`
 }
 
-func debugFlag() {
-	const op = op + ".debugFlag"
+func debugOn() {
+	const op = op + ".debugOn"
+
+	f := flag.Get()
 
 	e := slog.Logger().Debug()
 	if !e.Enabled() {
 		return
 	}
 
-	f := flag
 	e.
 		Str("op", op).
-		Str("config", f.config).
-		Bool("debug", f.debug).
-		Int("parallel", f.parallel).
-		Msg("flag")
+		Object("flag", f).
+		Str("config", fmt.Sprintf("%v", viper.AllSettings())).
+		Msg("config")
 }
 
 func setSem() {
 	const op = op + ".setSem"
-
-	err := semaphore.SetParallel(flag.parallel)
+	f := flag.Get()
+	err := semaphore.SetParallel(f.Parallel)
 	if err != nil {
-		slog.Logger().Fatal().
-			Str("op", op).
-			Int("flag.parallel", flag.parallel).
-			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
+		slog.Logger().Fatal().Str("op", op).Int("flag.parallel", f.Parallel).Err(&errs.Error{Op: op, Err: err}).Msg("error")
 	}
 }

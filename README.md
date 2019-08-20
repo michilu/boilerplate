@@ -29,7 +29,7 @@ Each directory contains:
   - Hexagonal architecture: Domain Model
   - Onion architecture: Domain Model, Domain Service
   - Clean architecture: Entities
-- `application`: Application, Handler of Entity/Value Object
+- `application`: Application, Handler of Entity/Value Object, Dataflow
   - Layered architecture: Application
   - Hexagonal architecture: Application
   - Onion architecture: Application Service
