@@ -1,5 +1,8 @@
+SHELL:=/usr/bin/env bash
+
+BUILD:=$(shell date -u +%s)
 PROJECT_SINCE:=$(shell git log --pretty=format:"%ad" --date=unix|tail -1)
-AUTO_COUNT_SINCE:=$(shell echo $$(((`date -u +%s`-$(PROJECT_SINCE))/(24*60*60))))
+AUTO_COUNT_SINCE:=$(shell echo $$((($(BUILD)-$(PROJECT_SINCE))/(24*60*60))))
 AUTO_COUNT_YEAR:=$(shell echo $$(($(AUTO_COUNT_SINCE)/365)))
 AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
 AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
@@ -8,7 +11,6 @@ SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG
 TAG:=$(shell git describe --tags)
 HASH:=$(shell git describe --always --dirty=+)
 BRANCH:=$(shell git symbolic-ref --short HEAD)
-BUILD:=$(shell LANG=en date -u +'%b %d %T %Y')
 LDFLAGS:=-ldflags=" \
 -X \"main.branch=$(BRANCH)\" \
 -X \"main.build=$(BUILD)\" \
@@ -227,6 +229,15 @@ pprof:
 bench:
 	$(GO) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
+
+.PHONY: coverage
+coverage: vendor
+	@for pkg in $(GOLIST); do\
+		echo start test for $$pkg;\
+		$(GOM) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=atomic;\
+	done
+	rm -f coverage.txt && find . -type f -name coverprofile -exec tail -n+2 {} >>coverage.txt \; -delete
+	$(GOM) tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: lint
 lint: vendor

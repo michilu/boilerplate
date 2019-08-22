@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io"
 	"os"
 	"strings"
 
@@ -28,7 +29,6 @@ func init() {
 
 func initialize(v []config.KV) {
 	const op = op + ".initialize"
-	slog.SetDefaultLogger()
 	semaphore.Init(viper.GetInt("service.semaphore.parallel"))
 	{
 		s := viper.GetString("service.config.file")
@@ -53,13 +53,17 @@ func initialize(v []config.KV) {
 }
 
 func NewCommand(
+	logger []io.Writer,
 	defaults []config.KV,
 	initCmdFlag func(*cobra.Command),
 	subCmd []func() (*cobra.Command, error),
 ) *cobra.Command {
 	const op = op + ".NewCommand"
 	initCmdFlag(rootCmd)
-	cobra.OnInitialize(func() { initialize(defaults) })
+	cobra.OnInitialize(func() {
+		slog.SetDefaultLogger(logger)
+		initialize(defaults)
+	})
 	for _, f := range subCmd {
 		const op = op + ".subCmd"
 		c, err := f()

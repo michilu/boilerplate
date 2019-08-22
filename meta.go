@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/michilu/boilerplate/service/meta"
@@ -31,9 +32,9 @@ func init() {
 		Serial:  serial,
 	}
 	if build != "" {
-		t, err := time.Parse(meta.BuildFmt, build)
+		i, err := strconv.ParseInt(build, 10, 64)
 		if err == nil {
-			m.Build = t
+			m.Build = time.Unix(i, 0).In(time.UTC)
 		}
 	}
 	if branch != "" || hash != "" || tag != "" {

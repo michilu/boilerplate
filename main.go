@@ -60,5 +60,5 @@ func initFlag(command *cobra.Command) {
 }
 
 func main() {
-	cmd.NewCommand(defaults, initFlag, subCmd).Execute()
+	cmd.NewCommand(nil, defaults, initFlag, subCmd).Execute()
 }
