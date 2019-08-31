@@ -30,8 +30,8 @@ func Dataflow(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	tTerminate := terminate.GetTopicStruct(topic("terminate"))
-	tUpdate := now.GetTopicTimeTime(topic("update"))
+	tUpdate := now.GetTopicContextContext(topic("update"))
+	tTerminate := terminate.GetTopicContextContext(topic("terminate"))
 
 	{
 		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, ErrorHandler)
@@ -39,20 +39,18 @@ func Dataflow(ctx context.Context) {
 		tUpdate.Subscribe(iCh)
 	}
 	{
-		ticker := time.NewTicker(3 * time.Second)
-		defer ticker.Stop()
-		tUpdate.Publish(ctx, ticker.C)
+		oCh := now.ContextTicker(ctx, 3*time.Second)
+		tUpdate.Publish(ctx, oCh)
 	}
 	{
-		iCh, oCh := terminate.GetPipeStruct(ctx, terminate.Terminate, pipe.DefaultErrorHandler)
+		iCh, oCh := terminate.GetPipeTerminate(ctx, terminate.Terminate, pipe.FatalErrorHandler)
 		tTerminate.Subscribe(iCh)
 		<-oCh
 	}
 }
 
 // ErrorHandler ...
-func ErrorHandler(err error) bool {
-	const op = op + ".ErrorHandler"
-	slog.Logger().Error().Str("op", op).Err(err).Msg("error")
-	return false
+func ErrorHandler(ctx context.Context, err error) bool {
+	defer time.Sleep(5 * time.Minute)
+	return pipe.ErrorHandler(ctx, err)
 }

@@ -12,14 +12,18 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// GetPipeConnect returns new input(chan<- DebugClientWithCtxer)/output(<-chan Struct) channels that embedded the given 'func(DebugClientWithCtxer) Struct'.
+type ConnectGetContexter interface {
+	GetContext() context.Context
+}
+
+// GetPipeConnect returns new input(chan<- DebugClientWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(DebugClientWithContexter) ContextContext'.
 func GetPipeConnect(
 	ctx context.Context,
-	fn func(debug.ClientWithCtxer) (struct{}, error),
-	fnErr func(error) bool,
+	fn func(debug.ClientWithContexter) (context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- debug.ClientWithCtxer,
-	<-chan struct{},
+	chan<- debug.ClientWithContexter,
+	<-chan context.Context,
 ) {
 	const op = op + ".GetPipeConnect"
 
@@ -33,8 +37,8 @@ func GetPipeConnect(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan debug.ClientWithCtxer)
-	outCh := make(chan struct{})
+	inCh := make(chan debug.ClientWithContexter)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -42,7 +46,17 @@ func GetPipeConnect(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(ConnectGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -51,7 +65,7 @@ func GetPipeConnect(
 			case <-ctx.Done():
 				err := ctx.Err()
 				if err != nil {
-					fnErr(&errs.Error{Op: op, Err: err})
+					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return
 			case outCh <- o:
@@ -63,14 +77,14 @@ func GetPipeConnect(
 	return inCh, outCh
 }
 
-// GetFanoutConnect returns new input(chan<- DebugClientWithCtxer)/output(<-chan Struct) channels that embedded the given 'func(DebugClientWithCtxer) Struct'.
+// GetFanoutConnect returns new input(chan<- DebugClientWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(DebugClientWithContexter) ContextContext'.
 func GetFanoutConnect(
 	ctx context.Context,
-	fn func(debug.ClientWithCtxer) ([]struct{}, error),
-	fnErr func(error) bool,
+	fn func(debug.ClientWithContexter) ([]context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- debug.ClientWithCtxer,
-	<-chan struct{},
+	chan<- debug.ClientWithContexter,
+	<-chan context.Context,
 ) {
 	const op = op + ".GetFanoutConnect"
 
@@ -84,8 +98,8 @@ func GetFanoutConnect(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan debug.ClientWithCtxer)
-	outCh := make(chan struct{})
+	inCh := make(chan debug.ClientWithContexter)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -93,7 +107,17 @@ func GetFanoutConnect(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(ConnectGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -103,7 +127,7 @@ func GetFanoutConnect(
 				case <-ctx.Done():
 					err := ctx.Err()
 					if err != nil {
-						fnErr(&errs.Error{Op: op, Err: err})
+						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
 				case outCh <- v:

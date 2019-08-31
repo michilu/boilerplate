@@ -1,5 +1,15 @@
+[google.application]
+credentials=''
+[gcp.project]
+id=''
+[gcp.logging]
+id=''
 [service.pprof]
 addr=':8888'
 [service.update]
 channel='release'
 url='https://michilu.github.io/boilerplate/'
+[application.debug.client]
+id=''
+[application.debug.open-debug-port]
+command=''

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -53,16 +54,29 @@ func initialize(v []config.KV) {
 }
 
 func NewCommand(
-	logger []io.Writer,
+	logger func() ([]io.Writer, func() error, error),
 	defaults []config.KV,
 	initCmdFlag func(*cobra.Command),
 	subCmd []func() (*cobra.Command, error),
-) *cobra.Command {
+) (*cobra.Command, *func() error) {
 	const op = op + ".NewCommand"
+	var closer func() error
 	initCmdFlag(rootCmd)
 	cobra.OnInitialize(func() {
-		slog.SetDefaultLogger(logger)
+		const op = op + ".cobra.OnInitialize"
 		initialize(defaults)
+		var (
+			w   []io.Writer
+			err error
+		)
+		if logger != nil {
+			w, closer, err = logger()
+			if err != nil {
+				const op = op + ".logger"
+				os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
+			}
+		}
+		slog.SetDefaultLogger(w)
 	})
 	for _, f := range subCmd {
 		const op = op + ".subCmd"
@@ -72,5 +86,5 @@ func NewCommand(
 		}
 		rootCmd.AddCommand(c)
 	}
-	return rootCmd
+	return rootCmd, &closer
 }

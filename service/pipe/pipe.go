@@ -15,11 +15,15 @@ type InT generic.Type
 // OutT is a placeholder for the genny.
 type OutT generic.Type
 
+type NameGetContexter interface {
+	GetContext() context.Context
+}
+
 // GetPipeName returns new input(chan<- InT)/output(<-chan OutT) channels that embedded the given 'func(InT) OutT'.
 func GetPipeName(
 	ctx context.Context,
 	fn func(InT) (OutT, error),
-	fnErr func(error) bool,
+	fnErr func(context.Context, error) bool,
 ) (
 	chan<- InT,
 	<-chan OutT,
@@ -45,7 +49,17 @@ func GetPipeName(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(NameGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -54,7 +68,7 @@ func GetPipeName(
 			case <-ctx.Done():
 				err := ctx.Err()
 				if err != nil {
-					fnErr(&errs.Error{Op: op, Err: err})
+					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return
 			case outCh <- o:
@@ -70,7 +84,7 @@ func GetPipeName(
 func GetFanoutName(
 	ctx context.Context,
 	fn func(InT) ([]OutT, error),
-	fnErr func(error) bool,
+	fnErr func(context.Context, error) bool,
 ) (
 	chan<- InT,
 	<-chan OutT,
@@ -96,7 +110,17 @@ func GetFanoutName(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(NameGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -106,7 +130,7 @@ func GetFanoutName(
 				case <-ctx.Done():
 					err := ctx.Err()
 					if err != nil {
-						fnErr(&errs.Error{Op: op, Err: err})
+						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
 				case outCh <- v:

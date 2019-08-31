@@ -8,7 +8,7 @@ AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
 AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
 CODEBASE_NUMBER:=0
 SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG)
-TAG:=$(shell git describe --tags)
+TAG:=$(shell git describe --tags || echo NO-TAG)
 HASH:=$(shell git describe --always --dirty=+)
 BRANCH:=$(shell git symbolic-ref --short HEAD)
 LDFLAGS:=-ldflags=" \
@@ -65,7 +65,7 @@ all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 .PHONY: uml
 uml:
 	for i in domain application service usecase; do\
-  gouml init --file $$i --out $$i/$$i.puml;\
+  [ -d $$i ] && gouml init --file $$i --out $$i/$$i.puml || echo no exists $$i;\
   done
 $(VALIDATOR_PB_GO): vendor
 .PHONY: proto

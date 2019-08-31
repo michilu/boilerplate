@@ -7,10 +7,10 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-// ClientWithCtxer is an interface generated for "github.com/michilu/boilerplate/service/debug.ClientWithCtx".
-type ClientWithCtxer interface {
+// ClientWithContexter is an interface generated for "github.com/michilu/boilerplate/service/debug.ClientWithContext".
+type ClientWithContexter interface {
 	Descriptor() ([]byte, []int)
-	GetCtx() context.Context
+	GetContext() context.Context
 	GetId() string
 	ProtoMessage()
 	Reset()

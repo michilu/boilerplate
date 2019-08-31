@@ -1,23 +1,22 @@
 @startuml
 
-queue debug..struct[
+queue debug..ctx[
 topic("debug")
 --
-struct{}
+context.Context
 ]
 
 queue debug..Clienter[
 topic("debug")
 --
-context.Context
-Clienter
+ClientWithContexter
 ]
 
 actor cmd.run
-cmd.run->debug..struct
-debug..struct->config
+cmd.run->debug..ctx
+debug..ctx->config
 config->debug..Clienter
 debug..Clienter->connect
-connect->debug..struct
+connect->debug..ctx
 
 @enduml

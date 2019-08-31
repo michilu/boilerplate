@@ -11,16 +11,20 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// GetPipeStruct returns new input(chan<- Struct)/output(<-chan Struct) channels that embedded the given 'func(Struct) Struct'.
-func GetPipeStruct(
+type TerminateGetContexter interface {
+	GetContext() context.Context
+}
+
+// GetPipeTerminate returns new input(chan<- ContextContext)/output(<-chan ContextContext) channels that embedded the given 'func(ContextContext) ContextContext'.
+func GetPipeTerminate(
 	ctx context.Context,
-	fn func(struct{}) (struct{}, error),
-	fnErr func(error) bool,
+	fn func(context.Context) (context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- struct{},
-	<-chan struct{},
+	chan<- context.Context,
+	<-chan context.Context,
 ) {
-	const op = op + ".GetPipeStruct"
+	const op = op + ".GetPipeTerminate"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
@@ -32,8 +36,8 @@ func GetPipeStruct(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan struct{})
-	outCh := make(chan struct{})
+	inCh := make(chan context.Context)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -41,7 +45,17 @@ func GetPipeStruct(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(TerminateGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -50,7 +64,7 @@ func GetPipeStruct(
 			case <-ctx.Done():
 				err := ctx.Err()
 				if err != nil {
-					fnErr(&errs.Error{Op: op, Err: err})
+					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return
 			case outCh <- o:
@@ -62,16 +76,16 @@ func GetPipeStruct(
 	return inCh, outCh
 }
 
-// GetFanoutStruct returns new input(chan<- Struct)/output(<-chan Struct) channels that embedded the given 'func(Struct) Struct'.
-func GetFanoutStruct(
+// GetFanoutTerminate returns new input(chan<- ContextContext)/output(<-chan ContextContext) channels that embedded the given 'func(ContextContext) ContextContext'.
+func GetFanoutTerminate(
 	ctx context.Context,
-	fn func(struct{}) ([]struct{}, error),
-	fnErr func(error) bool,
+	fn func(context.Context) ([]context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- struct{},
-	<-chan struct{},
+	chan<- context.Context,
+	<-chan context.Context,
 ) {
-	const op = op + ".GetFanoutStruct"
+	const op = op + ".GetFanoutTerminate"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
@@ -83,8 +97,8 @@ func GetFanoutStruct(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan struct{})
-	outCh := make(chan struct{})
+	inCh := make(chan context.Context)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -92,7 +106,17 @@ func GetFanoutStruct(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(TerminateGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -102,7 +126,7 @@ func GetFanoutStruct(
 				case <-ctx.Done():
 					err := ctx.Err()
 					if err != nil {
-						fnErr(&errs.Error{Op: op, Err: err})
+						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
 				case outCh <- v:

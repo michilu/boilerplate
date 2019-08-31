@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/michilu/boilerplate/service/meta"
-	"github.com/michilu/boilerplate/service/slog"
 )
 
 const (
@@ -47,6 +48,6 @@ func init() {
 	err := meta.Set(m)
 	if err != nil {
 		const op = op + ".meta.Set"
-		slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+		os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
 	}
 }

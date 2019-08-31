@@ -6,20 +6,23 @@ package update
 
 import (
 	"context"
-	"time"
 
 	"github.com/michilu/boilerplate/service/errs"
 	"google.golang.org/grpc/codes"
 )
 
-// GetPipeUpdate returns new input(chan<- TimeTime)/output(<-chan Struct) channels that embedded the given 'func(TimeTime) Struct'.
+type UpdateGetContexter interface {
+	GetContext() context.Context
+}
+
+// GetPipeUpdate returns new input(chan<- ContextContext)/output(<-chan ContextContext) channels that embedded the given 'func(ContextContext) ContextContext'.
 func GetPipeUpdate(
 	ctx context.Context,
-	fn func(time.Time) (struct{}, error),
-	fnErr func(error) bool,
+	fn func(context.Context) (context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- time.Time,
-	<-chan struct{},
+	chan<- context.Context,
+	<-chan context.Context,
 ) {
 	const op = op + ".GetPipeUpdate"
 
@@ -33,8 +36,8 @@ func GetPipeUpdate(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan time.Time)
-	outCh := make(chan struct{})
+	inCh := make(chan context.Context)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -42,7 +45,17 @@ func GetPipeUpdate(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(UpdateGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -51,7 +64,7 @@ func GetPipeUpdate(
 			case <-ctx.Done():
 				err := ctx.Err()
 				if err != nil {
-					fnErr(&errs.Error{Op: op, Err: err})
+					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return
 			case outCh <- o:
@@ -63,14 +76,14 @@ func GetPipeUpdate(
 	return inCh, outCh
 }
 
-// GetFanoutUpdate returns new input(chan<- TimeTime)/output(<-chan Struct) channels that embedded the given 'func(TimeTime) Struct'.
+// GetFanoutUpdate returns new input(chan<- ContextContext)/output(<-chan ContextContext) channels that embedded the given 'func(ContextContext) ContextContext'.
 func GetFanoutUpdate(
 	ctx context.Context,
-	fn func(time.Time) ([]struct{}, error),
-	fnErr func(error) bool,
+	fn func(context.Context) ([]context.Context, error),
+	fnErr func(context.Context, error) bool,
 ) (
-	chan<- time.Time,
-	<-chan struct{},
+	chan<- context.Context,
+	<-chan context.Context,
 ) {
 	const op = op + ".GetFanoutUpdate"
 
@@ -84,8 +97,8 @@ func GetFanoutUpdate(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan time.Time)
-	outCh := make(chan struct{})
+	inCh := make(chan context.Context)
+	outCh := make(chan context.Context)
 
 	go func() {
 		const op = op + "#go"
@@ -93,7 +106,17 @@ func GetFanoutUpdate(
 		for i := range inCh {
 			o, err := fn(i)
 			if err != nil {
-				if fnErr(&errs.Error{Op: op, Err: err}) {
+				var vctx context.Context
+				vctx, ok := i.(context.Context)
+				if !ok {
+					v, ok := i.(UpdateGetContexter)
+					if ok {
+						vctx = v.GetContext()
+					} else {
+						vctx = context.Background()
+					}
+				}
+				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
 					return
 				}
 				continue
@@ -103,7 +126,7 @@ func GetFanoutUpdate(
 				case <-ctx.Done():
 					err := ctx.Err()
 					if err != nil {
-						fnErr(&errs.Error{Op: op, Err: err})
+						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
 				case outCh <- v:

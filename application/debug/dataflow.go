@@ -2,12 +2,14 @@ package debug
 
 import (
 	"context"
+	"time"
 
 	"github.com/michilu/boilerplate/service/debug"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
@@ -29,22 +31,24 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 
 	tDebug := topic("debug")
-	tStruct := terminate.GetTopicStruct(tDebug)
-	tClient := debug.GetTopicClientWithCtxer(tDebug)
+	tCtx := terminate.GetTopicContextContext(tDebug)
+	tClient := debug.GetTopicClientWithContexter(tDebug)
 
 	config := NewConfiger(ctx, NewClientRepository())
 	{
-		iCh, oCh := GetPipeConfig(ctx, config.Config, pipe.DefaultErrorHandler)
-		tStruct.Subscribe(iCh)
+		iCh, oCh := GetPipeConfig(ctx, config.Config, pipe.FatalErrorHandler)
+		tCtx.Subscribe(iCh)
 		tClient.Publish(ctx, oCh)
 	}
 	{
-		iCh, oCh := GetPipeConnect(ctx, config.Connect, pipe.DefaultErrorHandler)
+		iCh, oCh := GetPipeConnect(ctx, config.Connect, ErrorHandler)
 		tClient.Subscribe(iCh)
-		tStruct.Publish(ctx, oCh)
+		tCtx.Publish(ctx, oCh)
 	}
 
-	tStruct.Publisher(ctx) <- struct{}{}
+	m := context.Background()
+	m, _ = trace.StartSpan(m, op)
+	tCtx.Publisher(ctx) <- m
 	<-ctx.Done()
 }
 
@@ -64,36 +68,62 @@ type Config struct {
 	clientRepo debug.ClientRepository
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Config.go -pkg=$GOPACKAGE gen "Name=config InT=struct{} OutT=debug.ClientWithCtxer"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Config.go -pkg=$GOPACKAGE gen "Name=config InT=context.Context OutT=debug.ClientWithContexter"
 
-func (p *Config) Config(_ struct{}) (debug.ClientWithCtxer, error) {
+func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) {
 	const op = op + ".Config.Call"
-	{
-		slog.Logger().Debug().Str("op", op).Msg("start")
-		defer slog.Logger().Debug().Str("op", op).Msg("end")
+	if ctx == nil {
+		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 	}
-	v0, err := p.clientRepo.Config(p.ctx)
+	ctx, s := trace.StartSpan(ctx, op)
+	defer s.End()
+	a := make([]trace.Attribute, 0)
+	defer s.AddAttributes(a...)
+
+	v0, err := p.clientRepo.Config(ctx)
 	if err != nil {
+		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 		return nil, err
 	}
+	a = append(a, trace.StringAttribute("v0", v0.String()))
 	return v0, nil
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Connect.go -pkg=$GOPACKAGE gen "Name=connect InT=debug.ClientWithCtxer OutT=struct{}"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Connect.go -pkg=$GOPACKAGE gen "Name=connect InT=debug.ClientWithContexter OutT=context.Context"
 
-func (p *Config) Connect(m debug.ClientWithCtxer) (struct{}, error) {
-	const op = op + ".Connect"
-	{
-		slog.Logger().Debug().Str("op", op).Msg("start")
-		defer slog.Logger().Debug().Str("op", op).Msg("end")
+func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
+	const op = op + "Config.Connect"
+	if m == nil {
+		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
 	}
+	ctx := m.GetContext()
+	if ctx == nil {
+		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+	}
+	ctx, s := trace.StartSpan(ctx, op)
+	defer s.End()
+	a := make([]trace.Attribute, 0)
+	defer s.AddAttributes(a...)
+
+	a = append(a, trace.StringAttribute("m", m.String()))
 	err := m.Validate()
 	if err != nil {
-		return struct{}{}, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		return nil, err
 	}
 	err = p.clientRepo.Connect(m)
+	ctx = context.Background()
 	if err != nil {
-		return struct{}{}, err
+		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		return ctx, err
 	}
-	return struct{}{}, nil
+	ctx, _ = trace.StartSpan(ctx, op)
+	return ctx, nil
+}
+
+// ErrorHandler ...
+func ErrorHandler(ctx context.Context, err error) bool {
+	defer time.Sleep(5 * time.Minute)
+	return pipe.ErrorHandler(ctx, err)
 }

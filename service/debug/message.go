@@ -15,20 +15,20 @@ import (
 //go:generate interfacer -for github.com/michilu/boilerplate/service/debug.Client -as debug.Clienter -o entity-Clienter.go
 //go:generate genny -in=../../service/topic/topic.go -out=gen-topic-Clienter.go -pkg=$GOPACKAGE gen "ChanT=Clienter"
 
-//go:generate interfacer -for github.com/michilu/boilerplate/service/debug.ClientWithCtx -as debug.ClientWithCtxer -o if-ClientWithCtxer.go
-//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-ClientWithCtxer.go -pkg=$GOPACKAGE gen "ChanT=ClientWithCtxer"
+//go:generate interfacer -for github.com/michilu/boilerplate/service/debug.ClientWithContext -as debug.ClientWithContexter -o if-ClientWithContexter.go
+//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-ClientWithContexter.go -pkg=$GOPACKAGE gen "ChanT=ClientWithContexter"
 
-// ClientWithCtx is message
-type ClientWithCtx struct {
-	Ctx context.Context
+// ClientWithContext is message
+type ClientWithContext struct {
+	Context context.Context
 	Client
 }
 
-func (p *ClientWithCtx) GetCtx() context.Context { return p.Ctx }
-func (p *ClientWithCtx) Validate() error {
-	const op = op + ".ClientWithCtx.Validate"
-	if p.Ctx == nil {
-		return &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'Ctx' is nil"}
+func (p *ClientWithContext) GetContext() context.Context { return p.Context }
+func (p *ClientWithContext) Validate() error {
+	const op = op + ".ClientWithContext.Validate"
+	if p.Context == nil {
+		return &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'Context' is nil"}
 	}
 	err := p.Client.Validate()
 	if err != nil {

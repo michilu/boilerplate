@@ -9,10 +9,19 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	op = "service/slog"
+)
+
 var (
 	logger          zerolog.Logger
 	timeFieldFormat string
+	tracer          Tracer
 )
+
+type Tracer interface {
+	GetTraceIDTemplate() string
+}
 
 // SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 func SetTimeFieldFormat() {
@@ -50,4 +59,15 @@ func SetDefaultLogger(writer []io.Writer) {
 // Logger returns the root logger.
 func Logger() *zerolog.Logger {
 	return &logger
+}
+
+func SetDefaultTracer(v Tracer) {
+	tracer = v
+}
+
+func GetTraceIDTemplate() string {
+	if tracer == nil {
+		return ""
+	}
+	return tracer.GetTraceIDTemplate()
 }

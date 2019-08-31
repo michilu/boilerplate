@@ -3,9 +3,17 @@
 package "debug" {
 	class "Config" as debug.Config <<V,Orchid>> {
 		-ctx: context.Context
-		-clientRepo: invalid type
-		+Config(_: struct{}): (invalid type, error)
-		+Connect(m: invalid type): (struct{}, error)
+		-clientRepo: debug.ClientRepository
+		+Config(ctx: context.Context): (debug.ClientWithContexter, error)
+		+Connect(m: debug.ClientWithContexter): (context.Context, error)
+	}
+}
+
+
+
+package "debug" {
+	interface "ConfigGetContexter" as debug.ConfigGetContexter {
+		+GetContext(): context.Context
 	}
 }
 
@@ -13,8 +21,16 @@ package "debug" {
 
 package "debug" {
 	interface "Configer" as debug.Configer {
-		+Config(: struct{}): (invalid type, error)
-		+Connect(: invalid type): (struct{}, error)
+		+Config(: context.Context): (debug.ClientWithContexter, error)
+		+Connect(: debug.ClientWithContexter): (context.Context, error)
+	}
+}
+
+
+
+package "debug" {
+	interface "ConnectGetContexter" as debug.ConnectGetContexter {
+		+GetContext(): context.Context
 	}
 }
 
@@ -22,8 +38,8 @@ package "debug" {
 
 package "debug" {
 	class "clientRepository" as debug.clientRepository <<E,#FFCC00>> {
-		+Config(ctx: context.Context): (invalid type, error)
-		+Connect(m: invalid type): error
+		+Config(ctx: context.Context): (debug.ClientWithContexter, error)
+		+Connect(m: debug.ClientWithContexter): error
 	}
 }
 
@@ -31,6 +47,15 @@ package "debug" {
 
 package "debug" {
 	class "topic" as debug.topic <<V,Orchid>>
+}
+
+
+
+package "exporter" {
+	class "GlobalMonitoredResource" as exporter.GlobalMonitoredResource <<V,Orchid>> {
+		-projectID: string
+		+MonitoredResource(): (string, map[string]string)
+	}
 }
 
 
@@ -48,6 +73,8 @@ package "update" {
 
 
 	debug.Config -up-|> debug.Configer
+	debug.ConfigGetContexter -up-|> debug.ConnectGetContexter
+	debug.ConnectGetContexter -up-|> debug.ConfigGetContexter
 
 
 @enduml

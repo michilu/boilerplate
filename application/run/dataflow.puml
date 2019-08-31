@@ -1,9 +1,9 @@
 @startuml
 
-queue update..time.Time[
+queue update..context[
 topic("update")
 --
-time.Time
+context.Context
 ]
 
 queue update..struct[
@@ -13,8 +13,8 @@ struct{}
 ]
 
 actor cmd.run
-ticker.C->update..time.Time
-update..time.Time->update
+ContextTicker->update..context
+update..context->update
 update->update..struct
 update..struct->cmd.run
 

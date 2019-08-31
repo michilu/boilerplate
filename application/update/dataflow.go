@@ -9,6 +9,7 @@ import (
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
 	"github.com/michilu/boilerplate/service/update"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
@@ -30,19 +31,21 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 
 	t := topic("update")
-	tTerminate := terminate.GetTopicStruct(t)
-	tTick := now.GetTopicTimeTime(t)
+	tTick := now.GetTopicContextContext(t)
+	tTerminate := terminate.GetTopicContextContext(t)
 
 	{
-		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, pipe.DefaultErrorHandler)
+		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, pipe.FatalErrorHandler)
 		tTerminate.Publish(ctx, oCh)
 		tTick.Subscribe(iCh)
 	}
 	{
-		iCh, oCh := terminate.GetPipeStruct(ctx, terminate.Terminate, pipe.DefaultErrorHandler)
+		iCh, oCh := terminate.GetPipeTerminate(ctx, terminate.Terminate, pipe.FatalErrorHandler)
 		tTerminate.Subscribe(iCh)
 
-		tTick.Publisher(ctx) <- now.Now()
+		m := context.Background()
+		m, _ = trace.StartSpan(m, op)
+		tTick.Publisher(ctx) <- m
 		<-oCh
 	}
 }
