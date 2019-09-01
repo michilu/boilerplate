@@ -6,12 +6,12 @@ import (
 
 func (p *Error) MarshalZerologObject(e *zerolog.Event) {
 	e.
-		Str("Message", p.Message).
-		Str("Op", p.Op)
+		Str("message", p.Message).
+		Str("op", p.Op)
 	if p.Err != nil {
 		e.Err(p.Err)
 	}
 	if p.Code != nil {
-		e.Str("Code", p.Code.String())
+		e.Str("code", p.Code.String())
 	}
 }

@@ -4,12 +4,14 @@ package debug
 
 import (
 	"github.com/golang/protobuf/proto"
+	"github.com/rs/zerolog"
 )
 
 // Clienter is an interface generated for "github.com/michilu/boilerplate/service/debug.Client".
 type Clienter interface {
 	Descriptor() ([]byte, []int)
 	GetId() string
+	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()
 	String() string

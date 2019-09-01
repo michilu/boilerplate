@@ -104,6 +104,7 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
+	slog.Logger().Debug().Str("op", op).Object("arg", slog.Trace(ctx)).EmbedObject(m).Msg("arg")
 
 	a = append(a, trace.StringAttribute("m", m.String()))
 	err := m.Validate()

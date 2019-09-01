@@ -10,5 +10,5 @@ func ZerologObject() zerolog.LogObjectMarshaler {
 }
 
 func (m *Meta) MarshalZerologObject(e *zerolog.Event) {
-	e.RawJSON("version", m.JSON())
+	e.RawJSON("meta", m.JSON())
 }

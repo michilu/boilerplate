@@ -1,12 +1,12 @@
 package debug
 
 import (
-	// https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
-	_ "github.com/mwitkow/go-proto-validators"
-
 	"context"
+	"encoding/json"
 
 	"github.com/michilu/boilerplate/service/errs"
+	_ "github.com/mwitkow/go-proto-validators" // https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
+	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
 )
 
@@ -14,6 +14,12 @@ import (
 
 //go:generate interfacer -for github.com/michilu/boilerplate/service/debug.Client -as debug.Clienter -o entity-Clienter.go
 //go:generate genny -in=../../service/topic/topic.go -out=gen-topic-Clienter.go -pkg=$GOPACKAGE gen "ChanT=Clienter"
+
+func (p *Client) MarshalZerologObject(e *zerolog.Event) {
+	if v, err := json.Marshal(&p); err == nil {
+		e.RawJSON("Client", v)
+	}
+}
 
 //go:generate interfacer -for github.com/michilu/boilerplate/service/debug.ClientWithContext -as debug.ClientWithContexter -o if-ClientWithContexter.go
 //go:generate genny -in=../../service/topic/topic.go -out=gen-topic-ClientWithContexter.go -pkg=$GOPACKAGE gen "ChanT=ClientWithContexter"
@@ -35,4 +41,10 @@ func (p *ClientWithContext) Validate() error {
 		return &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 	}
 	return nil
+}
+
+func (p *ClientWithContext) MarshalZerologObject(e *zerolog.Event) {
+	if v, err := json.Marshal(&p); err == nil {
+		e.RawJSON("Client", v)
+	}
 }

@@ -31,6 +31,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	if err == nil {
 		v3 := v2.String()
 		a = append(a, trace.StringAttribute("v3", v3))
+		slog.Logger().Debug().Str("op", op).Str("v3", v3).Msg("return")
 		return v3, nil
 	} else {
 		const op = op + ".uuid.Parse"
@@ -47,5 +48,6 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	v6 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
 	a = append(a, trace.StringAttribute("Warn", v6))
 	slog.Logger().Warn().Str("op", op).Str("value", v5).Msg(v6)
+	slog.Logger().Debug().Str("op", op).Str("v5", v5).Msg("return")
 	return v5, nil
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"io"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -72,47 +71,6 @@ func initFlag(command *cobra.Command) {
 	viper.BindPFlag("service.slog.verbose", f.Lookup("verbose"))
 }
 
-func logger(ctx context.Context) (func() ([]io.Writer, func() error, error), error) {
-	const op = op + ".logger"
-	if ctx == nil {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-	}
-
-	return func() ([]io.Writer, func() error, error) {
-		const op = op + "#func"
-		ctx, s := trace.StartSpan(ctx, op)
-		defer s.End()
-		a := make([]trace.Attribute, 0)
-		defer s.AddAttributes(a...)
-
-		writer, client, err := slog.NewStackdriverLogging(
-			ctx,
-			viper.GetString("gcp.project.id"),
-			viper.GetString("gcp.logging.id"),
-			nil,
-		)
-		if err != nil {
-			const op = op + ".slog.NewStackdriverLogging"
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			return nil, nil, err
-		}
-		slog.SetDefaultTracer(writer)
-		closer := func() error {
-			const op = op + ".closer"
-			slog.Logger().Info().Str("op", op).Msg("start clean up")
-			err := client.Close()
-			if err != nil {
-				const op = op + ".client.Close"
-				return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
-			}
-			slog.Logger().Info().Str("op", op).Msg("cleaned up")
-			return nil
-		}
-		return []io.Writer{writer}, closer, nil
-	}, nil
-}
-
 func main() {
 	const op = op + ".main"
 	ctx := context.Background()
@@ -121,14 +79,8 @@ func main() {
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
 
-	f, err := logger(ctx)
-	if err != nil {
-		const op = op + ".logger"
-		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
-	}
-	c, closer := cmd.NewCommand(f, defaults, initFlag, subCmd)
+	v0 := slog.NewStackdriverZerologWriter(ctx)
+	c, closer := cmd.NewCommand(v0.Gen, defaults, initFlag, subCmd)
 	defer func() {
 		if closer == nil {
 			return

@@ -2,13 +2,17 @@ package slog
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"strconv"
 	"strings"
 
 	"cloud.google.com/go/logging"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 	"github.com/valyala/fastjson"
+	"go.opencensus.io/trace"
 	logpb "google.golang.org/genproto/googleapis/logging/v2"
 	"google.golang.org/grpc/codes"
 )
@@ -144,4 +148,59 @@ func NewEntry(p []byte) *logging.Entry {
 		v0.SourceLocation = v4
 	}
 	return &v0
+}
+
+// NewStackdriverZerologWriter returns a new ZerologWriter.
+func NewStackdriverZerologWriter(ctx context.Context) *StackdriverZerologWriter {
+	return &StackdriverZerologWriter{ctx}
+}
+
+type StackdriverZerologWriter struct {
+	ctx context.Context
+}
+
+func (p *StackdriverZerologWriter) Gen() ([]io.Writer, func() error, error) {
+	const op = op + ".StackdriverZerologWriter.Gen"
+	ctx := p.ctx
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	ctx, s := trace.StartSpan(ctx, op)
+	defer s.End()
+	a := make([]trace.Attribute, 0)
+	defer s.AddAttributes(a...)
+	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg("arg")
+
+	writer, client, err := NewStackdriverLogging(
+		ctx,
+		viper.GetString("gcp.project.id"),
+		viper.GetString("gcp.logging.id"),
+		nil,
+	)
+	if err != nil {
+		const op = op + ".NewStackdriverLogging"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		return nil, nil, err
+	}
+	SetDefaultTracer(writer)
+	closer := func() error {
+		const op = op + ".closer"
+		Logger().Debug().Str("op", op).Msg("start clean up")
+		err := client.Close()
+		if err != nil {
+			const op = op + ".client.Close"
+			return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
+		}
+		Logger().Debug().Str("op", op).Msg("cleaned up")
+		return nil
+	}
+	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg("return")
+	return []io.Writer{writer}, closer, nil
+}
+
+func (p *StackdriverZerologWriter) MarshalZerologObject(e *zerolog.Event) {
+	e.Dict("StackdriverZerologWriter", zerolog.Dict().
+		Str("ctx", fmt.Sprintf("%v", p.ctx)),
+	)
 }

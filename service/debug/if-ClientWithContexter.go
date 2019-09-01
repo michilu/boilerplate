@@ -5,6 +5,7 @@ package debug
 import (
 	"context"
 	"github.com/golang/protobuf/proto"
+	"github.com/rs/zerolog"
 )
 
 // ClientWithContexter is an interface generated for "github.com/michilu/boilerplate/service/debug.ClientWithContext".
@@ -12,6 +13,7 @@ type ClientWithContexter interface {
 	Descriptor() ([]byte, []int)
 	GetContext() context.Context
 	GetId() string
+	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()
 	String() string

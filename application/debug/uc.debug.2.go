@@ -11,6 +11,7 @@ import (
 
 	"github.com/michilu/boilerplate/service/debug"
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/viper"
 )
 
@@ -23,6 +24,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
+	slog.Logger().Debug().Str("op", op).Object("arg", slog.Trace(ctx)).EmbedObject(m).Msg("arg")
 
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}

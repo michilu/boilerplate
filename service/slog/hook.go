@@ -13,5 +13,5 @@ type (
 
 // Run runs the hook with the event.
 func (HookMeta) Run(e *zerolog.Event, level zerolog.Level, msg string) {
-	e.Object("meta", meta.ZerologObject())
+	e.EmbedObject(meta.ZerologObject())
 }
