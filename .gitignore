@@ -3,6 +3,7 @@
 *.h
 *.so
 .firebaserc
+/*.json
 /.bundle
 /app/build
 /app/pubspec.lock
@@ -15,7 +16,6 @@
 /bench
 /docs
 /hackernews/dart/pubspec.lock
-/update
 /vendor
 Gemfile.lock
 go.sum

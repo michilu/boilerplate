@@ -20,13 +20,11 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20190812055157-5d271430af9f
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/json-iterator/go v1.1.7 // indirect
-	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
-	github.com/kr/binarydist v0.1.0 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/marusama/semaphore v0.0.0-20190110074507-6952cef993b2
 	github.com/mattn/go-ieproxy v0.0.0-20190805055040-f9202b1cfdeb // indirect
 	github.com/mattn/go-isatty v0.0.9 // indirect
-	github.com/michilu/go-selfupdate v0.0.0-20190808073953-3fa09360c2c9
+	github.com/michilu/go-selfupdate v0.0.0-20190902055940-b88c2f57bddf
 	github.com/mwitkow/go-proto-validators v0.1.0
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/profile v1.3.0
@@ -46,7 +44,6 @@ require (
 	google.golang.org/appengine v1.6.2 // indirect
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 	google.golang.org/grpc v1.23.0
-	gopkg.in/inconshreveable/go-update.v0 v0.0.0-20150814200126-d8b0b1d421aa // indirect
 	gopkg.in/yaml.v2 v2.2.2
 	honnef.co/go/js/util v0.0.0-20150216223935-96b8dd9d1621 // indirect
 	honnef.co/go/js/xhr v0.0.0-20150307031022-00e3346113ae

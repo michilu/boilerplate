@@ -59,12 +59,15 @@ func Update(ctx context.Context) (context.Context, error) {
 		trace.StringAttribute("selfupdate.Updater.CmdName", updater.CmdName),
 		trace.BoolAttribute("selfupdate.Updater.ForceCheck", updater.ForceCheck),
 	)
-	err := updater.BackgroundRun()
+	ok, err := updater.ForegroundRun()
 	if err != nil {
 		const op = op + ".updater.BackgroundRun"
 		err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
 		return ctx, err
+	}
+	if !ok {
+		return ctx, &errs.Error{Op: op, Code: codes.Unavailable, Message: "no updates. must be try after"}
 	}
 	return ctx, nil
 }

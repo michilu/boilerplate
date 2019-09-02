@@ -12,4 +12,4 @@ url='https://michilu.github.io/boilerplate/'
 [application.debug.client]
 id=''
 [application.debug.open-debug-port]
-command='ssh -i ~/.ssh/id_ed25519 -R 12345:localhost:12345 user@localhost cat /dev/zero'
+command='ssh -i ~/.ssh/id_ed25519 -R 12345:localhost:12345 user@localhost while true;do sleep 1d;done'

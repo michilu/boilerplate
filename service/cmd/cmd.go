@@ -7,11 +7,13 @@ import (
 	"strings"
 
 	"github.com/michilu/boilerplate/service/config"
+	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/semaphore"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -39,9 +41,10 @@ func initialize(v []config.KV) {
 			err := viper.ReadInConfig()
 			if err != nil {
 				const op = op + ".viper.ReadInConfig"
-				slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+				err := &errs.Error{Op: op, Code: codes.Internal, Err: err, Message: fmt.Sprintf("check the format of '%s'", s)}
+				os.Stderr.WriteString(fmt.Sprintf("error: op: %s: %s\n", op, err))
+				os.Exit(1)
 			}
-			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg("config")
 		}
 		viper.AutomaticEnv()
 		viper.SetEnvKeyReplacer(strings.NewReplacer(
@@ -50,7 +53,6 @@ func initialize(v []config.KV) {
 		))
 		config.SetDefault(v)
 	}
-	slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg("config")
 }
 
 func NewCommand(
@@ -76,7 +78,11 @@ func NewCommand(
 				os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
 			}
 		}
-		slog.SetDefaultLogger(w)
+		{
+			slog.SetDefaultLogger(w)
+			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg("config")
+			slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg("config")
+		}
 	})
 	for _, f := range subCmd {
 		const op = op + ".subCmd"

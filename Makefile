@@ -7,9 +7,9 @@ AUTO_COUNT_YEAR:=$(shell echo $$(($(AUTO_COUNT_SINCE)/365)))
 AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
 AUTO_COUNT_LOG:=$(shell git log --since=midnight --oneline|wc -l|tr -d " ")
 CODEBASE_NUMBER:=0
-SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY).$(AUTO_COUNT_LOG)
+SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY)-$(AUTO_COUNT_LOG)
 TAG:=$(shell git describe --tags || echo NO-TAG)
-HASH:=$(shell git describe --always --dirty=+)
+HASH:=$(shell git describe --always --dirty)
 BRANCH:=$(shell git symbolic-ref --short HEAD)
 LDFLAGS:=-ldflags=" \
 -X \"main.branch=$(BRANCH)\" \
@@ -110,15 +110,19 @@ go-get: $(GOSRC)
 $(GOBIN): vendor $(GOSRC) $(GOCEL)
 	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
 
+GOX_OSARCH:=#--osarch="darwin/amd64 linux/amd64 linux/arm"
+
 .PHONY: channel
-channel: vendor $(GOSRC) $(GOCEL)
-	GO111MODULE=on gox -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
+channel: vendor $(GOSRC)
+	GO111MODULE=on gox $(GOX_OSARCH) \
+ -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
 	go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
 
 .PHONY: release
 release: vendor $(GOSRC) $(GOCEL)
-	GO111MODULE=on gox -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
+	GO111MODULE=on gox $(GOX_OSARCH) \
+ -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
 	go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
@@ -204,6 +208,7 @@ deploy: $(APP_DIR_PATH)/build
 
 .PHONY: clean
 clean:
+	find . -type f -name coverprofile -delete
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
 	rm -rf vendor $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
