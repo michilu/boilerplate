@@ -5,7 +5,9 @@ import (
 
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/go-selfupdate/selfupdate"
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
@@ -69,5 +71,18 @@ func Update(ctx context.Context) (context.Context, error) {
 	if !ok {
 		return ctx, &errs.Error{Op: op, Code: codes.Unavailable, Message: "no updates. must be try after"}
 	}
+	slog.Logger().Info().Str("op", op).
+		Dict("updater", zerolog.Dict().
+			Str("CurrentVersion", updater.CurrentVersion).
+			Str("ApiURL", updater.ApiURL).
+			Str("CmdName", updater.CmdName).
+			Str("BinURL", updater.BinURL).
+			Str("DiffURL", updater.DiffURL).
+			Str("Dir", updater.Dir).
+			Bool("ForceCheck", updater.ForceCheck).
+			Dict("Info", zerolog.Dict().
+				Str("Version", updater.Info.Version).
+				Bytes("Sha256", updater.Info.Sha256))).
+		Msg("updated")
 	return ctx, nil
 }

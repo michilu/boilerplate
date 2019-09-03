@@ -126,6 +126,10 @@ release: vendor $(GOSRC) $(GOCEL)
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
 	go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
+.PHONY: package
+package:
+	./assets/ci/package.sh
+
 $(GOPHERJS): vendor $(GOSRC) $(GOCEL)
 	@# https://github.com/gopherjs/gopherjs/issues/598#issuecomment-282563634
 	-find $(GOPATH)/pkg -depth 1 -type d -name "*_js" -exec rm -fr {} \;
@@ -210,7 +214,7 @@ deploy: $(APP_DIR_PATH)/build
 clean:
 	find . -type f -name coverprofile -delete
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
-	rm -rf vendor $(APP_DIR_PATH)/build
+	rm -rf vendor package $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
 	for file in $$(find . -type d -name vendor -prune\

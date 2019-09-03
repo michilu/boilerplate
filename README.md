@@ -21,6 +21,12 @@ Use `go get -u github.com/michilu/boilerplate`.
 
 - `make clean`:     clean up
 
+## launch
+
+```console
+$ ./assets/daemon/loop ./boilerplate --debug --verbose --trace run
+```
+
 ## DDD
 
 Each directory contains:
