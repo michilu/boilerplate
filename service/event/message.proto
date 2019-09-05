@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package michilu.boilerplate.service.event;
+
+option go_package = "event";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/protobuf/timestamp.proto";
+
+// Event is Entity.
+message Event {
+  bytes id = 1 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+  repeated TimePoint time_point = 2 [
+    (validator.field) = {
+      repeated_count_min: 1
+    }
+  ];
+}
+
+// TimePoint is Entity.
+message TimePoint {
+  google.protobuf.Timestamp timestamp = 1;
+  string tag = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}

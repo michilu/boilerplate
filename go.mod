@@ -28,6 +28,7 @@ require (
 	github.com/mwitkow/go-proto-validators v0.1.0
 	github.com/pelletier/go-toml v1.4.0 // indirect
 	github.com/pkg/profile v1.3.0
+	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.15.0
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5

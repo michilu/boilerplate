@@ -1,4 +1,7 @@
 #!/bin/bash
+set -o nounset
+set -o errexit
+set -o xtrace
 
 [ -d package ] && rm -rf package
 

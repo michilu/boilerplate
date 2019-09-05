@@ -1,0 +1,22 @@
+@startuml
+
+queue system..event[
+topic("system")
+--
+context.Context
+Event
+]
+
+queue event..bytes[
+topic("event")
+--
+[]byte
+]
+
+actor system
+system->system..event
+system..event->:event logger:
+:event logger:->event..bytes
+event..bytes->saver
+
+@enduml

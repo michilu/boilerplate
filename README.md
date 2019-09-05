@@ -65,6 +65,13 @@ Each directory contains:
 - [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 
+### go generate
+
+```console
+$ go get -u github.com/cheekybits/genny
+$ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21, 2018
+```
+
 # deploy
 
 ```console

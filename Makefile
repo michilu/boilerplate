@@ -110,21 +110,27 @@ go-get: $(GOSRC)
 $(GOBIN): vendor $(GOSRC) $(GOCEL)
 	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
 
-GOX_OSARCH:=#--osarch="darwin/amd64 linux/amd64 linux/arm"
+GOX_OSARCH:=--osarch="darwin/amd64 linux/amd64 linux/arm"
 
 .PHONY: channel
 channel: vendor $(GOSRC)
-	GO111MODULE=on gox $(GOX_OSARCH) \
+	time \
+ GO111MODULE=on gox $(GOX_OSARCH) \
  -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
-	go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
+	mkdir -p docs/channel/$(BRANCH)/$(GOBIN)
+	./assets/ci/selfupdate.sh docs/channel/$(BRANCH)/$(GOBIN) 3
+	time go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
 
 .PHONY: release
 release: vendor $(GOSRC) $(GOCEL)
-	GO111MODULE=on gox $(GOX_OSARCH) \
+	time \
+ GO111MODULE=on gox $(GOX_OSARCH) \
  -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
-	go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
+	mkdir -p docs/release/$(GOBIN)
+	./assets/ci/selfupdate.sh docs/release/$(GOBIN) 3
+	time go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
 .PHONY: package
 package:

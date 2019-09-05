@@ -1,0 +1,55 @@
+@startuml
+left to right direction
+
+usecase uc1 <<use case>>[
+uc1
+event logger logs events
+]
+
+usecase uc2 <<use case>>[
+uc2
+event playbacker playbacks events
+]
+
+:event logger:--(uc1)
+:event playbacker:--(uc2)
+(uc1)--:system:
+(uc2)--:system:
+
+usecase uc1.1 <<use case slice>>[
+uc1.1
+subscribes topics
+]
+(uc1)..>(uc1.1):<<trace>>
+
+usecase uc1.2 <<use case slice>>[
+uc1.2
+stores events
+]
+(uc1)..>(uc1.2):<<trace>>
+
+usecase uc1.3 <<use case slice>>[
+uc1.3
+saves event payloads
+]
+(uc1)..>(uc1.3):<<trace>>
+
+usecase uc2.1 <<use case slice>>[
+uc2.1
+loads event payloads
+]
+(uc2)..>(uc2.1):<<trace>>
+
+usecase uc2.2 <<use case slice>>[
+uc2.2
+restores events
+]
+(uc2)..>(uc2.2):<<trace>>
+
+usecase uc2.3 <<use case slice>>[
+uc2.3
+publishes to topics
+]
+(uc2)..>(uc2.3):<<trace>>
+
+@enduml
