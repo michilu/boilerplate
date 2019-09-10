@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package michilu.boilerplate.application.event;
+
+option go_package = "event";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+// Byte is Entity.
+message Byte {
+  bytes byte = 1 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+}

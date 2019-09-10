@@ -1,14 +1,29 @@
 package event
 
 import (
+	"context"
+
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/now"
+	"github.com/michilu/boilerplate/service/slog"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
-// NewEventFromPB returns an Eventer from given bytes.
-func NewEventFromPB(b []byte) (Eventer, error) {
-	const op = op + ".NewEventFromPB"
+// RestoreEvent returns an Eventer from given bytes.
+func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
+	const op = op + ".RestoreEvent"
+	if ctx == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		return nil, err
+	}
+	ctx, s := trace.StartSpan(ctx, op)
+	defer s.End()
+	a := make([]trace.Attribute, 0)
+	defer s.AddAttributes(a...)
+	t := slog.Trace(ctx)
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg("arg")
+
 	v0 := &Event{}
 	err := v0.XXX_Unmarshal(b)
 	if err != nil {
@@ -42,5 +57,6 @@ func NewEventFromPB(b []byte) (Eventer, error) {
 		const op = op + ".AddTimePoint(Entered)"
 		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 	}
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
 	return v2, nil
 }

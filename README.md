@@ -65,6 +65,18 @@ Each directory contains:
 - [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 
+### RocksDB
+- [rocksdb/INSTALL.md at master · facebook/rocksdb](https://github.com/facebook/rocksdb/blob/master/INSTALL.md#supported-platforms)
+
+#### on macOS
+
+```console
+$ brew install rocksdb
+$ CGO_CFLAGS="-I/usr/local/Cellar/rocksdb/6.1.2/include" \
+CGO_LDFLAGS="-L/usr/local/Cellar/rocksdb/6.1.2 -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4" \
+  go get -u github.com/tecbot/gorocksdb
+```
+
 ### go generate
 
 ```console

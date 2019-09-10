@@ -13,3 +13,5 @@ url='https://michilu.github.io/boilerplate/'
 id=''
 [application.debug.open-debug-port]
 command='ssh -i ~/.ssh/id_ed25519 -R 12345:localhost:12345 user@localhost while true;do sleep 1d;done'
+[infra.rocksdb.event]
+path='assets/db/rocksdb/event.db'

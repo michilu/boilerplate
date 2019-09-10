@@ -92,19 +92,22 @@ func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) 
 //go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Connect.go -pkg=$GOPACKAGE gen "Name=connect InT=debug.ClientWithContexter OutT=context.Context"
 
 func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
-	const op = op + "Config.Connect"
+	const op = op + ".Config.Connect"
 	if m == nil {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
+		return nil, err
 	}
 	ctx := m.GetContext()
 	if ctx == nil {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		const op = op + ".debug.ClientWithContexter.GetContext"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		return nil, err
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).Object("arg", slog.Trace(ctx)).EmbedObject(m).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(m).Msg("arg")
 
 	a = append(a, trace.StringAttribute("m", m.String()))
 	err := m.Validate()

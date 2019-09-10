@@ -3,10 +3,9 @@
 package meta
 
 import (
-	"time"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog"
+	"time"
 )
 
 // Metaer is an interface generated for "github.com/michilu/boilerplate/service/meta.Meta".

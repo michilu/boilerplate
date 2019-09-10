@@ -14,7 +14,13 @@ message Event {
       length_gt: 0
     }
   ];
-  repeated TimePoint time_point = 2 [
+  // origin is an identity of the operator who entered the event.
+  string origin = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  repeated TimePoint time_point = 3 [
     (validator.field) = {
       repeated_count_min: 1
     }

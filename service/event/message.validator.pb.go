@@ -7,8 +7,8 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/mwitkow/go-proto-validators"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -20,6 +20,9 @@ var _ = math.Inf
 func (this *Event) Validate() error {
 	if !(len(this.Id) > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must have a length greater than '0'`, this.Id))
+	}
+	if this.Origin == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Origin", fmt.Errorf(`value '%v' must not be an empty string`, this.Origin))
 	}
 	if len(this.TimePoint) < 1 {
 		return github_com_mwitkow_go_proto_validators.FieldError("TimePoint", fmt.Errorf(`value '%v' must contain at least 1 elements`, this.TimePoint))

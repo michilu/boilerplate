@@ -54,7 +54,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).Object("arg", slog.Trace(ctx)).EmbedObject(m).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(m).Msg("arg")
 
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
