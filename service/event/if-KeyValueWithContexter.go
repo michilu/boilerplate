@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// KeyValueWithContexter is an interface generated for "github.com/michilu/boilerplate/application/event.KeyValueWithContext".
+// KeyValueWithContexter is an interface generated for "github.com/michilu/boilerplate/service/event.KeyValueWithContext".
 type KeyValueWithContexter interface {
 	GetContext() context.Context
 	GetKeyValue() keyvalue.KeyValuer

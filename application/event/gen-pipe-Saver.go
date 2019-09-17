@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/event"
 	"google.golang.org/grpc/codes"
 )
 
@@ -15,13 +16,13 @@ type SaverGetContexter interface {
 	GetContext() context.Context
 }
 
-// GetPipeSaver returns new input(chan<- KeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(KeyValueWithContexter) ContextContext'.
+// GetPipeSaver returns new input(chan<- EventKeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(EventKeyValueWithContexter) ContextContext'.
 func GetPipeSaver(
 	ctx context.Context,
-	fn func(KeyValueWithContexter) (context.Context, error),
+	fn func(event.KeyValueWithContexter) (context.Context, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- KeyValueWithContexter,
+	chan<- event.KeyValueWithContexter,
 	<-chan context.Context,
 ) {
 	const op = op + ".GetPipeSaver"
@@ -36,7 +37,7 @@ func GetPipeSaver(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan KeyValueWithContexter)
+	inCh := make(chan event.KeyValueWithContexter)
 	outCh := make(chan context.Context)
 
 	go func() {
@@ -76,13 +77,13 @@ func GetPipeSaver(
 	return inCh, outCh
 }
 
-// GetFanoutSaver returns new input(chan<- KeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(KeyValueWithContexter) ContextContext'.
+// GetFanoutSaver returns new input(chan<- EventKeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(EventKeyValueWithContexter) ContextContext'.
 func GetFanoutSaver(
 	ctx context.Context,
-	fn func(KeyValueWithContexter) ([]context.Context, error),
+	fn func(event.KeyValueWithContexter) ([]context.Context, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- KeyValueWithContexter,
+	chan<- event.KeyValueWithContexter,
 	<-chan context.Context,
 ) {
 	const op = op + ".GetFanoutSaver"
@@ -97,7 +98,7 @@ func GetFanoutSaver(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan KeyValueWithContexter)
+	inCh := make(chan event.KeyValueWithContexter)
 	outCh := make(chan context.Context)
 
 	go func() {

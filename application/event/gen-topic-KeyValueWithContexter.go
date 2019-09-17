@@ -9,45 +9,46 @@ import (
 	"sync"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/event"
 	"google.golang.org/grpc/codes"
 )
 
 var (
-	topicKeyValueWithContexter *mapKeyValueWithContexter
+	topicEventKeyValueWithContexter *mapEventKeyValueWithContexter
 )
 
 func init() {
-	topicKeyValueWithContexter = newMapKeyValueWithContexter()
+	topicEventKeyValueWithContexter = newMapEventKeyValueWithContexter()
 }
 
-// GetTopicKeyValueWithContexter returns a TopicKeyValueWithContexter of the given topic.
-func GetTopicKeyValueWithContexter(topic interface{}) TopicKeyValueWithContexter {
-	return topicKeyValueWithContexter.get(topic)
+// GetTopicEventKeyValueWithContexter returns a TopicEventKeyValueWithContexter of the given topic.
+func GetTopicEventKeyValueWithContexter(topic interface{}) TopicEventKeyValueWithContexter {
+	return topicEventKeyValueWithContexter.get(topic)
 }
 
-// TopicKeyValueWithContexter is a topic.
-type TopicKeyValueWithContexter interface {
-	// Publish returns a '<-chan KeyValueWithContexter' that joins to the given topic.
-	Publish(ctx context.Context, c <-chan KeyValueWithContexter)
-	// Publisher returns a 'chan<- KeyValueWithContexter' that joins to the given topic.
-	Publisher(ctx context.Context) chan<- KeyValueWithContexter
-	// Subscribe returns a 'chan<- KeyValueWithContexter' that joins to the given topic.
-	Subscribe(c chan<- KeyValueWithContexter)
+// TopicEventKeyValueWithContexter is a topic.
+type TopicEventKeyValueWithContexter interface {
+	// Publish returns a '<-chan EventKeyValueWithContexter' that joins to the given topic.
+	Publish(ctx context.Context, c <-chan event.KeyValueWithContexter)
+	// Publisher returns a 'chan<- EventKeyValueWithContexter' that joins to the given topic.
+	Publisher(ctx context.Context) chan<- event.KeyValueWithContexter
+	// Subscribe returns a 'chan<- EventKeyValueWithContexter' that joins to the given topic.
+	Subscribe(c chan<- event.KeyValueWithContexter)
 }
 
-type tKeyValueWithContexter struct {
+type tEventKeyValueWithContexter struct {
 	mu sync.RWMutex
-	c  []chan<- KeyValueWithContexter
+	c  []chan<- event.KeyValueWithContexter
 }
 
-func newTKeyValueWithContexter() *tKeyValueWithContexter {
-	return &tKeyValueWithContexter{
-		c: make([]chan<- KeyValueWithContexter, 0),
+func newTEventKeyValueWithContexter() *tEventKeyValueWithContexter {
+	return &tEventKeyValueWithContexter{
+		c: make([]chan<- event.KeyValueWithContexter, 0),
 	}
 }
 
-func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueWithContexter) {
-	const op = op + ".tKeyValueWithContexter.Publish"
+func (t *tEventKeyValueWithContexter) Publish(ctx context.Context, c <-chan event.KeyValueWithContexter) {
+	const op = op + ".tEventKeyValueWithContexter.Publish"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
@@ -65,7 +66,7 @@ func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueW
 		}
 		for v := range c {
 			for _, c := range t.c {
-				go func(c chan<- KeyValueWithContexter, v KeyValueWithContexter) {
+				go func(c chan<- event.KeyValueWithContexter, v event.KeyValueWithContexter) {
 					select {
 					case <-ctx.Done():
 						return
@@ -79,20 +80,20 @@ func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueW
 
 }
 
-func (t *tKeyValueWithContexter) Publisher(ctx context.Context) chan<- KeyValueWithContexter {
-	const op = op + ".tKeyValueWithContexter.Publisher"
+func (t *tEventKeyValueWithContexter) Publisher(ctx context.Context) chan<- event.KeyValueWithContexter {
+	const op = op + ".tEventKeyValueWithContexter.Publisher"
 
 	if ctx == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"})
 	}
 
-	c := make(chan KeyValueWithContexter)
+	c := make(chan event.KeyValueWithContexter)
 	t.Publish(ctx, c)
 	return c
 }
 
-func (t *tKeyValueWithContexter) Subscribe(c chan<- KeyValueWithContexter) {
-	const op = op + ".tKeyValueWithContexter.Subscribe"
+func (t *tEventKeyValueWithContexter) Subscribe(c chan<- event.KeyValueWithContexter) {
+	const op = op + ".tEventKeyValueWithContexter.Subscribe"
 
 	if c == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'c' is nil"})
@@ -103,19 +104,19 @@ func (t *tKeyValueWithContexter) Subscribe(c chan<- KeyValueWithContexter) {
 	t.mu.Unlock()
 }
 
-type mapKeyValueWithContexter struct {
+type mapEventKeyValueWithContexter struct {
 	mu sync.RWMutex
-	m  map[interface{}]*tKeyValueWithContexter
+	m  map[interface{}]*tEventKeyValueWithContexter
 }
 
-func newMapKeyValueWithContexter() *mapKeyValueWithContexter {
-	return &mapKeyValueWithContexter{
-		m: make(map[interface{}]*tKeyValueWithContexter),
+func newMapEventKeyValueWithContexter() *mapEventKeyValueWithContexter {
+	return &mapEventKeyValueWithContexter{
+		m: make(map[interface{}]*tEventKeyValueWithContexter),
 	}
 }
 
-func (m *mapKeyValueWithContexter) get(topic interface{}) TopicKeyValueWithContexter {
-	const op = op + ".mapKeyValueWithContexter.get"
+func (m *mapEventKeyValueWithContexter) get(topic interface{}) TopicEventKeyValueWithContexter {
+	const op = op + ".mapEventKeyValueWithContexter.get"
 
 	if topic == nil {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'topic' is nil"})
@@ -134,7 +135,7 @@ func (m *mapKeyValueWithContexter) get(topic interface{}) TopicKeyValueWithConte
 	if ok {
 		return v
 	}
-	v = newTKeyValueWithContexter()
+	v = newTEventKeyValueWithContexter()
 	m.m[topic] = v
 	return v
 }

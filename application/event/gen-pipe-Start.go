@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/event"
 	"google.golang.org/grpc/codes"
 )
 
@@ -15,14 +16,14 @@ type StartGetContexter interface {
 	GetContext() context.Context
 }
 
-// GetPipeStart returns new input(chan<- ContextContext)/output(<-chan EventWithContexter) channels that embedded the given 'func(ContextContext) EventWithContexter'.
+// GetPipeStart returns new input(chan<- ContextContext)/output(<-chan EventEventWithContexter) channels that embedded the given 'func(ContextContext) EventEventWithContexter'.
 func GetPipeStart(
 	ctx context.Context,
-	fn func(context.Context) (EventWithContexter, error),
+	fn func(context.Context) (event.EventWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
 	chan<- context.Context,
-	<-chan EventWithContexter,
+	<-chan event.EventWithContexter,
 ) {
 	const op = op + ".GetPipeStart"
 
@@ -37,7 +38,7 @@ func GetPipeStart(
 	}
 
 	inCh := make(chan context.Context)
-	outCh := make(chan EventWithContexter)
+	outCh := make(chan event.EventWithContexter)
 
 	go func() {
 		const op = op + "#go"
@@ -76,14 +77,14 @@ func GetPipeStart(
 	return inCh, outCh
 }
 
-// GetFanoutStart returns new input(chan<- ContextContext)/output(<-chan EventWithContexter) channels that embedded the given 'func(ContextContext) EventWithContexter'.
+// GetFanoutStart returns new input(chan<- ContextContext)/output(<-chan EventEventWithContexter) channels that embedded the given 'func(ContextContext) EventEventWithContexter'.
 func GetFanoutStart(
 	ctx context.Context,
-	fn func(context.Context) ([]EventWithContexter, error),
+	fn func(context.Context) ([]event.EventWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
 	chan<- context.Context,
-	<-chan EventWithContexter,
+	<-chan event.EventWithContexter,
 ) {
 	const op = op + ".GetFanoutStart"
 
@@ -98,7 +99,7 @@ func GetFanoutStart(
 	}
 
 	inCh := make(chan context.Context)
-	outCh := make(chan EventWithContexter)
+	outCh := make(chan event.EventWithContexter)
 
 	go func() {
 		const op = op + "#go"

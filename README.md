@@ -27,7 +27,9 @@ Use `go get -u github.com/michilu/boilerplate`.
 $ ./assets/daemon/loop ./boilerplate --debug --verbose --trace run
 ```
 
-## DDD
+## Architecture
+
+### DDD
 
 Each directory contains:
 - `domain`: Domain Service, Domain Rule, Entity, Value Object, Repository Interface
@@ -52,6 +54,9 @@ Each directory contains:
   - Clean architecture: Presentaters
 - `usecase`: Use Case, Requirements
   - The context in Agile software development, not DDD.
+
+### Event-driven architecture
+NOT the Event Sourcing System.
 
 ## dependencies
 

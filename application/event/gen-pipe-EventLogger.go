@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/event"
 	"google.golang.org/grpc/codes"
 )
 
@@ -15,14 +16,14 @@ type EventLoggerGetContexter interface {
 	GetContext() context.Context
 }
 
-// GetPipeEventLogger returns new input(chan<- EventWithContexter)/output(<-chan KeyValueWithContexter) channels that embedded the given 'func(EventWithContexter) KeyValueWithContexter'.
+// GetPipeEventLogger returns new input(chan<- EventEventWithContexter)/output(<-chan EventKeyValueWithContexter) channels that embedded the given 'func(EventEventWithContexter) EventKeyValueWithContexter'.
 func GetPipeEventLogger(
 	ctx context.Context,
-	fn func(EventWithContexter) (KeyValueWithContexter, error),
+	fn func(event.EventWithContexter) (event.KeyValueWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- EventWithContexter,
-	<-chan KeyValueWithContexter,
+	chan<- event.EventWithContexter,
+	<-chan event.KeyValueWithContexter,
 ) {
 	const op = op + ".GetPipeEventLogger"
 
@@ -36,8 +37,8 @@ func GetPipeEventLogger(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan EventWithContexter)
-	outCh := make(chan KeyValueWithContexter)
+	inCh := make(chan event.EventWithContexter)
+	outCh := make(chan event.KeyValueWithContexter)
 
 	go func() {
 		const op = op + "#go"
@@ -76,14 +77,14 @@ func GetPipeEventLogger(
 	return inCh, outCh
 }
 
-// GetFanoutEventLogger returns new input(chan<- EventWithContexter)/output(<-chan KeyValueWithContexter) channels that embedded the given 'func(EventWithContexter) KeyValueWithContexter'.
+// GetFanoutEventLogger returns new input(chan<- EventEventWithContexter)/output(<-chan EventKeyValueWithContexter) channels that embedded the given 'func(EventEventWithContexter) EventKeyValueWithContexter'.
 func GetFanoutEventLogger(
 	ctx context.Context,
-	fn func(EventWithContexter) ([]KeyValueWithContexter, error),
+	fn func(event.EventWithContexter) ([]event.KeyValueWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- EventWithContexter,
-	<-chan KeyValueWithContexter,
+	chan<- event.EventWithContexter,
+	<-chan event.KeyValueWithContexter,
 ) {
 	const op = op + ".GetFanoutEventLogger"
 
@@ -97,8 +98,8 @@ func GetFanoutEventLogger(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan EventWithContexter)
-	outCh := make(chan KeyValueWithContexter)
+	inCh := make(chan event.EventWithContexter)
+	outCh := make(chan event.KeyValueWithContexter)
 
 	go func() {
 		const op = op + "#go"

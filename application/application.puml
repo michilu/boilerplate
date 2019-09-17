@@ -1,14 +1,5 @@
 @startuml
 
-package "exporter" {
-	class "GlobalMonitoredResource" as exporter.GlobalMonitoredResource <<V,Orchid>> {
-		-projectID: string
-		+MonitoredResource(): (string, map[string]string)
-	}
-}
-
-
-
 package "run" {
 	class "topic" as run.topic <<V,Orchid>>
 }
@@ -73,82 +64,8 @@ package "debug" {
 
 
 package "event" {
-	class "Byte" as event.Byte <<E,#FFCC00>> {
-		+Byte: []byte
-		+XXX_NoUnkeyedLiteral: struct{}
-		+XXX_unrecognized: []byte
-		+XXX_sizecache: int32
-		+Reset()
-		+String(): string
-		+ProtoMessage()
-		+Descriptor(): ([]byte, []int)
-		+XXX_Unmarshal(b: []byte): error
-		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
-		+XXX_Merge(src: proto.Message)
-		+XXX_Size(): int
-		+XXX_DiscardUnknown()
-		+GetByte(): []byte
-		+Validate(): error
-	}
-}
-
-
-
-package "event" {
 	interface "EventLoggerGetContexter" as event.EventLoggerGetContexter {
 		+GetContext(): context.Context
-	}
-}
-
-
-
-package "event" {
-	class "EventWithContext" as event.EventWithContext <<E,#FFCC00>> {
-		+Context: context.Context
-		+Event: event.Eventer
-		+GetContext(): context.Context
-		+GetEvent(): event.Eventer
-		+Validate(): error
-		+String(): string
-		+MarshalZerologObject(e: zerolog.Event)
-	}
-}
-
-
-
-package "event" {
-	interface "EventWithContexter" as event.EventWithContexter {
-		+GetContext(): context.Context
-		+GetEvent(): event.Eventer
-		+MarshalZerologObject(: zerolog.Event)
-		+String(): string
-		+Validate(): error
-	}
-}
-
-
-
-package "event" {
-	class "KeyValueWithContext" as event.KeyValueWithContext <<E,#FFCC00>> {
-		+Context: context.Context
-		+KeyValue: keyvalue.KeyValuer
-		+GetContext(): context.Context
-		+GetKeyValue(): keyvalue.KeyValuer
-		+Validate(): error
-		+String(): string
-		+MarshalZerologObject(e: zerolog.Event)
-	}
-}
-
-
-
-package "event" {
-	interface "KeyValueWithContexter" as event.KeyValueWithContexter {
-		+GetContext(): context.Context
-		+GetKeyValue(): keyvalue.KeyValuer
-		+MarshalZerologObject(: zerolog.Event)
-		+String(): string
-		+Validate(): error
 	}
 }
 
@@ -163,7 +80,6 @@ package "event" {
 
 	event.Saver --> event.Saver
 
-	event.Saver ..> event.KeyValueWithContexter : <<use>> 
 
 package "event" {
 	interface "SaverGetContexter" as event.SaverGetContexter {
@@ -182,64 +98,64 @@ package "event" {
 
 
 package "event" {
-	interface "TopicEventWithContexter" as event.TopicEventWithContexter {
-		+Publish(ctx: context.Context, c: <-chan event.EventWithContexter)
-		+Publisher(ctx: context.Context): chan<- event.EventWithContexter
-		+Subscribe(c: chan<- event.EventWithContexter)
+	interface "TopicEventEventWithContexter" as event.TopicEventEventWithContexter {
+		+Publish(ctx: context.Context, c: event.EventWithContexter)
+		+Publisher(ctx: context.Context): event.EventWithContexter
+		+Subscribe(c: event.EventWithContexter)
 	}
 }
 
 
 
 package "event" {
-	interface "TopicKeyValueWithContexter" as event.TopicKeyValueWithContexter {
-		+Publish(ctx: context.Context, c: <-chan event.KeyValueWithContexter)
-		+Publisher(ctx: context.Context): chan<- event.KeyValueWithContexter
-		+Subscribe(c: chan<- event.KeyValueWithContexter)
+	interface "TopicEventKeyValueWithContexter" as event.TopicEventKeyValueWithContexter {
+		+Publish(ctx: context.Context, c: event.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): event.KeyValueWithContexter
+		+Subscribe(c: event.KeyValueWithContexter)
 	}
 }
 
 
 
 package "event" {
-	class "mapEventWithContexter" as event.mapEventWithContexter <<V,Orchid>> {
+	class "mapEventEventWithContexter" as event.mapEventEventWithContexter <<V,Orchid>> {
 		-mu: sync.RWMutex
-		-m: map[interface{}]*event.tEventWithContexter
-		-get(topic: interface{}): event.TopicEventWithContexter
+		-m: map[interface{}]*event.tEventEventWithContexter
+		-get(topic: interface{}): event.TopicEventEventWithContexter
 	}
 }
 
 
 
 package "event" {
-	class "mapKeyValueWithContexter" as event.mapKeyValueWithContexter <<V,Orchid>> {
+	class "mapEventKeyValueWithContexter" as event.mapEventKeyValueWithContexter <<V,Orchid>> {
 		-mu: sync.RWMutex
-		-m: map[interface{}]*event.tKeyValueWithContexter
-		-get(topic: interface{}): event.TopicKeyValueWithContexter
+		-m: map[interface{}]*event.tEventKeyValueWithContexter
+		-get(topic: interface{}): event.TopicEventKeyValueWithContexter
 	}
 }
 
 
 
 package "event" {
-	class "tEventWithContexter" as event.tEventWithContexter <<E,#FFCC00>> {
+	class "tEventEventWithContexter" as event.tEventEventWithContexter <<E,#FFCC00>> {
 		-mu: sync.RWMutex
-		-c: []chan<- event.EventWithContexter
-		+Publish(ctx: context.Context, c: <-chan event.EventWithContexter)
-		+Publisher(ctx: context.Context): chan<- event.EventWithContexter
-		+Subscribe(c: chan<- event.EventWithContexter)
+		-c: event.EventWithContexter
+		+Publish(ctx: context.Context, c: event.EventWithContexter)
+		+Publisher(ctx: context.Context): event.EventWithContexter
+		+Subscribe(c: event.EventWithContexter)
 	}
 }
 
 
 
 package "event" {
-	class "tKeyValueWithContexter" as event.tKeyValueWithContexter <<E,#FFCC00>> {
+	class "tEventKeyValueWithContexter" as event.tEventKeyValueWithContexter <<E,#FFCC00>> {
 		-mu: sync.RWMutex
-		-c: []chan<- event.KeyValueWithContexter
-		+Publish(ctx: context.Context, c: <-chan event.KeyValueWithContexter)
-		+Publisher(ctx: context.Context): chan<- event.KeyValueWithContexter
-		+Subscribe(c: chan<- event.KeyValueWithContexter)
+		-c: event.KeyValueWithContexter
+		+Publish(ctx: context.Context, c: event.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): event.KeyValueWithContexter
+		+Subscribe(c: event.KeyValueWithContexter)
 	}
 }
 
@@ -247,6 +163,15 @@ package "event" {
 
 package "event" {
 	class "topic" as event.topic <<V,Orchid>>
+}
+
+
+
+package "exporter" {
+	class "GlobalMonitoredResource" as exporter.GlobalMonitoredResource <<V,Orchid>> {
+		-projectID: string
+		+MonitoredResource(): (string, map[string]string)
+	}
 }
 
 
@@ -264,28 +189,6 @@ package "event" {
 	event.EventLoggerGetContexter -up-|> debug.ConnectGetContexter
 	event.EventLoggerGetContexter -up-|> event.SaverGetContexter
 	event.EventLoggerGetContexter -up-|> event.StartGetContexter
-	event.EventWithContext -up-|> debug.ConfigGetContexter
-	event.EventWithContext -up-|> debug.ConnectGetContexter
-	event.EventWithContext -up-|> event.EventLoggerGetContexter
-	event.EventWithContext -up-|> event.EventWithContexter
-	event.EventWithContext -up-|> event.SaverGetContexter
-	event.EventWithContext -up-|> event.StartGetContexter
-	event.EventWithContexter -up-|> debug.ConfigGetContexter
-	event.EventWithContexter -up-|> debug.ConnectGetContexter
-	event.EventWithContexter -up-|> event.EventLoggerGetContexter
-	event.EventWithContexter -up-|> event.SaverGetContexter
-	event.EventWithContexter -up-|> event.StartGetContexter
-	event.KeyValueWithContext -up-|> debug.ConfigGetContexter
-	event.KeyValueWithContext -up-|> debug.ConnectGetContexter
-	event.KeyValueWithContext -up-|> event.EventLoggerGetContexter
-	event.KeyValueWithContext -up-|> event.KeyValueWithContexter
-	event.KeyValueWithContext -up-|> event.SaverGetContexter
-	event.KeyValueWithContext -up-|> event.StartGetContexter
-	event.KeyValueWithContexter -up-|> debug.ConfigGetContexter
-	event.KeyValueWithContexter -up-|> debug.ConnectGetContexter
-	event.KeyValueWithContexter -up-|> event.EventLoggerGetContexter
-	event.KeyValueWithContexter -up-|> event.SaverGetContexter
-	event.KeyValueWithContexter -up-|> event.StartGetContexter
 	event.SaverGetContexter -up-|> debug.ConfigGetContexter
 	event.SaverGetContexter -up-|> debug.ConnectGetContexter
 	event.SaverGetContexter -up-|> event.EventLoggerGetContexter
@@ -294,8 +197,8 @@ package "event" {
 	event.StartGetContexter -up-|> debug.ConnectGetContexter
 	event.StartGetContexter -up-|> event.EventLoggerGetContexter
 	event.StartGetContexter -up-|> event.SaverGetContexter
-	event.tEventWithContexter -up-|> event.TopicEventWithContexter
-	event.tKeyValueWithContexter -up-|> event.TopicKeyValueWithContexter
+	event.tEventEventWithContexter -up-|> event.TopicEventEventWithContexter
+	event.tEventKeyValueWithContexter -up-|> event.TopicEventKeyValueWithContexter
 
 
 @enduml

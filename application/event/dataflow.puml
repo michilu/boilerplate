@@ -7,17 +7,17 @@ context.Context
 Event
 ]
 
-queue event..byte[
+queue event..keyvalue[
 topic("event")
 --
 context.Context
-[]byte
+KeyValue
 ]
 
 actor system
 system->system..event
 system..event->:event logger:
-:event logger:->event..byte
-event..byte->saver
+:event logger:->event..keyvalue
+event..keyvalue->saver
 
 @enduml

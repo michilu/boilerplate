@@ -21,6 +21,9 @@ type (
 	topic string
 )
 
+//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=event.EventWithContexter"
+//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-KeyValueWithContexter.go -pkg=$GOPACKAGE gen "ChanT=event.KeyValueWithContexter"
+
 func Dataflow(ctx context.Context) {
 	const op = op + ".Dataflow"
 	if ctx == nil {
@@ -53,8 +56,8 @@ func Dataflow(ctx context.Context) {
 	}(ctx, v1)
 
 	tStart := terminate.GetTopicContextContext(topic("start"))
-	tEvent := GetTopicEventWithContexter(topic("system"))
-	tKeyValue := GetTopicKeyValueWithContexter(topic("event"))
+	tEvent := GetTopicEventEventWithContexter(topic("system"))
+	tKeyValue := GetTopicEventKeyValueWithContexter(topic("event"))
 	tTerminate := terminate.GetTopicContextContext(topic("terminate"))
 
 	{
@@ -86,9 +89,9 @@ func ErrorHandler(ctx context.Context, err error) bool {
 	return pipe.ErrorHandler(ctx, err)
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Start.go -pkg=$GOPACKAGE gen "Name=start InT=context.Context OutT=EventWithContexter"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Start.go -pkg=$GOPACKAGE gen "Name=start InT=context.Context OutT=event.EventWithContexter"
 
-func Start(ctx context.Context) (EventWithContexter, error) {
+func Start(ctx context.Context) (event.EventWithContexter, error) {
 	const op = op + ".Start"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
@@ -107,7 +110,7 @@ func Start(ctx context.Context) (EventWithContexter, error) {
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		return nil, err
 	}
-	v2 := &EventWithContext{
+	v2 := &event.EventWithContext{
 		Context: ctx,
 		Event:   v1,
 	}
@@ -124,9 +127,9 @@ func Start(ctx context.Context) (EventWithContexter, error) {
 	return v2, nil
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-EventLogger.go -pkg=$GOPACKAGE gen "Name=eventLogger InT=EventWithContexter OutT=KeyValueWithContexter"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-EventLogger.go -pkg=$GOPACKAGE gen "Name=eventLogger InT=event.EventWithContexter OutT=event.KeyValueWithContexter"
 
-func EventLogger(m EventWithContexter) (KeyValueWithContexter, error) {
+func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error) {
 	const op = op + ".EventLogger"
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
@@ -161,7 +164,7 @@ func EventLogger(m EventWithContexter) (KeyValueWithContexter, error) {
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 		return nil, err
 	}
-	v1 := &KeyValueWithContext{
+	v1 := &event.KeyValueWithContext{
 		Context: ctx,
 		KeyValue: &keyvalue.KeyValue{
 			Key:   m.GetEvent().GetKey(),
@@ -181,13 +184,13 @@ func EventLogger(m EventWithContexter) (KeyValueWithContexter, error) {
 	return v1, nil
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Saver.go -pkg=$GOPACKAGE gen "Name=saver InT=KeyValueWithContexter OutT=context.Context"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Saver.go -pkg=$GOPACKAGE gen "Name=saver InT=event.KeyValueWithContexter OutT=context.Context"
 
 type Saver struct {
 	Saver event.Saver
 }
 
-func (p *Saver) Save(m KeyValueWithContexter) (context.Context, error) {
+func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 	const op = op + ".Saver.Save"
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
