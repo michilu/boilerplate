@@ -1,8 +1,19 @@
 package event
 
-import "context"
+import (
+	"context"
 
-type Repository interface {
-	Load(ctx context.Context, prefix string) (<-chan []byte, error)
-	Save(ctx context.Context, key string, payload []byte) error
+	"github.com/michilu/boilerplate/infra/keyvalue"
+)
+
+type Loader interface {
+	Load(context.Context, keyvalue.Prefixer) (<-chan keyvalue.KeyValuer, error)
+}
+
+type Saver interface {
+	Save(context.Context, keyvalue.KeyValuer) error
+}
+
+type Closer interface {
+	Close() error
 }

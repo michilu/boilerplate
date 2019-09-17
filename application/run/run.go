@@ -9,6 +9,7 @@ import (
 	"go.opencensus.io/trace"
 
 	"github.com/michilu/boilerplate/application/debug"
+	"github.com/michilu/boilerplate/application/event"
 	"github.com/michilu/boilerplate/application/exporter"
 )
 
@@ -40,6 +41,14 @@ func Run(_ *cobra.Command, _ []string) {
 		if v1 {
 			go pprof.Profile(ctx)
 			go pprof.Run()
+		}
+	}
+	{
+		v0 := "application.event.enable"
+		v1 := viper.GetBool(v0)
+		a = append(a, trace.BoolAttribute(v0, v1))
+		if v1 {
+			go event.Dataflow(ctx)
 		}
 	}
 	go debug.Dataflow(ctx)

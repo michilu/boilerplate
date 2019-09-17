@@ -56,13 +56,13 @@ func initialize(v []config.KV) {
 }
 
 func NewCommand(
-	logger func() ([]io.Writer, func() error, error),
+	logger func() ([]io.Writer, slog.Closer, error),
 	defaults []config.KV,
 	initCmdFlag func(*cobra.Command),
 	subCmd []func() (*cobra.Command, error),
-) (*cobra.Command, *func() error) {
+) (*cobra.Command, slog.Closer) {
 	const op = op + ".NewCommand"
-	var closer func() error
+	var closer slog.Closer
 	initCmdFlag(rootCmd)
 	cobra.OnInitialize(func() {
 		const op = op + ".cobra.OnInitialize"
@@ -92,5 +92,5 @@ func NewCommand(
 		}
 		rootCmd.AddCommand(c)
 	}
-	return rootCmd, &closer
+	return rootCmd, closer
 }

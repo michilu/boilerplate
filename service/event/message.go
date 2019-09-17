@@ -72,3 +72,7 @@ func (p *Event) AddTimePoint(tag string, timeStamp time.Time) (Eventer, error) {
 		),
 	}, nil
 }
+
+func (p *Event) GetKey() []byte {
+	return []byte(fmt.Sprintf("%s+%s", p.GetOrigin(), p.GetId()))
+}

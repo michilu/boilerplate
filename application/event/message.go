@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/michilu/boilerplate/infra/keyvalue"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/event"
 	"google.golang.org/grpc/codes"
@@ -42,31 +43,37 @@ func (p *EventWithContext) String() string {
 	return fmt.Sprintf("EventWithContext<Context: %v, Event: %s>", p.GetContext(), p.GetEvent().String())
 }
 
-//go:generate interfacer -for github.com/michilu/boilerplate/application/event.ByteWithContext -as event.ByteWithContexter -o if-ByteWithContexter.go
-//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-ByteWithContexter.go -pkg=$GOPACKAGE gen "ChanT=ByteWithContexter"
+//go:generate interfacer -for github.com/michilu/boilerplate/application/event.KeyValueWithContext -as event.KeyValueWithContexter -o if-KeyValueWithContexter.go
+//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-KeyValueWithContexter.go -pkg=$GOPACKAGE gen "ChanT=KeyValueWithContexter"
 
-type ByteWithContext struct {
-	Context context.Context
-	Byte    *Byte
+type KeyValueWithContext struct {
+	Context  context.Context
+	KeyValue keyvalue.KeyValuer
 }
 
-func (p *ByteWithContext) GetContext() context.Context { return p.Context }
-func (p *ByteWithContext) GetByte() *Byte              { return p.Byte }
+func (p *KeyValueWithContext) GetContext() context.Context     { return p.Context }
+func (p *KeyValueWithContext) GetKeyValue() keyvalue.KeyValuer { return p.KeyValue }
 
-func (p *ByteWithContext) Validate() error {
-	const op = op + ".Byte.Validate"
+func (p *KeyValueWithContext) Validate() error {
+	const op = op + ".KeyValueWithContext.Validate"
 	if p.Context == nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*Byte.Context' is nil"}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*KeyValueWithContext.Context' is nil"}
 		return err
 	}
-	err := p.Byte.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		return err
+	{
+		if p.KeyValue == nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*KeyValueWithContext.KeyValue' is nil"}
+			return err
+		}
+		err := p.KeyValue.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			return err
+		}
 	}
 	return nil
 }
 
-func (p *ByteWithContext) String() string {
-	return fmt.Sprintf("ByteWithContext<Context: %v, Byte: %s>", p.GetContext(), p.GetByte().String())
+func (p *KeyValueWithContext) String() string {
+	return fmt.Sprintf("KeyValueWithContext<Context: %v, KeyValue: %s>", p.GetContext(), p.GetKeyValue().String())
 }

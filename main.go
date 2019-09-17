@@ -85,10 +85,7 @@ func main() {
 		if closer == nil {
 			return
 		}
-		if *closer == nil {
-			return
-		}
-		err := (*closer)()
+		err := closer.Close()
 		if err != nil {
 			const op = op + ".closer"
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
@@ -109,6 +106,7 @@ func main() {
 		ch <- struct{}{}
 	}()
 	sCh := make(chan os.Signal)
+	defer close(sCh)
 	signal.Notify(sCh, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 	select {
 	case <-ch:

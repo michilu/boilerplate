@@ -15,14 +15,14 @@ type EventLoggerGetContexter interface {
 	GetContext() context.Context
 }
 
-// GetPipeEventLogger returns new input(chan<- EventWithContexter)/output(<-chan ByteWithContexter) channels that embedded the given 'func(EventWithContexter) ByteWithContexter'.
+// GetPipeEventLogger returns new input(chan<- EventWithContexter)/output(<-chan KeyValueWithContexter) channels that embedded the given 'func(EventWithContexter) KeyValueWithContexter'.
 func GetPipeEventLogger(
 	ctx context.Context,
-	fn func(EventWithContexter) (ByteWithContexter, error),
+	fn func(EventWithContexter) (KeyValueWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
 	chan<- EventWithContexter,
-	<-chan ByteWithContexter,
+	<-chan KeyValueWithContexter,
 ) {
 	const op = op + ".GetPipeEventLogger"
 
@@ -37,7 +37,7 @@ func GetPipeEventLogger(
 	}
 
 	inCh := make(chan EventWithContexter)
-	outCh := make(chan ByteWithContexter)
+	outCh := make(chan KeyValueWithContexter)
 
 	go func() {
 		const op = op + "#go"
@@ -76,14 +76,14 @@ func GetPipeEventLogger(
 	return inCh, outCh
 }
 
-// GetFanoutEventLogger returns new input(chan<- EventWithContexter)/output(<-chan ByteWithContexter) channels that embedded the given 'func(EventWithContexter) ByteWithContexter'.
+// GetFanoutEventLogger returns new input(chan<- EventWithContexter)/output(<-chan KeyValueWithContexter) channels that embedded the given 'func(EventWithContexter) KeyValueWithContexter'.
 func GetFanoutEventLogger(
 	ctx context.Context,
-	fn func(EventWithContexter) ([]ByteWithContexter, error),
+	fn func(EventWithContexter) ([]KeyValueWithContexter, error),
 	fnErr func(context.Context, error) bool,
 ) (
 	chan<- EventWithContexter,
-	<-chan ByteWithContexter,
+	<-chan KeyValueWithContexter,
 ) {
 	const op = op + ".GetFanoutEventLogger"
 
@@ -98,7 +98,7 @@ func GetFanoutEventLogger(
 	}
 
 	inCh := make(chan EventWithContexter)
-	outCh := make(chan ByteWithContexter)
+	outCh := make(chan KeyValueWithContexter)
 
 	go func() {
 		const op = op + "#go"

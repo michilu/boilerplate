@@ -15,13 +15,13 @@ type SaverGetContexter interface {
 	GetContext() context.Context
 }
 
-// GetPipeSaver returns new input(chan<- ByteWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(ByteWithContexter) ContextContext'.
+// GetPipeSaver returns new input(chan<- KeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(KeyValueWithContexter) ContextContext'.
 func GetPipeSaver(
 	ctx context.Context,
-	fn func(ByteWithContexter) (context.Context, error),
+	fn func(KeyValueWithContexter) (context.Context, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- ByteWithContexter,
+	chan<- KeyValueWithContexter,
 	<-chan context.Context,
 ) {
 	const op = op + ".GetPipeSaver"
@@ -36,7 +36,7 @@ func GetPipeSaver(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan ByteWithContexter)
+	inCh := make(chan KeyValueWithContexter)
 	outCh := make(chan context.Context)
 
 	go func() {
@@ -76,13 +76,13 @@ func GetPipeSaver(
 	return inCh, outCh
 }
 
-// GetFanoutSaver returns new input(chan<- ByteWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(ByteWithContexter) ContextContext'.
+// GetFanoutSaver returns new input(chan<- KeyValueWithContexter)/output(<-chan ContextContext) channels that embedded the given 'func(KeyValueWithContexter) ContextContext'.
 func GetFanoutSaver(
 	ctx context.Context,
-	fn func(ByteWithContexter) ([]context.Context, error),
+	fn func(KeyValueWithContexter) ([]context.Context, error),
 	fnErr func(context.Context, error) bool,
 ) (
-	chan<- ByteWithContexter,
+	chan<- KeyValueWithContexter,
 	<-chan context.Context,
 ) {
 	const op = op + ".GetFanoutSaver"
@@ -97,7 +97,7 @@ func GetFanoutSaver(
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'fnErr' is nil"})
 	}
 
-	inCh := make(chan ByteWithContexter)
+	inCh := make(chan KeyValueWithContexter)
 	outCh := make(chan context.Context)
 
 	go func() {

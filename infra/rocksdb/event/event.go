@@ -2,7 +2,11 @@ package event
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"path/filepath"
 
+	"github.com/michilu/boilerplate/infra/keyvalue"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/viper"
@@ -20,30 +24,58 @@ type Repository struct {
 	dbForReadOnly *gorocksdb.DB
 }
 
-func NewRepository() (*Repository, func() error, error) {
+func NewRepository() (keyvalue.LoadSaveCloser, func() error, error) {
 	const op = op + ".NewRepository"
 	v0 := viper.GetString("infra.rocksdb.event.path")
-	v1, err := gorocksdb.OpenDb(gorocksdb.NewDefaultOptions(), v0)
+	{
+		v1 := filepath.Dir(v0)
+		_, err := os.Stat(v1)
+		if os.IsNotExist(err) {
+			err := os.MkdirAll(v1, 0777)
+			if err != nil {
+				const op = op + ".os.MkdirAll"
+				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
+				return nil, nil, err
+			}
+		}
+	}
+	v1 := gorocksdb.NewDefaultOptions()
+	v1.SetCreateIfMissing(true)
+	v2, err := gorocksdb.OpenDb(v1, v0)
 	if err != nil {
 		const op = op + ".gorocksdb.OpenDb"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return nil, nil, err
 	}
-	v2, err := gorocksdb.OpenDbForReadOnly(gorocksdb.NewDefaultOptions(), v0, false)
+	v3, err := gorocksdb.OpenDbForReadOnly(gorocksdb.NewDefaultOptions(), v0, false)
 	if err != nil {
 		const op = op + ".gorocksdb.OpenDbForReadOnly"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return nil, nil, err
 	}
-	v3 := &Repository{db: v1, dbForReadOnly: v2}
-	return v3, v3.Close, nil
+	v4 := &Repository{db: v2, dbForReadOnly: v3}
+	return v4, v4.Close, nil
 }
 
-func (p *Repository) Close() error {
+func (p *Repository) Close() (err error) {
+	const op = op + ".Repository.Close"
+	defer func() {
+		const op = op + ".recover"
+		e := recover()
+		if e != nil {
+			err = &errs.Error{Op: op, Code: codes.Internal, Message: fmt.Sprintf("%v", e)}
+		}
+	}()
+	if p.db != nil {
+		defer p.db.Close()
+	}
+	if p.dbForReadOnly != nil {
+		defer p.dbForReadOnly.Close()
+	}
 	return nil
 }
 
-func (p *Repository) Load(ctx context.Context, prefix string) (<-chan []byte, error) {
+func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan keyvalue.KeyValuer, error) {
 	const op = op + ".Repository.Load"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
@@ -53,12 +85,21 @@ func (p *Repository) Load(ctx context.Context, prefix string) (<-chan []byte, er
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).Str("prefix", prefix).Msg("arg")
+	t := slog.Trace(ctx)
 
-	if prefix == "" {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'prefix' is ''"}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return nil, err
+	{
+		if prefix == nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'prefix' is nil"}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return nil, err
+		}
+		err := prefix.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return nil, err
+		}
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg("arg")
 	}
 
 	err := &errs.Error{Op: op, Code: codes.Unimplemented}
@@ -66,7 +107,7 @@ func (p *Repository) Load(ctx context.Context, prefix string) (<-chan []byte, er
 	return nil, err
 }
 
-func (p *Repository) Save(ctx context.Context, key string, payload []byte) error {
+func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) error {
 	const op = op + ".Repository.Save"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
@@ -76,20 +117,24 @@ func (p *Repository) Save(ctx context.Context, key string, payload []byte) error
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).Str("key", key).Bytes("payload", payload).Msg("arg")
+	t := slog.Trace(ctx)
 
-	if key == "" {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'key' is ''"}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return err
-	}
-	if len(payload) == 0 {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'payload' is empty"}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return err
+	{
+		if keyvalue == nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'keyvalue' is nil"}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return err
+		}
+		err := keyvalue.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return err
+		}
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg("arg")
 	}
 
-	err := p.db.Put(gorocksdb.NewDefaultWriteOptions(), []byte(key), payload)
+	err := p.db.Put(gorocksdb.NewDefaultWriteOptions(), keyvalue.GetKey(), keyvalue.GetValue())
 	if err != nil {
 		const op = op + ".gorocksdb.DB.Put"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}

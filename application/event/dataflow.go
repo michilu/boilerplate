@@ -2,8 +2,11 @@ package event
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/michilu/boilerplate/infra/keyvalue"
+	infra "github.com/michilu/boilerplate/infra/rocksdb/event"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/event"
 	"github.com/michilu/boilerplate/service/now"
@@ -31,9 +34,27 @@ func Dataflow(ctx context.Context) {
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
 
+	v0, v1, err := infra.NewRepository()
+	if err != nil {
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+		return
+	}
+	defer func(ctx context.Context, v1 func() error) {
+		const op = op + ".closer"
+		err := v1()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+			return
+		}
+	}(ctx, v1)
+
 	tStart := terminate.GetTopicContextContext(topic("start"))
 	tEvent := GetTopicEventWithContexter(topic("system"))
-	tByte := GetTopicByteWithContexter(topic("event"))
+	tKeyValue := GetTopicKeyValueWithContexter(topic("event"))
 	tTerminate := terminate.GetTopicContextContext(topic("terminate"))
 
 	{
@@ -44,11 +65,12 @@ func Dataflow(ctx context.Context) {
 	{
 		iCh, oCh := GetPipeEventLogger(ctx, EventLogger, ErrorHandler)
 		tEvent.Subscribe(iCh)
-		tByte.Publish(ctx, oCh)
+		tKeyValue.Publish(ctx, oCh)
 	}
 	{
-		iCh, oCh := GetPipeSaver(ctx, Saver, ErrorHandler)
-		tByte.Subscribe(iCh)
+		v1 := &Saver{Saver: v0}
+		iCh, oCh := GetPipeSaver(ctx, v1.Save, ErrorHandler)
+		tKeyValue.Subscribe(iCh)
 		tTerminate.Publish(ctx, oCh)
 	}
 
@@ -76,6 +98,7 @@ func Start(ctx context.Context) (EventWithContexter, error) {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
+	t := slog.Trace(ctx)
 
 	v0 := now.Now()
 	v1, err := event.NewEvent(&v0, op)
@@ -88,20 +111,22 @@ func Start(ctx context.Context) (EventWithContexter, error) {
 		Context: ctx,
 		Event:   v1,
 	}
-	err = v2.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		return nil, err
+	{
+		err := v2.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			return nil, err
+		}
 	}
 	a = append(a, trace.StringAttribute("return", v2.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(v2).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
 	return v2, nil
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-EventLogger.go -pkg=$GOPACKAGE gen "Name=eventLogger InT=EventWithContexter OutT=ByteWithContexter"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-EventLogger.go -pkg=$GOPACKAGE gen "Name=eventLogger InT=EventWithContexter OutT=KeyValueWithContexter"
 
-func EventLogger(m EventWithContexter) (ByteWithContexter, error) {
+func EventLogger(m EventWithContexter) (KeyValueWithContexter, error) {
 	const op = op + ".EventLogger"
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
@@ -117,43 +142,53 @@ func EventLogger(m EventWithContexter) (ByteWithContexter, error) {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(m).Msg("arg")
+	t := slog.Trace(ctx)
 
 	a = append(a, trace.StringAttribute("m", m.String()))
-	err := m.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return nil, err
+	{
+		err := m.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return nil, err
+		}
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 	}
 
-	v0, err := event.Marshal(m.GetEvent())
+	v0, err := json.Marshal(m.GetEvent())
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 		return nil, err
 	}
-	v1 := &ByteWithContext{
+	v1 := &KeyValueWithContext{
 		Context: ctx,
-		Byte: &Byte{
-			Byte: v0,
+		KeyValue: &keyvalue.KeyValue{
+			Key:   m.GetEvent().GetKey(),
+			Value: v0,
 		},
 	}
-	err = v1.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return nil, err
+	{
+		err := v1.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return nil, err
+		}
 	}
 	a = append(a, trace.StringAttribute("return", v1.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(v1).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg("return")
 	return v1, nil
 }
 
-//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Saver.go -pkg=$GOPACKAGE gen "Name=saver InT=ByteWithContexter OutT=context.Context"
+//go:generate genny -in=../../service/pipe/pipe.go -out=gen-pipe-Saver.go -pkg=$GOPACKAGE gen "Name=saver InT=KeyValueWithContexter OutT=context.Context"
 
-func Saver(m ByteWithContexter) (context.Context, error) {
-	const op = op + ".Saver"
+type Saver struct {
+	Saver event.Saver
+}
+
+func (p *Saver) Save(m KeyValueWithContexter) (context.Context, error) {
+	const op = op + ".Saver.Save"
 	if m == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
 		return nil, err
@@ -168,14 +203,25 @@ func Saver(m ByteWithContexter) (context.Context, error) {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(m).Msg("arg")
-
-	a = append(a, trace.StringAttribute("m", m.String()))
-	err := m.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return nil, err
+	t := slog.Trace(ctx)
+	{
+		err := m.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return nil, err
+		}
+		a = append(a, trace.StringAttribute("m", m.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+	}
+	{
+		err := event.SaveEventPayload(ctx, p.Saver, m.GetKeyValue())
+		if err != nil {
+			const op = op + ".SaveEventPayload"
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			return nil, err
+		}
 	}
 	return nil, nil
 }

@@ -24,19 +24,24 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 	defer s.End()
 	a := make([]trace.Attribute, 0)
 	defer s.AddAttributes(a...)
-	slog.Logger().Debug().Str("op", op).EmbedObject(slog.Trace(ctx)).EmbedObject(m).Msg("arg")
+	t := slog.Trace(ctx)
 
-	if m == nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return err
+	{
+		if m == nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return err
+		}
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 	}
-	err := m.Validate()
-	if err != nil {
-		const op = op + ".Validate"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		return err
+	{
+		err := m.Validate()
+		if err != nil {
+			const op = op + ".Validate"
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			return err
+		}
 	}
 	const v0 = "application.debug.open-debug-port.command"
 	v1 := viper.GetString(v0)

@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package michilu.boilerplate.infra.keyvalue;
+
+option go_package = "keyvalue";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+// KeyValue is Entity.
+message KeyValue {
+  bytes key = 1 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+  bytes value = 2 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+}
+
+// Prefix is ValueObject.
+message Prefix {
+  bytes prefix = 1 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+}

@@ -159,7 +159,7 @@ type StackdriverZerologWriter struct {
 	ctx context.Context
 }
 
-func (p *StackdriverZerologWriter) Gen() ([]io.Writer, func() error, error) {
+func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 	const op = op + ".StackdriverZerologWriter.Gen"
 	ctx := p.ctx
 	if ctx == nil {
@@ -184,23 +184,28 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, func() error, error) {
 		return nil, nil, err
 	}
 	SetDefaultTracer(writer)
-	closer := func() error {
-		const op = op + ".closer"
-		Logger().Debug().Str("op", op).Msg("start clean up")
-		err := client.Close()
-		if err != nil {
-			const op = op + ".client.Close"
-			return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
-		}
-		Logger().Debug().Str("op", op).Msg("cleaned up")
-		return nil
-	}
 	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg("return")
-	return []io.Writer{writer}, closer, nil
+	return []io.Writer{writer}, &StackdriverCloser{client}, nil
 }
 
 func (p *StackdriverZerologWriter) MarshalZerologObject(e *zerolog.Event) {
 	e.Dict("StackdriverZerologWriter", zerolog.Dict().
 		Str("ctx", fmt.Sprintf("%v", p.ctx)),
 	)
+}
+
+type StackdriverCloser struct {
+	client *logging.Client
+}
+
+func (p *StackdriverCloser) Close() error {
+	const op = op + ".StackdriverCloser.Close"
+	Logger().Debug().Str("op", op).Msg("start clean up")
+	err := p.client.Close()
+	if err != nil {
+		const op = op + ".client.Close"
+		return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
+	}
+	Logger().Debug().Str("op", op).Msg("cleaned up")
+	return nil
 }
