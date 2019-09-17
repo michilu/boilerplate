@@ -98,70 +98,6 @@ package "event" {
 
 
 package "event" {
-	interface "TopicEventEventWithContexter" as event.TopicEventEventWithContexter {
-		+Publish(ctx: context.Context, c: event.EventWithContexter)
-		+Publisher(ctx: context.Context): event.EventWithContexter
-		+Subscribe(c: event.EventWithContexter)
-	}
-}
-
-
-
-package "event" {
-	interface "TopicEventKeyValueWithContexter" as event.TopicEventKeyValueWithContexter {
-		+Publish(ctx: context.Context, c: event.KeyValueWithContexter)
-		+Publisher(ctx: context.Context): event.KeyValueWithContexter
-		+Subscribe(c: event.KeyValueWithContexter)
-	}
-}
-
-
-
-package "event" {
-	class "mapEventEventWithContexter" as event.mapEventEventWithContexter <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*event.tEventEventWithContexter
-		-get(topic: interface{}): event.TopicEventEventWithContexter
-	}
-}
-
-
-
-package "event" {
-	class "mapEventKeyValueWithContexter" as event.mapEventKeyValueWithContexter <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*event.tEventKeyValueWithContexter
-		-get(topic: interface{}): event.TopicEventKeyValueWithContexter
-	}
-}
-
-
-
-package "event" {
-	class "tEventEventWithContexter" as event.tEventEventWithContexter <<E,#FFCC00>> {
-		-mu: sync.RWMutex
-		-c: event.EventWithContexter
-		+Publish(ctx: context.Context, c: event.EventWithContexter)
-		+Publisher(ctx: context.Context): event.EventWithContexter
-		+Subscribe(c: event.EventWithContexter)
-	}
-}
-
-
-
-package "event" {
-	class "tEventKeyValueWithContexter" as event.tEventKeyValueWithContexter <<E,#FFCC00>> {
-		-mu: sync.RWMutex
-		-c: event.KeyValueWithContexter
-		+Publish(ctx: context.Context, c: event.KeyValueWithContexter)
-		+Publisher(ctx: context.Context): event.KeyValueWithContexter
-		+Subscribe(c: event.KeyValueWithContexter)
-	}
-}
-
-
-
-package "event" {
 	class "topic" as event.topic <<V,Orchid>>
 }
 
@@ -197,8 +133,6 @@ package "exporter" {
 	event.StartGetContexter -up-|> debug.ConnectGetContexter
 	event.StartGetContexter -up-|> event.EventLoggerGetContexter
 	event.StartGetContexter -up-|> event.SaverGetContexter
-	event.tEventEventWithContexter -up-|> event.TopicEventEventWithContexter
-	event.tEventKeyValueWithContexter -up-|> event.TopicEventKeyValueWithContexter
 
 
 @enduml

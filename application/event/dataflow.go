@@ -21,9 +21,6 @@ type (
 	topic string
 )
 
-//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=event.EventWithContexter"
-//go:generate genny -in=../../service/topic/topic.go -out=gen-topic-KeyValueWithContexter.go -pkg=$GOPACKAGE gen "ChanT=event.KeyValueWithContexter"
-
 func Dataflow(ctx context.Context) {
 	const op = op + ".Dataflow"
 	if ctx == nil {
@@ -56,8 +53,8 @@ func Dataflow(ctx context.Context) {
 	}(ctx, v1)
 
 	tStart := terminate.GetTopicContextContext(topic("start"))
-	tEvent := GetTopicEventEventWithContexter(topic("system"))
-	tKeyValue := GetTopicEventKeyValueWithContexter(topic("event"))
+	tEvent := event.GetTopicEventWithContexter(topic("system"))
+	tKeyValue := event.GetTopicKeyValueWithContexter(topic("event"))
 	tTerminate := terminate.GetTopicContextContext(topic("terminate"))
 
 	{

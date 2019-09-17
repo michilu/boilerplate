@@ -79,6 +79,7 @@ func (p *Event) GetKey() []byte {
 	return []byte(fmt.Sprintf("%s+%s", p.GetOrigin(), p.GetId()))
 }
 
+//go:generate genny -in=../topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=EventWithContexter"
 //go:generate interfacer -for github.com/michilu/boilerplate/service/event.EventWithContext -as event.EventWithContexter -o if-EventWithContexter.go
 
 type EventWithContext struct {
@@ -111,6 +112,7 @@ func (p *EventWithContext) String() string {
 	return fmt.Sprintf("EventWithContext<Context: %v, Event: %s>", p.GetContext(), p.GetEvent().String())
 }
 
+//go:generate genny -in=../topic/topic.go -out=gen-topic-KeyValueWithContexter.go -pkg=$GOPACKAGE gen "ChanT=KeyValueWithContexter"
 //go:generate interfacer -for github.com/michilu/boilerplate/service/event.KeyValueWithContext -as event.KeyValueWithContexter -o if-KeyValueWithContexter.go
 
 type KeyValueWithContext struct {

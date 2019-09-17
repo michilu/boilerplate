@@ -1,7 +1,35 @@
 @startuml
 
-package "now" {
-	interface "TopicContextContext" as now.TopicContextContext {
+package "pipe" {
+	interface "InT" as pipe.InT
+}
+
+
+
+package "pipe" {
+	interface "NameGetContexter" as pipe.NameGetContexter {
+		+GetContext(): context.Context
+	}
+}
+
+
+
+package "pipe" {
+	interface "OutT" as pipe.OutT
+}
+
+
+
+package "terminate" {
+	interface "TerminateGetContexter" as terminate.TerminateGetContexter {
+		+GetContext(): context.Context
+	}
+}
+
+
+
+package "terminate" {
+	interface "TopicContextContext" as terminate.TopicContextContext {
 		+Publish(ctx: context.Context, c: <-chan context.Context)
 		+Publisher(ctx: context.Context): chan<- context.Context
 		+Subscribe(c: chan<- context.Context)
@@ -10,18 +38,18 @@ package "now" {
 
 
 
-package "now" {
-	class "mapContextContext" as now.mapContextContext <<V,Orchid>> {
+package "terminate" {
+	class "mapContextContext" as terminate.mapContextContext <<V,Orchid>> {
 		-mu: sync.RWMutex
-		-m: map[interface{}]*now.tContextContext
-		-get(topic: interface{}): now.TopicContextContext
+		-m: map[interface{}]*terminate.tContextContext
+		-get(topic: interface{}): terminate.TopicContextContext
 	}
 }
 
 
 
-package "now" {
-	class "tContextContext" as now.tContextContext <<E,#FFCC00>> {
+package "terminate" {
+	class "tContextContext" as terminate.tContextContext <<E,#FFCC00>> {
 		-mu: sync.RWMutex
 		-c: []chan<- context.Context
 		+Publish(ctx: context.Context, c: <-chan context.Context)
@@ -38,8 +66,8 @@ package "debug" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
-		+Validate(): error
 		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -198,9 +226,10 @@ package "event" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
-		+Validate(): error
 		+AddTimePoint(tag: string, timeStamp: time.Time): (event.Eventer, error)
 		+GetKey(): []byte
+		+Validate(): error
+		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -213,7 +242,6 @@ package "event" {
 		+GetId(): []byte
 		+GetOrigin(): string
 		+GetTimePoint(): []*event.TimePoint
-		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -357,6 +385,183 @@ package "event" {
 
 
 
+package "event" {
+	interface "TopicEventWithContexter" as event.TopicEventWithContexter {
+		+Publish(ctx: context.Context, c: <-chan event.EventWithContexter)
+		+Publisher(ctx: context.Context): chan<- event.EventWithContexter
+		+Subscribe(c: chan<- event.EventWithContexter)
+	}
+}
+
+
+
+package "event" {
+	interface "TopicKeyValueWithContexter" as event.TopicKeyValueWithContexter {
+		+Publish(ctx: context.Context, c: <-chan event.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): chan<- event.KeyValueWithContexter
+		+Subscribe(c: chan<- event.KeyValueWithContexter)
+	}
+}
+
+
+
+package "event" {
+	class "mapEventWithContexter" as event.mapEventWithContexter <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*event.tEventWithContexter
+		-get(topic: interface{}): event.TopicEventWithContexter
+	}
+}
+
+
+
+package "event" {
+	class "mapKeyValueWithContexter" as event.mapKeyValueWithContexter <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*event.tKeyValueWithContexter
+		-get(topic: interface{}): event.TopicKeyValueWithContexter
+	}
+}
+
+
+
+package "event" {
+	class "tEventWithContexter" as event.tEventWithContexter <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- event.EventWithContexter
+		+Publish(ctx: context.Context, c: <-chan event.EventWithContexter)
+		+Publisher(ctx: context.Context): chan<- event.EventWithContexter
+		+Subscribe(c: chan<- event.EventWithContexter)
+	}
+}
+
+
+
+package "event" {
+	class "tKeyValueWithContexter" as event.tKeyValueWithContexter <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- event.KeyValueWithContexter
+		+Publish(ctx: context.Context, c: <-chan event.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): chan<- event.KeyValueWithContexter
+		+Subscribe(c: chan<- event.KeyValueWithContexter)
+	}
+}
+
+
+
+package "now" {
+	interface "TopicContextContext" as now.TopicContextContext {
+		+Publish(ctx: context.Context, c: <-chan context.Context)
+		+Publisher(ctx: context.Context): chan<- context.Context
+		+Subscribe(c: chan<- context.Context)
+	}
+}
+
+
+
+package "now" {
+	class "mapContextContext" as now.mapContextContext <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*now.tContextContext
+		-get(topic: interface{}): now.TopicContextContext
+	}
+}
+
+
+
+package "now" {
+	class "tContextContext" as now.tContextContext <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- context.Context
+		+Publish(ctx: context.Context, c: <-chan context.Context)
+		+Publisher(ctx: context.Context): chan<- context.Context
+		+Subscribe(c: chan<- context.Context)
+	}
+}
+
+
+
+package "config" {
+	class "KV" as config.KV <<V,Orchid>> {
+		+K: string
+		+V: interface{}
+	}
+}
+
+
+
+package "update" {
+	interface "UpdateGetContexter" as update.UpdateGetContexter {
+		+GetContext(): context.Context
+	}
+}
+
+
+
+package "topic" {
+	interface "ChanT" as topic.ChanT
+}
+
+
+
+package "topic" {
+	interface "TopicChanT" as topic.TopicChanT {
+		+Publish(ctx: context.Context, c: <-chan topic.ChanT)
+		+Publisher(ctx: context.Context): chan<- topic.ChanT
+		+Subscribe(c: chan<- topic.ChanT)
+	}
+}
+
+
+
+package "topic" {
+	class "mapChanT" as topic.mapChanT <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*topic.tChanT
+		-get(topic: interface{}): topic.TopicChanT
+	}
+}
+
+
+
+package "topic" {
+	class "tChanT" as topic.tChanT <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- topic.ChanT
+		+Publish(ctx: context.Context, c: <-chan topic.ChanT)
+		+Publisher(ctx: context.Context): chan<- topic.ChanT
+		+Subscribe(c: chan<- topic.ChanT)
+	}
+}
+
+
+
+package "errs" {
+	class "Error" as errs.Error <<E,#FFCC00>> {
+		+Code: fmt.Stringer
+		+Message: string
+		+Op: string
+		+Err: error
+		+Error(): string
+		+MarshalZerologObject(e: zerolog.Event)
+	}
+}
+
+
+
+package "semaphore" {
+	interface "Semaphore" as semaphore.Semaphore {
+		+Acquire(ctx: context.Context, n: int): error
+		+GetCount(): int
+		+GetLimit(): int
+		+Release(n: int): int
+		+SetLimit(limit: int)
+		+TryAcquire(n: int): bool
+	}
+}
+
+
+
 package "slog" {
 	interface "Closer" as slog.Closer {
 		+Close(): error
@@ -435,147 +640,6 @@ package "slog" {
 
 
 
-package "update" {
-	interface "UpdateGetContexter" as update.UpdateGetContexter {
-		+GetContext(): context.Context
-	}
-}
-
-
-
-package "errs" {
-	class "Error" as errs.Error <<E,#FFCC00>> {
-		+Code: fmt.Stringer
-		+Message: string
-		+Op: string
-		+Err: error
-		+Error(): string
-		+MarshalZerologObject(e: zerolog.Event)
-	}
-}
-
-
-
-package "pipe" {
-	interface "InT" as pipe.InT
-}
-
-
-
-package "pipe" {
-	interface "NameGetContexter" as pipe.NameGetContexter {
-		+GetContext(): context.Context
-	}
-}
-
-
-
-package "pipe" {
-	interface "OutT" as pipe.OutT
-}
-
-
-
-package "semaphore" {
-	interface "Semaphore" as semaphore.Semaphore {
-		+Acquire(ctx: context.Context, n: int): error
-		+GetCount(): int
-		+GetLimit(): int
-		+Release(n: int): int
-		+SetLimit(limit: int)
-		+TryAcquire(n: int): bool
-	}
-}
-
-
-
-package "terminate" {
-	interface "TerminateGetContexter" as terminate.TerminateGetContexter {
-		+GetContext(): context.Context
-	}
-}
-
-
-
-package "terminate" {
-	interface "TopicContextContext" as terminate.TopicContextContext {
-		+Publish(ctx: context.Context, c: <-chan context.Context)
-		+Publisher(ctx: context.Context): chan<- context.Context
-		+Subscribe(c: chan<- context.Context)
-	}
-}
-
-
-
-package "terminate" {
-	class "mapContextContext" as terminate.mapContextContext <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*terminate.tContextContext
-		-get(topic: interface{}): terminate.TopicContextContext
-	}
-}
-
-
-
-package "terminate" {
-	class "tContextContext" as terminate.tContextContext <<E,#FFCC00>> {
-		-mu: sync.RWMutex
-		-c: []chan<- context.Context
-		+Publish(ctx: context.Context, c: <-chan context.Context)
-		+Publisher(ctx: context.Context): chan<- context.Context
-		+Subscribe(c: chan<- context.Context)
-	}
-}
-
-
-
-package "topic" {
-	interface "ChanT" as topic.ChanT
-}
-
-
-
-package "topic" {
-	interface "TopicChanT" as topic.TopicChanT {
-		+Publish(ctx: context.Context, c: <-chan topic.ChanT)
-		+Publisher(ctx: context.Context): chan<- topic.ChanT
-		+Subscribe(c: chan<- topic.ChanT)
-	}
-}
-
-
-
-package "topic" {
-	class "mapChanT" as topic.mapChanT <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*topic.tChanT
-		-get(topic: interface{}): topic.TopicChanT
-	}
-}
-
-
-
-package "topic" {
-	class "tChanT" as topic.tChanT <<E,#FFCC00>> {
-		-mu: sync.RWMutex
-		-c: []chan<- topic.ChanT
-		+Publish(ctx: context.Context, c: <-chan topic.ChanT)
-		+Publisher(ctx: context.Context): chan<- topic.ChanT
-		+Subscribe(c: chan<- topic.ChanT)
-	}
-}
-
-
-
-package "config" {
-	class "KV" as config.KV <<V,Orchid>> {
-		+K: string
-		+V: interface{}
-	}
-}
-
-
-
 package "meta" {
 	class "Meta" as meta.Meta <<E,#FFCC00>> {
 		+Name: string
@@ -588,6 +652,7 @@ package "meta" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -606,7 +671,6 @@ package "meta" {
 		+GetVcs(): *meta.Vcs
 		+Validate(): error
 		+JSON(): []byte
-		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -696,46 +760,60 @@ package "meta" {
 
 
 
-	now.TopicContextContext -up-|> pipe.InT
-	now.TopicContextContext -up-|> pipe.OutT
-	now.TopicContextContext -up-|> terminate.TopicContextContext
-	now.TopicContextContext -up-|> topic.ChanT
-	now.mapContextContext -up-|> pipe.InT
-	now.mapContextContext -up-|> pipe.OutT
-	now.mapContextContext -up-|> topic.ChanT
-	now.tContextContext -up-|> now.TopicContextContext
-	now.tContextContext -up-|> pipe.InT
-	now.tContextContext -up-|> pipe.OutT
-	now.tContextContext -up-|> terminate.TopicContextContext
-	now.tContextContext -up-|> topic.ChanT
-	debug.Client -up-|> debug.Clienter
-	debug.Client -up-|> event.Marshaler
+	pipe.InT -up-|> pipe.OutT
+	pipe.InT -up-|> topic.ChanT
+	pipe.NameGetContexter -up-|> pipe.InT
+	pipe.NameGetContexter -up-|> pipe.OutT
+	pipe.NameGetContexter -up-|> terminate.TerminateGetContexter
+	pipe.NameGetContexter -up-|> update.UpdateGetContexter
+	pipe.NameGetContexter -up-|> topic.ChanT
+	pipe.OutT -up-|> pipe.InT
+	pipe.OutT -up-|> topic.ChanT
+	terminate.TerminateGetContexter -up-|> pipe.InT
+	terminate.TerminateGetContexter -up-|> pipe.NameGetContexter
+	terminate.TerminateGetContexter -up-|> pipe.OutT
+	terminate.TerminateGetContexter -up-|> update.UpdateGetContexter
+	terminate.TerminateGetContexter -up-|> topic.ChanT
+	terminate.TopicContextContext -up-|> pipe.InT
+	terminate.TopicContextContext -up-|> pipe.OutT
+	terminate.TopicContextContext -up-|> now.TopicContextContext
+	terminate.TopicContextContext -up-|> topic.ChanT
+	terminate.mapContextContext -up-|> pipe.InT
+	terminate.mapContextContext -up-|> pipe.OutT
+	terminate.mapContextContext -up-|> topic.ChanT
+	terminate.tContextContext -up-|> pipe.InT
+	terminate.tContextContext -up-|> pipe.OutT
+	terminate.tContextContext -up-|> terminate.TopicContextContext
+	terminate.tContextContext -up-|> now.TopicContextContext
+	terminate.tContextContext -up-|> topic.ChanT
 	debug.Client -up-|> pipe.InT
 	debug.Client -up-|> pipe.OutT
+	debug.Client -up-|> debug.Clienter
+	debug.Client -up-|> event.Marshaler
 	debug.Client -up-|> topic.ChanT
 	debug.ClientRepository -up-|> pipe.InT
 	debug.ClientRepository -up-|> pipe.OutT
 	debug.ClientRepository -up-|> topic.ChanT
-	debug.ClientWithContext -up-|> debug.ClientWithContexter
-	debug.ClientWithContext -up-|> debug.Clienter
-	debug.ClientWithContext -up-|> event.Marshaler
-	debug.ClientWithContext -up-|> update.UpdateGetContexter
 	debug.ClientWithContext -up-|> pipe.InT
 	debug.ClientWithContext -up-|> pipe.NameGetContexter
 	debug.ClientWithContext -up-|> pipe.OutT
 	debug.ClientWithContext -up-|> terminate.TerminateGetContexter
+	debug.ClientWithContext -up-|> debug.ClientWithContexter
+	debug.ClientWithContext -up-|> debug.Clienter
+	debug.ClientWithContext -up-|> event.Marshaler
+	debug.ClientWithContext -up-|> update.UpdateGetContexter
 	debug.ClientWithContext -up-|> topic.ChanT
-	debug.ClientWithContexter -up-|> debug.Clienter
-	debug.ClientWithContexter -up-|> event.Marshaler
-	debug.ClientWithContexter -up-|> update.UpdateGetContexter
 	debug.ClientWithContexter -up-|> pipe.InT
 	debug.ClientWithContexter -up-|> pipe.NameGetContexter
 	debug.ClientWithContexter -up-|> pipe.OutT
 	debug.ClientWithContexter -up-|> terminate.TerminateGetContexter
+	debug.ClientWithContexter -up-|> debug.Clienter
+	debug.ClientWithContexter -up-|> event.Marshaler
+	debug.ClientWithContexter -up-|> update.UpdateGetContexter
 	debug.ClientWithContexter -up-|> topic.ChanT
-	debug.Clienter -up-|> event.Marshaler
 	debug.Clienter -up-|> pipe.InT
 	debug.Clienter -up-|> pipe.OutT
+	debug.Clienter -up-|> event.Marshaler
 	debug.Clienter -up-|> topic.ChanT
 	debug.TopicClientWithContexter -up-|> pipe.InT
 	debug.TopicClientWithContexter -up-|> pipe.OutT
@@ -749,52 +827,52 @@ package "meta" {
 	debug.mapClienter -up-|> pipe.InT
 	debug.mapClienter -up-|> pipe.OutT
 	debug.mapClienter -up-|> topic.ChanT
-	debug.tClientWithContexter -up-|> debug.TopicClientWithContexter
 	debug.tClientWithContexter -up-|> pipe.InT
 	debug.tClientWithContexter -up-|> pipe.OutT
+	debug.tClientWithContexter -up-|> debug.TopicClientWithContexter
 	debug.tClientWithContexter -up-|> topic.ChanT
-	debug.tClienter -up-|> debug.TopicClienter
 	debug.tClienter -up-|> pipe.InT
 	debug.tClienter -up-|> pipe.OutT
+	debug.tClienter -up-|> debug.TopicClienter
 	debug.tClienter -up-|> topic.ChanT
-	event.Closer -up-|> slog.Closer
 	event.Closer -up-|> pipe.InT
 	event.Closer -up-|> pipe.OutT
 	event.Closer -up-|> topic.ChanT
-	event.Event -up-|> event.Eventer
-	event.Event -up-|> event.Marshaler
+	event.Closer -up-|> slog.Closer
 	event.Event -up-|> pipe.InT
 	event.Event -up-|> pipe.OutT
+	event.Event -up-|> event.Eventer
+	event.Event -up-|> event.Marshaler
 	event.Event -up-|> topic.ChanT
-	event.EventWithContext -up-|> event.EventWithContexter
-	event.EventWithContext -up-|> update.UpdateGetContexter
 	event.EventWithContext -up-|> pipe.InT
 	event.EventWithContext -up-|> pipe.NameGetContexter
 	event.EventWithContext -up-|> pipe.OutT
 	event.EventWithContext -up-|> terminate.TerminateGetContexter
+	event.EventWithContext -up-|> event.EventWithContexter
+	event.EventWithContext -up-|> update.UpdateGetContexter
 	event.EventWithContext -up-|> topic.ChanT
-	event.EventWithContexter -up-|> update.UpdateGetContexter
 	event.EventWithContexter -up-|> pipe.InT
 	event.EventWithContexter -up-|> pipe.NameGetContexter
 	event.EventWithContexter -up-|> pipe.OutT
 	event.EventWithContexter -up-|> terminate.TerminateGetContexter
+	event.EventWithContexter -up-|> update.UpdateGetContexter
 	event.EventWithContexter -up-|> topic.ChanT
-	event.Eventer -up-|> event.Marshaler
 	event.Eventer -up-|> pipe.InT
 	event.Eventer -up-|> pipe.OutT
+	event.Eventer -up-|> event.Marshaler
 	event.Eventer -up-|> topic.ChanT
-	event.KeyValueWithContext -up-|> event.KeyValueWithContexter
-	event.KeyValueWithContext -up-|> update.UpdateGetContexter
 	event.KeyValueWithContext -up-|> pipe.InT
 	event.KeyValueWithContext -up-|> pipe.NameGetContexter
 	event.KeyValueWithContext -up-|> pipe.OutT
 	event.KeyValueWithContext -up-|> terminate.TerminateGetContexter
+	event.KeyValueWithContext -up-|> event.KeyValueWithContexter
+	event.KeyValueWithContext -up-|> update.UpdateGetContexter
 	event.KeyValueWithContext -up-|> topic.ChanT
-	event.KeyValueWithContexter -up-|> update.UpdateGetContexter
 	event.KeyValueWithContexter -up-|> pipe.InT
 	event.KeyValueWithContexter -up-|> pipe.NameGetContexter
 	event.KeyValueWithContexter -up-|> pipe.OutT
 	event.KeyValueWithContexter -up-|> terminate.TerminateGetContexter
+	event.KeyValueWithContexter -up-|> update.UpdateGetContexter
 	event.KeyValueWithContexter -up-|> topic.ChanT
 	event.Keyer -up-|> pipe.InT
 	event.Keyer -up-|> pipe.OutT
@@ -811,71 +889,46 @@ package "meta" {
 	event.TimePoint -up-|> pipe.InT
 	event.TimePoint -up-|> pipe.OutT
 	event.TimePoint -up-|> topic.ChanT
-	slog.Closer -up-|> event.Closer
-	slog.Closer -up-|> pipe.InT
-	slog.Closer -up-|> pipe.OutT
-	slog.Closer -up-|> topic.ChanT
-	slog.HookMeta -up-|> pipe.InT
-	slog.HookMeta -up-|> pipe.OutT
-	slog.HookMeta -up-|> topic.ChanT
-	slog.StackdriverCloser -up-|> event.Closer
-	slog.StackdriverCloser -up-|> slog.Closer
-	slog.StackdriverCloser -up-|> pipe.InT
-	slog.StackdriverCloser -up-|> pipe.OutT
-	slog.StackdriverCloser -up-|> topic.ChanT
-	slog.StackdriverLoggingWriter -up-|> slog.Tracer
-	slog.StackdriverLoggingWriter -up-|> pipe.InT
-	slog.StackdriverLoggingWriter -up-|> pipe.OutT
-	slog.StackdriverLoggingWriter -up-|> topic.ChanT
-	slog.StackdriverZerologWriter -up-|> pipe.InT
-	slog.StackdriverZerologWriter -up-|> pipe.OutT
-	slog.StackdriverZerologWriter -up-|> topic.ChanT
-	slog.TraceObject -up-|> pipe.InT
-	slog.TraceObject -up-|> pipe.OutT
-	slog.TraceObject -up-|> topic.ChanT
-	slog.Tracer -up-|> pipe.InT
-	slog.Tracer -up-|> pipe.OutT
-	slog.Tracer -up-|> topic.ChanT
-	slog.rawJSON -up-|> pipe.InT
-	slog.rawJSON -up-|> pipe.OutT
-	slog.rawJSON -up-|> topic.ChanT
+	event.TopicEventWithContexter -up-|> pipe.InT
+	event.TopicEventWithContexter -up-|> pipe.OutT
+	event.TopicEventWithContexter -up-|> topic.ChanT
+	event.TopicKeyValueWithContexter -up-|> pipe.InT
+	event.TopicKeyValueWithContexter -up-|> pipe.OutT
+	event.TopicKeyValueWithContexter -up-|> topic.ChanT
+	event.mapEventWithContexter -up-|> pipe.InT
+	event.mapEventWithContexter -up-|> pipe.OutT
+	event.mapEventWithContexter -up-|> topic.ChanT
+	event.mapKeyValueWithContexter -up-|> pipe.InT
+	event.mapKeyValueWithContexter -up-|> pipe.OutT
+	event.mapKeyValueWithContexter -up-|> topic.ChanT
+	event.tEventWithContexter -up-|> pipe.InT
+	event.tEventWithContexter -up-|> pipe.OutT
+	event.tEventWithContexter -up-|> event.TopicEventWithContexter
+	event.tEventWithContexter -up-|> topic.ChanT
+	event.tKeyValueWithContexter -up-|> pipe.InT
+	event.tKeyValueWithContexter -up-|> pipe.OutT
+	event.tKeyValueWithContexter -up-|> event.TopicKeyValueWithContexter
+	event.tKeyValueWithContexter -up-|> topic.ChanT
+	now.TopicContextContext -up-|> pipe.InT
+	now.TopicContextContext -up-|> pipe.OutT
+	now.TopicContextContext -up-|> terminate.TopicContextContext
+	now.TopicContextContext -up-|> topic.ChanT
+	now.mapContextContext -up-|> pipe.InT
+	now.mapContextContext -up-|> pipe.OutT
+	now.mapContextContext -up-|> topic.ChanT
+	now.tContextContext -up-|> pipe.InT
+	now.tContextContext -up-|> pipe.OutT
+	now.tContextContext -up-|> terminate.TopicContextContext
+	now.tContextContext -up-|> now.TopicContextContext
+	now.tContextContext -up-|> topic.ChanT
+	config.KV -up-|> pipe.InT
+	config.KV -up-|> pipe.OutT
+	config.KV -up-|> topic.ChanT
 	update.UpdateGetContexter -up-|> pipe.InT
 	update.UpdateGetContexter -up-|> pipe.NameGetContexter
 	update.UpdateGetContexter -up-|> pipe.OutT
 	update.UpdateGetContexter -up-|> terminate.TerminateGetContexter
 	update.UpdateGetContexter -up-|> topic.ChanT
-	errs.Error -up-|> pipe.InT
-	errs.Error -up-|> pipe.OutT
-	errs.Error -up-|> topic.ChanT
-	pipe.InT -up-|> pipe.OutT
-	pipe.InT -up-|> topic.ChanT
-	pipe.NameGetContexter -up-|> update.UpdateGetContexter
-	pipe.NameGetContexter -up-|> pipe.InT
-	pipe.NameGetContexter -up-|> pipe.OutT
-	pipe.NameGetContexter -up-|> terminate.TerminateGetContexter
-	pipe.NameGetContexter -up-|> topic.ChanT
-	pipe.OutT -up-|> pipe.InT
-	pipe.OutT -up-|> topic.ChanT
-	semaphore.Semaphore -up-|> pipe.InT
-	semaphore.Semaphore -up-|> pipe.OutT
-	semaphore.Semaphore -up-|> topic.ChanT
-	terminate.TerminateGetContexter -up-|> update.UpdateGetContexter
-	terminate.TerminateGetContexter -up-|> pipe.InT
-	terminate.TerminateGetContexter -up-|> pipe.NameGetContexter
-	terminate.TerminateGetContexter -up-|> pipe.OutT
-	terminate.TerminateGetContexter -up-|> topic.ChanT
-	terminate.TopicContextContext -up-|> now.TopicContextContext
-	terminate.TopicContextContext -up-|> pipe.InT
-	terminate.TopicContextContext -up-|> pipe.OutT
-	terminate.TopicContextContext -up-|> topic.ChanT
-	terminate.mapContextContext -up-|> pipe.InT
-	terminate.mapContextContext -up-|> pipe.OutT
-	terminate.mapContextContext -up-|> topic.ChanT
-	terminate.tContextContext -up-|> now.TopicContextContext
-	terminate.tContextContext -up-|> pipe.InT
-	terminate.tContextContext -up-|> pipe.OutT
-	terminate.tContextContext -up-|> terminate.TopicContextContext
-	terminate.tContextContext -up-|> topic.ChanT
 	topic.ChanT -up-|> pipe.InT
 	topic.ChanT -up-|> pipe.OutT
 	topic.TopicChanT -up-|> pipe.InT
@@ -888,17 +941,48 @@ package "meta" {
 	topic.tChanT -up-|> pipe.OutT
 	topic.tChanT -up-|> topic.ChanT
 	topic.tChanT -up-|> topic.TopicChanT
-	config.KV -up-|> pipe.InT
-	config.KV -up-|> pipe.OutT
-	config.KV -up-|> topic.ChanT
-	meta.Meta -up-|> event.Marshaler
+	errs.Error -up-|> pipe.InT
+	errs.Error -up-|> pipe.OutT
+	errs.Error -up-|> topic.ChanT
+	semaphore.Semaphore -up-|> pipe.InT
+	semaphore.Semaphore -up-|> pipe.OutT
+	semaphore.Semaphore -up-|> topic.ChanT
+	slog.Closer -up-|> pipe.InT
+	slog.Closer -up-|> pipe.OutT
+	slog.Closer -up-|> event.Closer
+	slog.Closer -up-|> topic.ChanT
+	slog.HookMeta -up-|> pipe.InT
+	slog.HookMeta -up-|> pipe.OutT
+	slog.HookMeta -up-|> topic.ChanT
+	slog.StackdriverCloser -up-|> pipe.InT
+	slog.StackdriverCloser -up-|> pipe.OutT
+	slog.StackdriverCloser -up-|> event.Closer
+	slog.StackdriverCloser -up-|> topic.ChanT
+	slog.StackdriverCloser -up-|> slog.Closer
+	slog.StackdriverLoggingWriter -up-|> pipe.InT
+	slog.StackdriverLoggingWriter -up-|> pipe.OutT
+	slog.StackdriverLoggingWriter -up-|> topic.ChanT
+	slog.StackdriverLoggingWriter -up-|> slog.Tracer
+	slog.StackdriverZerologWriter -up-|> pipe.InT
+	slog.StackdriverZerologWriter -up-|> pipe.OutT
+	slog.StackdriverZerologWriter -up-|> topic.ChanT
+	slog.TraceObject -up-|> pipe.InT
+	slog.TraceObject -up-|> pipe.OutT
+	slog.TraceObject -up-|> topic.ChanT
+	slog.Tracer -up-|> pipe.InT
+	slog.Tracer -up-|> pipe.OutT
+	slog.Tracer -up-|> topic.ChanT
+	slog.rawJSON -up-|> pipe.InT
+	slog.rawJSON -up-|> pipe.OutT
+	slog.rawJSON -up-|> topic.ChanT
 	meta.Meta -up-|> pipe.InT
 	meta.Meta -up-|> pipe.OutT
+	meta.Meta -up-|> event.Marshaler
 	meta.Meta -up-|> topic.ChanT
 	meta.Meta -up-|> meta.Metaer
-	meta.Metaer -up-|> event.Marshaler
 	meta.Metaer -up-|> pipe.InT
 	meta.Metaer -up-|> pipe.OutT
+	meta.Metaer -up-|> event.Marshaler
 	meta.Metaer -up-|> topic.ChanT
 	meta.Runtime -up-|> pipe.InT
 	meta.Runtime -up-|> pipe.OutT
