@@ -72,6 +72,7 @@ NOT the Event Sourcing System.
 
 ### RocksDB
 - [rocksdb/INSTALL.md at master · facebook/rocksdb](https://github.com/facebook/rocksdb/blob/master/INSTALL.md#supported-platforms)
+- [tecbot/gorocksdb: gorocksdb is a Go wrapper for RocksDB](https://github.com/tecbot/gorocksdb#install)
 
 #### on macOS
 

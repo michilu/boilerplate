@@ -18,6 +18,12 @@ LDFLAGS:=-ldflags=" \
 -X main.hash=$(HASH) \
 -X main.serial=$(SERIAL) \
 "
+UNAME:=$(shell uname -s)
+ifeq ($(UNAME),Linux)
+CGO_FLAGS:=\
+CGO_CFLAGS="-I$${PWD}/lib/rocksdb/include" \
+CGO_LDFLAGS="-L$${PWD}/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
+endif
 
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
@@ -52,7 +58,7 @@ GOPHERJS:=$(APP_DIR_PATH)/web/gopher.js
 LIBGO:=$(wildcard lib/*.go)
 GOLIB:=$(LIBGO:.go=.so)
 .SUFFIXES: .go .so
-.go.so: vendor
+.go.so:
 	$(GO) build -buildmode=c-shared -o $@ $<
 %.pb.go: %.proto
 	prototool all $<
@@ -67,9 +73,9 @@ uml:
 	for i in domain application service usecase; do\
   [ -d $$i ] && gouml init --file $$i --out $$i/$$i.puml || echo no exists $$i;\
   done
-$(VALIDATOR_PB_GO): vendor
+$(VALIDATOR_PB_GO):
 .PHONY: proto
-proto: vendor $(PB_GO) $(VALIDATOR_PB_GO)
+proto: $(PB_GO) $(VALIDATOR_PB_GO)
 .PHONY: golang
 golang: $(GOBIN) $(GOLIB)
 .PHONY: gopherjs
@@ -105,16 +111,18 @@ $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 go-get: $(GOSRC)
 	echo > go.mod
 	rm -rf vendor
-	$(GOM) build $(LDFLAGS)
+	$(CGO_FLAGS) \
+ $(GOM) build $(LDFLAGS)
 
-$(GOBIN): vendor $(GOSRC) $(GOCEL)
-	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
+$(GOBIN): $(GOSRC) $(GOCEL)
+ $(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
 
 GOX_OSARCH:=--osarch="darwin/amd64 linux/amd64 linux/arm"
 
 .PHONY: channel
-channel: vendor $(GOSRC)
+channel: $(GOSRC)
 	time \
+ $(CGO_FLAGS) \
  GO111MODULE=on gox $(GOX_OSARCH) \
  -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
@@ -123,8 +131,9 @@ channel: vendor $(GOSRC)
 	time go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
 
 .PHONY: release
-release: vendor $(GOSRC) $(GOCEL)
+release: $(GOSRC) $(GOCEL)
 	time \
+ $(CGO_FLAGS) \
  GO111MODULE=on gox $(GOX_OSARCH) \
  -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
@@ -136,7 +145,7 @@ release: vendor $(GOSRC) $(GOCEL)
 package:
 	./assets/ci/package.sh
 
-$(GOPHERJS): vendor $(GOSRC) $(GOCEL)
+$(GOPHERJS): $(GOSRC) $(GOCEL)
 	@# https://github.com/gopherjs/gopherjs/issues/598#issuecomment-282563634
 	-find $(GOPATH)/pkg -depth 1 -type d -name "*_js" -exec rm -fr {} \;
 	-find $(GOPATH)/pkg -depth 1 -type d -name "*_js_min" -exec rm -fr {} \;
@@ -233,8 +242,9 @@ clean:
   done
 
 .PHONY: test
-test: vendor
-	$(GO) test $(PKG)/...
+test:
+	$(CGO_FLAGS) \
+ $(GO) test $(PKG)/...
 
 .PHONY: pprof
 pprof:
@@ -242,11 +252,12 @@ pprof:
 
 .PHONY: bench
 bench:
+	$(CGO_FLAGS) \
 	$(GO) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
 
 .PHONY: coverage
-coverage: vendor
+coverage:
 	@for pkg in $(GOLIST); do\
 		echo start test for $$pkg;\
 		$(GOM) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=atomic;\
@@ -255,7 +266,7 @@ coverage: vendor
 	$(GOM) tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: lint
-lint: vendor
+lint:
 	-gofmt -s -w .
 	@echo
 	-echo $(GOLIST) | xargs -L1 golint
