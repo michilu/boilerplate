@@ -2,6 +2,8 @@ module github.com/michilu/boilerplate
 
 go 1.12
 
+replace github.com/tecbot/gorocksdb => github.com/michilu/gorocksdb v0.0.0-20190920030554-f0de349575ca
+
 require (
 	cloud.google.com/go v0.44.3 // indirect
 	cloud.google.com/go/logging v1.0.0

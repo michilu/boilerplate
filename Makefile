@@ -22,7 +22,7 @@ UNAME:=$(shell uname -s)
 ifeq ($(UNAME),Linux)
 CGO_FLAGS:=\
 CGO_CFLAGS="-I$${PWD}/lib/rocksdb/include" \
-CGO_LDFLAGS="-L$${PWD}/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd"
+CGO_LDFLAGS="-L$${PWD}/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl"
 endif
 
 COMMIT:=4b825dc
@@ -115,13 +115,13 @@ go-get: $(GOSRC)
 $(GOBIN): deps $(GOSRC) $(GOCEL)
 	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
 
-GOX_OSARCH:=--osarch="darwin/amd64 linux/amd64 linux/arm"
+GOX_OPTION:=-osarch="darwin/amd64 linux/amd64 linux/arm"
 
 .PHONY: channel
 channel: deps $(GOSRC)
 	time \
  $(CGO_FLAGS) \
- GO111MODULE=on gox $(GOX_OSARCH) \
+ GO111MODULE=on gox $(GOX_OPTION) \
  -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
 	mkdir -p docs/channel/$(BRANCH)/$(GOBIN)
@@ -132,7 +132,7 @@ channel: deps $(GOSRC)
 release: deps $(GOSRC) $(GOCEL)
 	time \
  $(CGO_FLAGS) \
- GO111MODULE=on gox $(GOX_OSARCH) \
+ GO111MODULE=on gox $(GOX_OPTION) \
  -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
 	mkdir -p docs/release/$(GOBIN)

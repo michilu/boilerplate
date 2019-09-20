@@ -3,7 +3,58 @@
 # Install
 Use `go get -u github.com/michilu/boilerplate`.
 
+OR
+
+```console
+$ git clone --depth=1 https://github.com/michilu/boilerplate.git
+$ cd boilerplate
+```
+
+## resolve dependencies
+
+#### on macOS
+
+```console
+$ brew install rocksdb
+```
+
+#### on ubuntu
+```console
+$ ./assets/script/rocksdb-deps.sh
+$ ./assets/script/rocksdb.sh 6.2.2
+```
+
+then,
+
+```console
+$ ./assets/script/gorocksdb.sh
+$ make
+```
+
 # develop
+
+## dependencies
+
+### protobuf
+- [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
+  - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
+- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
+- [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
+
+### RocksDB
+- [rocksdb/INSTALL.md at master · facebook/rocksdb](https://github.com/facebook/rocksdb/blob/master/INSTALL.md#supported-platforms)
+- [tecbot/gorocksdb: gorocksdb is a Go wrapper for RocksDB](https://github.com/tecbot/gorocksdb#install)
+
+- [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
+- [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
+- [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
+
+### go generate
+
+```console
+$ go get -u github.com/cheekybits/genny
+$ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21, 2018
+```
 
 ## build
 
@@ -57,38 +108,6 @@ Each directory contains:
 
 ### Event-driven architecture
 NOT the Event Sourcing System.
-
-## dependencies
-
-### protobuf
-- [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
-  - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
-- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
-- [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
-
-- [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
-- [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
-- [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
-
-### RocksDB
-- [rocksdb/INSTALL.md at master · facebook/rocksdb](https://github.com/facebook/rocksdb/blob/master/INSTALL.md#supported-platforms)
-- [tecbot/gorocksdb: gorocksdb is a Go wrapper for RocksDB](https://github.com/tecbot/gorocksdb#install)
-
-#### on macOS
-
-```console
-$ brew install rocksdb
-$ CGO_CFLAGS="-I/usr/local/Cellar/rocksdb/6.1.2/include" \
-CGO_LDFLAGS="-L/usr/local/Cellar/rocksdb/6.1.2 -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4" \
-  go get -u github.com/tecbot/gorocksdb
-```
-
-### go generate
-
-```console
-$ go get -u github.com/cheekybits/genny
-$ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21, 2018
-```
 
 # deploy
 
