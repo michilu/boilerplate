@@ -18,7 +18,6 @@
 /docs
 /hackernews/dart/pubspec.lock
 /package
-/vendor
 Gemfile.lock
 go.sum
 package-lock.json
