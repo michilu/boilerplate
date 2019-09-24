@@ -15,5 +15,7 @@ id=''
 command='ssh -i ~/.ssh/id_ed25519 -R 12345:localhost:12345 user@localhost while true;do sleep 1d;done'
 [application.event]
 enable=true
+[infra.nutsdb.event]
+path='assets/db/event.db'
 [infra.rocksdb.event]
 path='assets/db/event.db'

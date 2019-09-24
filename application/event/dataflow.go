@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/michilu/boilerplate/infra/keyvalue"
-	infra "github.com/michilu/boilerplate/infra/rocksdb/event"
+	infra "github.com/michilu/boilerplate/infra/nutsdb/event"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/event"
 	"github.com/michilu/boilerplate/service/now"

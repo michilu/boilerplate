@@ -43,6 +43,7 @@ require (
 	github.com/tecbot/gorocksdb v0.0.0-20190705090504-162552197222
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/valyala/fastjson v1.4.1
+	github.com/xujiajun/nutsdb v0.4.0
 	go.opencensus.io v0.22.0
 	gocloud.dev v0.16.0
 	golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297 // indirect
