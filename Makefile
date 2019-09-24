@@ -18,13 +18,6 @@ LDFLAGS:=-ldflags=" \
 -X main.hash=$(HASH) \
 -X main.serial=$(SERIAL) \
 "
-UNAME:=$(shell uname -s)
-ifeq ($(UNAME),Linux)
-CGO_FLAGS:=\
- CGO_ENABLED=1\
- CGO_CFLAGS="-I$${PWD}/assets/lib/rocksdb/include"\
- CGO_LDFLAGS="-L$${PWD}/assets/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl"
-endif
 
 COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
@@ -111,25 +104,17 @@ $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 go-get: $(GOSRC)
 	echo > go.mod
 	time \
- $(CGO_FLAGS) \
  $(GOM) build $(LDFLAGS)
 
 $(GOBIN): deps $(GOSRC) $(GOCEL)
 	time \
- $(CGO_FLAGS) \
  $(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
-
-CC:=
-ifeq ($(UNAME),Darwin)
-CC=CC=/usr/local/bin/x86_64-linux-musl-cc
-endif
 
 GOX_OPTION:=-osarch="darwin/amd64 linux/amd64 linux/arm"
 
 .PHONY: channel
 channel: deps $(GOSRC)
 	time \
- $(CGO_FLAGS) \
  GO111MODULE=on gox $(GOX_OPTION) \
  -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
@@ -140,7 +125,6 @@ channel: deps $(GOSRC)
 .PHONY: release
 release: deps $(GOSRC) $(GOCEL)
 	time \
- $(CGO_FLAGS) \
  GO111MODULE=on gox $(GOX_OPTION) \
  -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
@@ -249,8 +233,7 @@ clean:
 
 .PHONY: test
 test: deps
-	$(CGO_FLAGS) \
- $(GOM) test $(PKG)/...
+	$(GOM) test $(PKG)/...
 
 .PHONY: pprof
 pprof:
@@ -258,7 +241,6 @@ pprof:
 
 .PHONY: bench
 bench:
-	$(CGO_FLAGS) \
 	$(GOM) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
 

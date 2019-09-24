@@ -1,1 +1,0 @@
-load_prefix assets

@@ -2,8 +2,6 @@ module github.com/michilu/boilerplate
 
 go 1.12
 
-replace github.com/tecbot/gorocksdb => github.com/michilu/gorocksdb v0.0.0-20190920030554-f0de349575ca
-
 require (
 	cloud.google.com/go v0.44.3 // indirect
 	cloud.google.com/go/logging v1.0.0
@@ -14,9 +12,6 @@ require (
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
 	github.com/aws/aws-sdk-go v1.23.13 // indirect
 	github.com/cheekybits/genny v1.0.0
-	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
-	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
-	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/gin-contrib/pprof v1.2.1
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
@@ -40,7 +35,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.4.0 // indirect
-	github.com/tecbot/gorocksdb v0.0.0-20190705090504-162552197222
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	github.com/valyala/fastjson v1.4.1
 	github.com/xujiajun/nutsdb v0.4.0

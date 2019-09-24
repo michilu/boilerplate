@@ -8,28 +8,7 @@ OR
 ```console
 $ git clone --depth=1 https://github.com/michilu/boilerplate.git
 $ cd boilerplate
-```
-
-## resolve dependencies
-
-#### on macOS
-
-```console
-$ brew install rocksdb
-```
-
-#### on ubuntu
-```console
-$ ./assets/script/rocksdb-deps.sh
-$ ./assets/script/rocksdb.sh 6.2.2
-```
-
-then,
-
-```console
-$ ./assets/script/gorocksdb.sh
 $ make
-$ LD_LIBRARY_PATH=assets/lib ./boilerplate version
 ```
 
 # develop
@@ -41,10 +20,6 @@ $ LD_LIBRARY_PATH=assets/lib ./boilerplate version
   - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
 - [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
 - [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
-
-### RocksDB
-- [rocksdb/INSTALL.md at master · facebook/rocksdb](https://github.com/facebook/rocksdb/blob/master/INSTALL.md#supported-platforms)
-- [tecbot/gorocksdb: gorocksdb is a Go wrapper for RocksDB](https://github.com/tecbot/gorocksdb#install)
 
 - [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
 - [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
