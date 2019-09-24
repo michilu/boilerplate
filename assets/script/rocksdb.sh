@@ -11,4 +11,4 @@ mkdir -p ${rocksdb}
 curl -sL "https://github.com/facebook/rocksdb/archive/v${version}.tar.gz" \
 | tar zx --strip=1 -C ${rocksdb}
 ( cd ${rocksdb} && make shared_lib )
-cp -p ${rocksdb}/librocksdb\.* ${assetslib}
+cp -pd ${rocksdb}/librocksdb\.* ${assetslib}
