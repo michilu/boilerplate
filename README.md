@@ -29,6 +29,7 @@ then,
 ```console
 $ ./assets/script/gorocksdb.sh
 $ make
+$ LD_LIBRARY_PATH=assets/lib ./boilerplate version
 ```
 
 # develop

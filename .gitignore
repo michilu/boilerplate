@@ -12,6 +12,7 @@
 /app/web/*.js.*
 /assets/db
 /assets/gox
+/assets/lib
 /assets/pprof
 /assets/update
 /bench

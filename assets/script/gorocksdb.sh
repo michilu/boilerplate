@@ -3,7 +3,7 @@ set -o nounset
 set -o errexit
 set -o xtrace
 
-rocksdb=lib/rocksdb
+rocksdb=assets/lib/rocksdb
 
 GO111MODULE=on \
 CGO_CFLAGS="-I$PWD/${rocksdb}/include" \

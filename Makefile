@@ -21,8 +21,9 @@ LDFLAGS:=-ldflags=" \
 UNAME:=$(shell uname -s)
 ifeq ($(UNAME),Linux)
 CGO_FLAGS:=\
-CGO_CFLAGS="-I$${PWD}/lib/rocksdb/include" \
-CGO_LDFLAGS="-L$${PWD}/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl"
+ CGO_ENABLED=1\
+ CGO_CFLAGS="-I$${PWD}/assets/lib/rocksdb/include"\
+ CGO_LDFLAGS="-L$${PWD}/assets/lib/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd -ldl"
 endif
 
 COMMIT:=4b825dc
@@ -109,11 +110,19 @@ $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 .PHONY: go-get
 go-get: $(GOSRC)
 	echo > go.mod
-	$(CGO_FLAGS) \
+	time \
+ $(CGO_FLAGS) \
  $(GOM) build $(LDFLAGS)
 
 $(GOBIN): deps $(GOSRC) $(GOCEL)
-	$(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
+	time \
+ $(CGO_FLAGS) \
+ $(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
+
+CC:=
+ifeq ($(UNAME),Darwin)
+CC=CC=/usr/local/bin/x86_64-linux-musl-cc
+endif
 
 GOX_OPTION:=-osarch="darwin/amd64 linux/amd64 linux/arm"
 
@@ -125,7 +134,7 @@ channel: deps $(GOSRC)
  -output="assets/gox/$(BRANCH)/$(SERIAL)+$(HASH)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
 	mkdir -p docs/channel/$(BRANCH)/$(GOBIN)
-	./assets/ci/selfupdate.sh docs/channel/$(BRANCH)/$(GOBIN) 3
+	./assets/script/selfupdate.sh docs/channel/$(BRANCH)/$(GOBIN) 3
 	time go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
 
 .PHONY: release
@@ -136,12 +145,12 @@ release: deps $(GOSRC) $(GOCEL)
  -output="assets/gox/$(TAG)/{{.OS}}-{{.Arch}}" \
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
 	mkdir -p docs/release/$(GOBIN)
-	./assets/ci/selfupdate.sh docs/release/$(GOBIN) 3
+	./assets/script/selfupdate.sh docs/release/$(GOBIN) 3
 	time go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
 .PHONY: package
 package:
-	./assets/ci/package.sh
+	./assets/script/package.sh
 
 $(GOPHERJS): $(GOSRC) $(GOCEL)
 	@# https://github.com/gopherjs/gopherjs/issues/598#issuecomment-282563634
@@ -241,7 +250,7 @@ clean:
 .PHONY: test
 test: deps
 	$(CGO_FLAGS) \
- $(GO) test $(PKG)/...
+ $(GOM) test $(PKG)/...
 
 .PHONY: pprof
 pprof:
@@ -250,7 +259,7 @@ pprof:
 .PHONY: bench
 bench:
 	$(CGO_FLAGS) \
-	$(GO) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
+	$(GOM) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
 
 .PHONY: coverage
@@ -280,9 +289,9 @@ lint:
 	@echo
 	-goconst $(GOLIST) $(REVIEWDOG)
 	@echo
-	-$(GO) vet $(GOLIST) $(REVIEWDOG)
+	-$(GOM) vet $(GOLIST) $(REVIEWDOG)
 	@echo
-	-$(GO) vet -shadow $(GOLIST) $(REVIEWDOG)
+	-$(GOM) vet -shadow $(GOLIST) $(REVIEWDOG)
 	@echo
 	-aligncheck $(GOLIST) $(REVIEWDOG)
 	@echo
