@@ -31,20 +31,20 @@ GOLIST:=$(shell $(GO) list ./...)
 GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
 PROTO_DIR:=domain
-PROTO:=$(shell find . -type d -name ".?*" -prune -or -type f -name "*.proto" -print)
+PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
 VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
-IF_GO:=$(shell find . \
-     -type f -name "if-*.go" -print\
+IF_GO:=$(shell find . -type d -name vendor -prune\
+ -or -type f -name "if-*.go" -print\
  -or -type f -name "entity-*.go" -print\
  -or -type f -name "vo-*.go" -print\
 )
 
-GOFILE:=$(filter-out %.pb.go $(IF_GO),$(shell find . -type f -name "*.go" -print))
+GOFILE:=$(filter-out %.pb.go $(IF_GO),$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print))
 GOSRC:=$(GOFILE) $(PB_GO)
-CEL:=$(shell find . -type f -name "*.cel.txt" -print)
+CEL:=$(shell find . -type d -name vendor -prune -or -type f -name "*.cel.txt" -print)
 GOCEL:=$(patsubst %.cel.txt,%_gen.go,$(CEL))
-#GOGEN:=$(shell find . -type f -name "*.go" -print|xargs grep "^//go:generate " -l)
+#GOGEN:=$(shell find . -type d -name vendor -prune -or -type f -name "*.go" -print|xargs grep "^//go:generate " -l)
 
 APP_DIR_PATH:=app
 GOPHERJS:=$(APP_DIR_PATH)/web/gopher.js
@@ -57,7 +57,7 @@ GOLIB:=$(LIBGO:.go=.so)
 %.pb.go: %.proto
 	prototool all $<
 %.validator.pb.go: %.proto
-	( type protoc > /dev/null 2>&1 ) && protoc --govalidators_out=$(dir $<) -I $(dir $<) $<
+	( type protoc > /dev/null 2>&1 ) && protoc --govalidators_out=$(dir $<) -I $(dir $<) -I vendor $<
 
 
 .PHONY: all
@@ -69,7 +69,7 @@ uml:
   done
 $(VALIDATOR_PB_GO):
 .PHONY: proto
-proto: $(PB_GO) $(VALIDATOR_PB_GO)
+proto: vendor $(PB_GO) $(VALIDATOR_PB_GO)
 .PHONY: golang
 golang: $(GOBIN) $(GOLIB)
 .PHONY: gopherjs
@@ -92,8 +92,11 @@ $(HTML): $(BUNDLE)
 endif
 
 
-deps: go.mod $(GOSRC)
+deps: go.mod
 	$(GOM) mod download
+vendor: go.mod
+	$(GOM) mod vendor
+	$(GOM) mod tidy
 
 $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 	go generate ./...
@@ -103,6 +106,7 @@ $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 .PHONY: go-get
 go-get: $(GOSRC)
 	echo > go.mod
+	rm -rf vendor
 	time \
  $(GOM) build $(LDFLAGS)
 
@@ -220,14 +224,15 @@ deploy: $(APP_DIR_PATH)/build
 clean:
 	find . -type f -name coverprofile -delete
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
-	rm -rf package $(APP_DIR_PATH)/build
+	rm -rf vendor package $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
-	for file in $$(find . \
-     -type f -name "entity-*.go" -print\
+	for file in $$(find . -type d -name vendor -prune\
+ -or -type f -name "entity-*.go" -print\
  -or -type f -name "vo-*.go" -print\
  -or -type f -name "if-*.go" -print\
 ); do\
+  sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
   chmod -x $$file;\
   done
 

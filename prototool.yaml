@@ -2,7 +2,7 @@
 protoc:
   version: 3.9.0
   includes:
-  - ~/go/pkg/mod
+  - vendor
 lint:
   rules:
     remove: # prototool lint --list-all-linters
