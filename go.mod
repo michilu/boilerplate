@@ -2,6 +2,8 @@ module github.com/michilu/boilerplate
 
 go 1.12
 
+replace github.com/xujiajun/nutsdb => github.com/xujiajun/nutsdb v0.4.1-0.20190830023507-14f036b46675
+
 require (
 	cloud.google.com/go v0.44.3 // indirect
 	cloud.google.com/go/logging v1.0.0
