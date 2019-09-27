@@ -32,15 +32,3 @@ func (p *EventWithContext) MarshalZerologObject(e *zerolog.Event) {
 	}
 	e.RawJSON("eventWithContext", b)
 }
-
-func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
-	const op = op + ".ByteWithContext.MarshalZerologObject"
-	b, err := json.Marshal(p.GetKeyValue())
-	if err != nil {
-		const op = op + ".json.Marshal"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		slog.Logger().Error().Str("op", op).Err(err).Msg("error")
-		return
-	}
-	e.RawJSON("keyValueWithContext", b)
-}

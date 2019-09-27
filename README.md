@@ -88,7 +88,7 @@ NOT the Event Sourcing System.
 # deploy
 
 ```console
-make deploy
+$ make deploy
 ```
 
 # environment variables for Wercker
@@ -135,24 +135,47 @@ see: https://app.wercker.com/<organization>/<application>/workflows
     4,274,152 bytes:   59%:   $ gopherjs build --minify && uglifyjs --compress
     3,843,890 bytes:   53%:   $ gopherjs build --minify && uglifyjs --compress --mangle
 
-# sync to upstream
+# sync subtree
 
 Add upstream:
 ```console
-git clone git@github.com:michilu/boilerplate.git .
-git remote add upstream https://github.com/dart-lang/angular.git
-git checkout upstream/master
-git subtree split --prefix=examples/hacker_news_pwa -b examples/hacker_news_pwa
+$ git clone git@github.com:michilu/boilerplate.git .
+$ git remote add upstream https://github.com/dart-lang/angular.git
+$ git checkout upstream/master
+$ git subtree split --prefix=examples/hacker_news_pwa -b examples/hacker_news_pwa
 ```
 
 Sync to upstream:
 ```console
-git fetch upstream master
-git checkout upstream/master
-git subtree push --prefix=examples/hacker_news_pwa origin examples/hacker_news_pwa
-git checkout upstream
-git subtree pull --prefix=app origin examples/hacker_news_pwa
+$ git fetch upstream master
+$ git checkout upstream/master
+$ git subtree push --prefix=examples/hacker_news_pwa origin examples/hacker_news_pwa
+$ git checkout upstream
+$ git subtree pull --prefix=app origin examples/hacker_news_pwa
 ```
 
-## ref
+ref:
 - https://github.com/dart-lang/angular/tree/master/examples/hacker_news_pwa
+
+## for proto
+
+Add upstream:
+```console
+$ git remote add googleapis https://github.com/googleapis/googleapis
+$ git fetch --depth=1 --no-tags googleapis
+$ git checkout googleapis/master
+$ git subtree split --prefix=google/type -b google/type
+```
+
+Add subtree:
+```console
+$ git checkout dev
+$ git subtree add --prefix=vendor/github.com/googleapis/googleapis/google/type google/type
+```
+
+Sync to upstream:
+```console
+$ git fetch --no-tags googleapis
+(TBD)
+$ git subtree pull --prefix=vendor/github.com/googleapis/googleapis/google/type origin google/type
+```

@@ -21,6 +21,15 @@ const (
 	Entered = "entered"
 )
 
+var (
+	GetTopicKeyValueWithContexter = keyvalue.GetTopicKeyValueWithContexter
+)
+
+type (
+	KeyValueWithContext   = keyvalue.KeyValueWithContext
+	KeyValueWithContexter = keyvalue.KeyValueWithContexter
+)
+
 //go:generate interfacer -for github.com/michilu/boilerplate/service/event.Event -as event.Eventer -o entity-Eventer.go
 
 // NewEvent returns a timestamp for the time the event occurred.
@@ -110,39 +119,4 @@ func (p *EventWithContext) Validate() error {
 
 func (p *EventWithContext) String() string {
 	return fmt.Sprintf("EventWithContext<Context: %v, Event: %s>", p.GetContext(), p.GetEvent().String())
-}
-
-//go:generate genny -in=../topic/topic.go -out=gen-topic-KeyValueWithContexter.go -pkg=$GOPACKAGE gen "ChanT=KeyValueWithContexter"
-//go:generate interfacer -for github.com/michilu/boilerplate/service/event.KeyValueWithContext -as event.KeyValueWithContexter -o if-KeyValueWithContexter.go
-
-type KeyValueWithContext struct {
-	Context  context.Context
-	KeyValue keyvalue.KeyValuer
-}
-
-func (p *KeyValueWithContext) GetContext() context.Context     { return p.Context }
-func (p *KeyValueWithContext) GetKeyValue() keyvalue.KeyValuer { return p.KeyValue }
-
-func (p *KeyValueWithContext) Validate() error {
-	const op = op + ".KeyValueWithContext.Validate"
-	if p.Context == nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*KeyValueWithContext.Context' is nil"}
-		return err
-	}
-	{
-		if p.KeyValue == nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*KeyValueWithContext.KeyValue' is nil"}
-			return err
-		}
-		err := p.KeyValue.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			return err
-		}
-	}
-	return nil
-}
-
-func (p *KeyValueWithContext) String() string {
-	return fmt.Sprintf("KeyValueWithContext<Context: %v, KeyValue: %s>", p.GetContext(), p.GetKeyValue().String())
 }

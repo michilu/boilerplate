@@ -30,7 +30,6 @@ GOBIN:=$(notdir $(PKG))
 GOLIST:=$(shell $(GO) list ./...)
 GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
-PROTO_DIR:=domain
 PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
 VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
@@ -97,6 +96,11 @@ deps: go.mod
 vendor: go.mod
 	$(GOM) mod vendor
 	$(GOM) mod tidy
+	git checkout -f vendor
+.PHONY: generate
+generate: vendor
+	-go generate ./...
+	make clean
 
 $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
 	go generate ./...
@@ -224,7 +228,7 @@ deploy: $(APP_DIR_PATH)/build
 clean:
 	find . -type f -name coverprofile -delete
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
-	rm -rf vendor package $(APP_DIR_PATH)/build
+	rm -rf package $(APP_DIR_PATH)/build
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
 	for file in $$(find . -type d -name vendor -prune\
