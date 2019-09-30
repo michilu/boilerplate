@@ -96,16 +96,16 @@ deps: go.mod
 vendor: go.mod
 	$(GOM) mod vendor
 	$(GOM) mod tidy
-	git checkout -f vendor
+	-git checkout -f vendor
 .PHONY: generate
 generate: vendor
 	-go generate ./...
 	make clean
 
 $(IF_GO): $(filter-out $(IF_GO),$(GOSRC))
-	go generate ./...
+	-go generate ./...
 %_gen.go: %.go %.cel.txt
-	go generate ./...
+	-go generate ./...
 
 .PHONY: go-get
 go-get: $(GOSRC)
@@ -233,8 +233,9 @@ clean:
 	find assets -type d -name assets -delete
 	for file in $$(find . -type d -name vendor -prune\
  -or -type f -name "entity-*.go" -print\
- -or -type f -name "vo-*.go" -print\
+ -or -type f -name "gen-*.go" -print\
  -or -type f -name "if-*.go" -print\
+ -or -type f -name "vo-*.go" -print\
 ); do\
   sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
   chmod -x $$file;\

@@ -21,18 +21,6 @@ func (p *KeyValue) MarshalZerologObject(e *zerolog.Event) {
 	e.RawJSON("keyValue", v)
 }
 
-func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
-	const op = op + ".ByteWithContext.MarshalZerologObject"
-	b, err := json.Marshal(p.GetKeyValue())
-	if err != nil {
-		const op = op + ".json.Marshal"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		slog.Logger().Error().Str("op", op).Err(err).Msg("error")
-		return
-	}
-	e.RawJSON("keyValueWithContext", b)
-}
-
 func (p *Prefix) MarshalZerologObject(e *zerolog.Event) {
 	const op = op + ".Prefix.MarshalZerologObject"
 	v, err := json.Marshal(&p)

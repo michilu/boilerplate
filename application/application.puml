@@ -1,17 +1,5 @@
 @startuml
 
-package "run" {
-	class "topic" as run.topic <<V,Orchid>>
-}
-
-
-
-package "update" {
-	class "topic" as update.topic <<V,Orchid>>
-}
-
-
-
 package "debug" {
 	class "Config" as debug.Config <<V,Orchid>> {
 		-ctx: context.Context
@@ -74,7 +62,7 @@ package "event" {
 package "event" {
 	class "Saver" as event.Saver <<V,Orchid>> {
 		+Saver: event.Saver
-		+Save(m: event.KeyValueWithContexter): (context.Context, error)
+		+Save(m: keyvalue.KeyValueWithContexter): (context.Context, error)
 	}
 }
 
@@ -108,6 +96,18 @@ package "exporter" {
 		-projectID: string
 		+MonitoredResource(): (string, map[string]string)
 	}
+}
+
+
+
+package "run" {
+	class "topic" as run.topic <<V,Orchid>>
+}
+
+
+
+package "update" {
+	class "topic" as update.topic <<V,Orchid>>
 }
 
 

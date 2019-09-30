@@ -35,7 +35,7 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 	a = append(a, trace.StringAttribute("GenerateUUID", v0))
 	v1 := &debug.ClientWithContext{
 		Context: ctx,
-		Client:  debug.Client{Id: v0},
+		Client:  &debug.Client{Id: v0},
 	}
 	a = append(a, trace.StringAttribute("debug.ClientWithContext", v1.String()))
 	return v1, nil
@@ -81,7 +81,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		defer s.AddAttributes(a...)
 		vctx := m.GetContext()
 		select {
-		case ch <- OpenDebugPort(ctx, m):
+		case ch <- OpenDebugPort(ctx, m.GetClient()):
 		case <-vctx.Done():
 			err := vctx.Err()
 			if err != nil {

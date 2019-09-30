@@ -1,7 +1,6 @@
 package event
 
 import (
-	"context"
 	fmt "fmt"
 	"time"
 
@@ -88,35 +87,6 @@ func (p *Event) GetKey() []byte {
 	return []byte(fmt.Sprintf("%s+%s", p.GetOrigin(), p.GetId()))
 }
 
+//go:generate genny -in=../topic/with-context.go -out=gen-EventWithContext.go -pkg=$GOPACKAGE gen "T=Event Ier=Eventer"
 //go:generate genny -in=../topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=EventWithContexter"
 //go:generate interfacer -for github.com/michilu/boilerplate/service/event.EventWithContext -as event.EventWithContexter -o if-EventWithContexter.go
-
-type EventWithContext struct {
-	Context context.Context
-	Event   Eventer
-}
-
-func (p *EventWithContext) GetContext() context.Context { return p.Context }
-func (p *EventWithContext) GetEvent() Eventer           { return p.Event }
-
-func (p *EventWithContext) Validate() error {
-	const op = op + ".EventWithContext.Validate"
-	if p.Context == nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*EventWithContext.Context' is nil"}
-		return err
-	}
-	if p.Event == nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*EventWithContext.Event' is nil"}
-		return err
-	}
-	err := p.Event.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		return err
-	}
-	return nil
-}
-
-func (p *EventWithContext) String() string {
-	return fmt.Sprintf("EventWithContext<Context: %v, Event: %s>", p.GetContext(), p.GetEvent().String())
-}

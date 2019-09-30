@@ -2,7 +2,7 @@ package debug
 
 import (
 	"context"
-	fmt "fmt"
+	"fmt"
 	"os/exec"
 	"strings"
 

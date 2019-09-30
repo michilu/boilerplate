@@ -38,6 +38,7 @@ $ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21,
 
 - `make golang`
 - `make proto`
+- `make generate`
 - `make gox`:       cross compile
 - `make channel`:   push out self update files to develop channel
 - `make release`:   push out self update files to release channel

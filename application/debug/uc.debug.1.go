@@ -2,7 +2,7 @@ package debug
 
 import (
 	"context"
-	fmt "fmt"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/michilu/boilerplate/service/debug"
