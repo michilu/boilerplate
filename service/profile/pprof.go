@@ -1,4 +1,4 @@
-package pprof
+package profile
 
 import (
 	"context"
@@ -18,16 +18,12 @@ import (
 	"github.com/michilu/boilerplate/service/slog"
 )
 
-const (
-	op = "service/pprof"
-)
-
-func Run() error {
-	const op = op + ".Run"
+func RunPprof() error {
+	const op = op + ".RunPprof"
 	runtime.SetBlockProfileRate(1)
 	e := gin.Default()
 	pprof.Register(e)
-	err := e.Run(viper.GetString("service.pprof.addr"))
+	err := e.Run(viper.GetString("service.profile.pprof.addr"))
 	if err != nil {
 		const op = op + ".gin.Run"
 		return &errs.Error{Op: op, Err: err}
@@ -37,11 +33,11 @@ func Run() error {
 
 func Profile(ctx context.Context) {
 	const (
-		op = op + ".Profile"
+		op = op + ".Pprof"
 		s  = "assets/pprof"
 	)
 	before := s + "/cpu.pprof"
-	d := viper.GetDuration("service.pprof.duration")
+	d := viper.GetDuration("service.profile.pprof.duration")
 	if d == 0 {
 		slog.Logger().Warn().Str("op", op).
 			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "service.pprof.duration"}).

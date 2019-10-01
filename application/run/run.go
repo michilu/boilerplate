@@ -3,7 +3,9 @@ package run
 import (
 	"context"
 
-	"github.com/michilu/boilerplate/service/pprof"
+	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/profile"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
@@ -27,6 +29,19 @@ func Run(_ *cobra.Command, _ []string) {
 	defer s.AddAttributes(a...)
 
 	{
+		v0 := "service.profile.profiler.enable"
+		v1 := viper.GetBool(v0)
+		a = append(a, trace.BoolAttribute(v0, v1))
+		if v1 {
+			err := profile.RunProfiler(ctx)
+			if err != nil {
+				const op = op + ".profile.RunProfiler"
+				err := &errs.Error{Op: op, Err: err}
+				slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+			}
+		}
+	}
+	{
 		v0 := "service.trace.enable"
 		v1 := viper.GetBool(v0)
 		a = append(a, trace.BoolAttribute(v0, v1))
@@ -35,12 +50,12 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 	}
 	{
-		v0 := "service.pprof.enable"
+		v0 := "service.profile.pprof.enable"
 		v1 := viper.GetBool(v0)
 		a = append(a, trace.BoolAttribute(v0, v1))
 		if v1 {
-			go pprof.Profile(ctx)
-			go pprof.Run()
+			go profile.Profile(ctx)
+			go profile.RunPprof()
 		}
 	}
 	{

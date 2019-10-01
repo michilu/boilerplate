@@ -28,7 +28,7 @@ const (
 
 var (
 	defaults = []config.KV{
-		{K: "service.pprof.addr", V: ":8888"},
+		{K: "service.profile.pprof.addr", V: ":8888"},
 		{K: "service.update.channel", V: "release"},
 		{K: "service.update.url", V: "http://localhost:8000/"},
 	}
@@ -45,6 +45,7 @@ type Flag struct {
 	Debug    bool
 	Parallel int
 	Pprof    bool
+	Profiler bool
 	Trace    bool
 	Verbose  bool
 }
@@ -55,19 +56,22 @@ func initFlag(command *cobra.Command) {
 	f.StringVar(&flag.Config, "config", "config.toml", "config file")
 	viper.BindPFlag("service.config.file", f.Lookup("config"))
 
-	f.BoolVar(&flag.Debug, "debug", false, "debug")
+	f.BoolVar(&flag.Debug, "debug", false, "open the debug port")
 	viper.BindPFlag("service.slog.debug", f.Lookup("debug"))
 
-	f.IntVarP(&flag.Parallel, "parallel", "p", runtime.NumCPU(), "parallel")
+	f.IntVar(&flag.Parallel, "parallel", runtime.NumCPU(), "specify the maximum number of concurrent")
 	viper.BindPFlag("service.semaphore.parallel", f.Lookup("parallel"))
 
-	f.BoolVar(&flag.Pprof, "pprof", false, "launch pprof")
-	viper.BindPFlag("service.pprof.enable", f.Lookup("pprof"))
+	f.BoolVar(&flag.Pprof, "pprof", false, "launch the Go runtime/pprof")
+	viper.BindPFlag("service.profile.pprof.enable", f.Lookup("pprof"))
 
-	f.BoolVar(&flag.Trace, "trace", false, "trace")
+	f.BoolVar(&flag.Profiler, "profiler", false, "enable the Google Stackdriver Profiler")
+	viper.BindPFlag("service.profile.profiler.enable", f.Lookup("profiler"))
+
+	f.BoolVar(&flag.Trace, "trace", false, "enable the Google Stackdriver Trace")
 	viper.BindPFlag("service.trace.enable", f.Lookup("trace"))
 
-	f.BoolVar(&flag.Verbose, "verbose", false, "verbose")
+	f.BoolVar(&flag.Verbose, "verbose", false, "enable verbosely")
 	viper.BindPFlag("service.slog.verbose", f.Lookup("verbose"))
 }
 

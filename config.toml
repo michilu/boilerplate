@@ -4,8 +4,10 @@ credentials=''
 id=''
 [gcp.logging]
 id=''
-[service.pprof]
+[service.profile.pprof]
 addr=':8888'
+[service.profile.profiler]
+debug-logging=true
 [service.update]
 channel='release'
 url='https://michilu.github.io/boilerplate/'

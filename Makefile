@@ -93,7 +93,7 @@ endif
 
 deps: go.mod
 	$(GOM) mod download
-vendor: go.mod
+vendor: go.mod $(GOSRC)
 	$(GOM) mod vendor
 	$(GOM) mod tidy
 	-git checkout -f vendor
@@ -254,13 +254,15 @@ bench:
 	$(GOM) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
 
+COVERMODE:=atomic
 .PHONY: coverage
 coverage:
 	@for pkg in $(GOLIST); do\
 		echo start test for $$pkg;\
-		$(GOM) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=atomic;\
+		$(GOM) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=$(COVERMODE);\
 	done
-	rm -f coverage.txt && find . -type f -name coverprofile -exec tail -n+2 {} >>coverage.txt \; -delete
+	echo "mode: $(COVERMODE)" > coverage.txt\
+  && find . -type f -name coverprofile -exec tail -n+2 {} >>coverage.txt \; -delete
 	$(GOM) tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: lint
