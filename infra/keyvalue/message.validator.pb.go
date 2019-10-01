@@ -16,6 +16,12 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *Key) Validate() error {
+	if !(len(this.Key) > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Key", fmt.Errorf(`value '%v' must have a length greater than '0'`, this.Key))
+	}
+	return nil
+}
 func (this *KeyValue) Validate() error {
 	if !(len(this.Key) > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("Key", fmt.Errorf(`value '%v' must have a length greater than '0'`, this.Key))

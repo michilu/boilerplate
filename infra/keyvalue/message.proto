@@ -6,6 +6,15 @@ option go_package = "keyvalue";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 
+// Key is Entity.
+message Key {
+  bytes key = 1 [
+    (validator.field) = {
+      length_gt: 0
+    }
+  ];
+}
+
 // KeyValue is Entity.
 message KeyValue {
   bytes key = 1 [

@@ -1,0 +1,289 @@
+@startuml
+
+package "keyvalue" {
+	class "Key" as keyvalue.Key <<E,#FFCC00>> {
+		+Key: []byte
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetKey(): []byte
+		+Validate(): error
+	}
+}
+
+
+
+package "keyvalue" {
+	class "KeyValue" as keyvalue.KeyValue <<E,#FFCC00>> {
+		+Key: []byte
+		+Value: []byte
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetKey(): []byte
+		+GetValue(): []byte
+		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
+	}
+}
+
+
+
+package "keyvalue" {
+	class "KeyValueWithContext" as keyvalue.KeyValueWithContext <<E,#FFCC00>> {
+		+Context: context.Context
+		+KeyValue: keyvalue.KeyValuer
+		+GetContext(): context.Context
+		+GetKeyValue(): keyvalue.KeyValuer
+		+MarshalZerologObject(e: zerolog.Event)
+		+String(): string
+		+Validate(): error
+	}
+}
+
+	keyvalue.KeyValueWithContext --> keyvalue.KeyValuer
+
+	keyvalue.KeyValueWithContext ..> keyvalue.KeyValuer : <<return>> 
+
+package "keyvalue" {
+	interface "KeyValueWithContexter" as keyvalue.KeyValueWithContexter {
+		+GetContext(): context.Context
+		+GetKeyValue(): keyvalue.KeyValuer
+		+MarshalZerologObject(: zerolog.Event)
+		+String(): string
+		+Validate(): error
+	}
+}
+
+
+	keyvalue.KeyValueWithContexter ..> keyvalue.KeyValuer : <<return>> 
+
+package "keyvalue" {
+	interface "KeyValuer" as keyvalue.KeyValuer {
+		+Descriptor(): ([]byte, []int)
+		+GetKey(): []byte
+		+GetValue(): []byte
+		+MarshalZerologObject(: zerolog.Event)
+		+ProtoMessage()
+		+Reset()
+		+String(): string
+		+Validate(): error
+		+XXX_DiscardUnknown()
+		+XXX_Marshal(: []byte, : bool): ([]byte, error)
+		+XXX_Merge(: proto.Message)
+		+XXX_Size(): int
+		+XXX_Unmarshal(: []byte): error
+	}
+}
+
+
+
+package "keyvalue" {
+	class "KeyWithContext" as keyvalue.KeyWithContext <<E,#FFCC00>> {
+		+Context: context.Context
+		+Key: keyvalue.Keyer
+		+GetContext(): context.Context
+		+GetKey(): keyvalue.Keyer
+		+MarshalZerologObject(e: zerolog.Event)
+		+String(): string
+		+Validate(): error
+	}
+}
+
+	keyvalue.KeyWithContext --> keyvalue.Keyer
+
+	keyvalue.KeyWithContext ..> keyvalue.Keyer : <<return>> 
+
+package "keyvalue" {
+	interface "KeyWithContexter" as keyvalue.KeyWithContexter {
+		+GetContext(): context.Context
+		+GetKey(): keyvalue.Keyer
+		+MarshalZerologObject(: zerolog.Event)
+		+String(): string
+		+Validate(): error
+	}
+}
+
+
+	keyvalue.KeyWithContexter ..> keyvalue.Keyer : <<return>> 
+
+package "keyvalue" {
+	interface "Keyer" as keyvalue.Keyer {
+		+Descriptor(): ([]byte, []int)
+		+GetKey(): []byte
+		+ProtoMessage()
+		+Reset()
+		+String(): string
+		+Validate(): error
+		+XXX_DiscardUnknown()
+		+XXX_Marshal(: []byte, : bool): ([]byte, error)
+		+XXX_Merge(: proto.Message)
+		+XXX_Size(): int
+		+XXX_Unmarshal(: []byte): error
+	}
+}
+
+
+
+package "keyvalue" {
+	interface "LoadSaveCloser" as keyvalue.LoadSaveCloser {
+		+Close(): error
+		+Load(: context.Context, : keyvalue.Prefixer): (<-chan keyvalue.KeyValuer, error)
+		+Save(: context.Context, : keyvalue.KeyValuer): error
+	}
+}
+
+
+	keyvalue.LoadSaveCloser ..> keyvalue.Prefixer : <<use>> 
+	keyvalue.LoadSaveCloser ..> keyvalue.KeyValuer : <<use>> 
+
+package "keyvalue" {
+	class "Prefix" as keyvalue.Prefix <<E,#FFCC00>> {
+		+Prefix: []byte
+		+XXX_NoUnkeyedLiteral: struct{}
+		+XXX_unrecognized: []byte
+		+XXX_sizecache: int32
+		+Reset()
+		+String(): string
+		+ProtoMessage()
+		+Descriptor(): ([]byte, []int)
+		+XXX_Unmarshal(b: []byte): error
+		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
+		+XXX_Merge(src: proto.Message)
+		+XXX_Size(): int
+		+XXX_DiscardUnknown()
+		+GetPrefix(): []byte
+		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
+	}
+}
+
+
+
+package "keyvalue" {
+	interface "Prefixer" as keyvalue.Prefixer {
+		+Descriptor(): ([]byte, []int)
+		+GetPrefix(): []byte
+		+MarshalZerologObject(: zerolog.Event)
+		+ProtoMessage()
+		+Reset()
+		+String(): string
+		+Validate(): error
+		+XXX_DiscardUnknown()
+		+XXX_Marshal(: []byte, : bool): ([]byte, error)
+		+XXX_Merge(: proto.Message)
+		+XXX_Size(): int
+		+XXX_Unmarshal(: []byte): error
+	}
+}
+
+
+
+package "keyvalue" {
+	interface "TopicKeyValueWithContexter" as keyvalue.TopicKeyValueWithContexter {
+		+Publish(ctx: context.Context, c: <-chan keyvalue.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): chan<- keyvalue.KeyValueWithContexter
+		+Subscribe(c: chan<- keyvalue.KeyValueWithContexter)
+	}
+}
+
+
+
+package "keyvalue" {
+	interface "TopicKeyWithContexter" as keyvalue.TopicKeyWithContexter {
+		+Publish(ctx: context.Context, c: <-chan keyvalue.KeyWithContexter)
+		+Publisher(ctx: context.Context): chan<- keyvalue.KeyWithContexter
+		+Subscribe(c: chan<- keyvalue.KeyWithContexter)
+	}
+}
+
+
+
+package "keyvalue" {
+	class "mapKeyValueWithContexter" as keyvalue.mapKeyValueWithContexter <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*keyvalue.tKeyValueWithContexter
+		-get(topic: interface{}): keyvalue.TopicKeyValueWithContexter
+	}
+}
+
+
+
+package "keyvalue" {
+	class "mapKeyWithContexter" as keyvalue.mapKeyWithContexter <<V,Orchid>> {
+		-mu: sync.RWMutex
+		-m: map[interface{}]*keyvalue.tKeyWithContexter
+		-get(topic: interface{}): keyvalue.TopicKeyWithContexter
+	}
+}
+
+
+
+package "keyvalue" {
+	class "tKeyValueWithContexter" as keyvalue.tKeyValueWithContexter <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- keyvalue.KeyValueWithContexter
+		+Publish(ctx: context.Context, c: <-chan keyvalue.KeyValueWithContexter)
+		+Publisher(ctx: context.Context): chan<- keyvalue.KeyValueWithContexter
+		+Subscribe(c: chan<- keyvalue.KeyValueWithContexter)
+	}
+}
+
+
+
+package "keyvalue" {
+	class "tKeyWithContexter" as keyvalue.tKeyWithContexter <<E,#FFCC00>> {
+		-mu: sync.RWMutex
+		-c: []chan<- keyvalue.KeyWithContexter
+		+Publish(ctx: context.Context, c: <-chan keyvalue.KeyWithContexter)
+		+Publisher(ctx: context.Context): chan<- keyvalue.KeyWithContexter
+		+Subscribe(c: chan<- keyvalue.KeyWithContexter)
+	}
+}
+
+
+
+package "event" {
+	class "Repository" as event.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Load(ctx: context.Context, prefix: keyvalue.Prefixer): (keyvalue.KeyValuer, error)
+		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
+	}
+}
+
+
+	event.Repository ..> keyvalue.Prefixer : <<use>> 
+	event.Repository ..> keyvalue.KeyValuer : <<use>> 
+
+	keyvalue.Key -up-|> keyvalue.Keyer
+	keyvalue.KeyValue -up-|> keyvalue.KeyValuer
+	keyvalue.KeyValue -up-|> keyvalue.Keyer
+	keyvalue.KeyValueWithContext -up-|> keyvalue.KeyValueWithContexter
+	keyvalue.KeyValuer -up-|> keyvalue.Keyer
+	keyvalue.KeyWithContext -up-|> keyvalue.KeyWithContexter
+	keyvalue.Prefix -up-|> keyvalue.Prefixer
+	keyvalue.tKeyValueWithContexter -up-|> keyvalue.TopicKeyValueWithContexter
+	keyvalue.tKeyWithContexter -up-|> keyvalue.TopicKeyWithContexter
+
+
+@enduml
