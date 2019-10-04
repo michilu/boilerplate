@@ -6,6 +6,7 @@ import (
 
 	"github.com/cheekybits/genny/generic"
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
 )
@@ -34,11 +35,15 @@ func (p *TWithContext) GetT() Ier {
 
 // MarshalZerologObject writes TWithContext to given zerolog.Event.
 func (p *TWithContext) MarshalZerologObject(e *zerolog.Event) {
+	const op = op + ".TWithContext.MarshalZerologObject"
 	if p.T == nil {
 		return
 	}
 	v, ok := p.T.(zerolog.LogObjectMarshaler)
 	if !ok {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
+			Message: "'*TWithContext.T' must be zerolog.LogObjectMarshaler'"}
+		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
 	e.Object("TWithContext", v)
@@ -70,7 +75,7 @@ func (p *TWithContext) Validate() error {
 	}
 	v0, ok := p.T.(interface{ Validate() error })
 	if !ok {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*TWithContext.T' has not 'Validate() error'"}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "'*TWithContext.T' must be have 'Validate() error'"}
 		return err
 	}
 	{
