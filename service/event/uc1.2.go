@@ -24,15 +24,17 @@ func StoreEvent(ctx context.Context, event Marshaler) ([]byte, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(event).Msg("arg")
 
 	v0 := make([]byte, 0)
 	v1, err := event.XXX_Marshal(v0, false)
 	if err != nil {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		const op = op + ".Marshaler.XXX_Marshal"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		return v1, err
 	}
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("v1", v1).Msg("return")
 	return v1, nil

@@ -31,8 +31,6 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	v0, v1, err := infra.NewRepository()
 	if err != nil {
@@ -96,8 +94,6 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 
 	v0 := now.Now()
@@ -119,7 +115,7 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 			return nil, err
 		}
 	}
-	a = append(a, trace.StringAttribute("return", v2.String()))
+	s.AddAttributes(trace.StringAttribute("return", v2.String()))
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
 	return v2, nil
 }
@@ -140,11 +136,9 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 
-	a = append(a, trace.StringAttribute("m", m.String()))
+	s.AddAttributes(trace.StringAttribute("m", m.String()))
 	{
 		err := m.Validate()
 		if err != nil {
@@ -176,7 +170,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 			return nil, err
 		}
 	}
-	a = append(a, trace.StringAttribute("return", v1.String()))
+	s.AddAttributes(trace.StringAttribute("return", v1.String()))
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg("return")
 	return v1, nil
 }
@@ -201,8 +195,6 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 	{
 		err := m.Validate()
@@ -211,7 +203,7 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 			return nil, err
 		}
-		a = append(a, trace.StringAttribute("m", m.String()))
+		s.AddAttributes(trace.StringAttribute("m", m.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 	}
 	{

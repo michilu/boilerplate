@@ -167,8 +167,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
+	t := Trace(ctx)
 	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg("arg")
 
 	writer, client, err := NewStackdriverLogging(
@@ -181,6 +180,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		const op = op + ".NewStackdriverLogging"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return nil, nil, err
 	}
 	SetDefaultTracer(writer)

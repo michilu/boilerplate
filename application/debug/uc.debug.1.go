@@ -20,23 +20,21 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	const v0 = "application.debug.client.id"
-	a = append(a, trace.StringAttribute("v0", v0))
+	s.AddAttributes(trace.StringAttribute("v0", v0))
 	v1 := viper.GetString(v0)
-	a = append(a, trace.StringAttribute("v1", v1))
+	s.AddAttributes(trace.StringAttribute("v1", v1))
 	v2, err := uuid.Parse(v1)
 	if err == nil {
 		v3 := v2.String()
-		a = append(a, trace.StringAttribute("v3", v3))
+		s.AddAttributes(trace.StringAttribute("v3", v3))
 		slog.Logger().Debug().Str("op", op).Str("v3", v3).Msg("return")
 		return v3, nil
 	} else {
 		const op = op + ".uuid.Parse"
 		v4 := fmt.Sprintf("check '%s' in config.toml", v0)
-		a = append(a, trace.StringAttribute("Warn", v4))
+		s.AddAttributes(trace.StringAttribute("Warn", v4))
 		slog.Logger().Warn().Str("op", op).Err(err).Str("value", v1).Msg(v4)
 	}
 	v5, err := debug.NewID()
@@ -44,9 +42,9 @@ func GenerateUUID(ctx context.Context) (string, error) {
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 		return "", err
 	}
-	a = append(a, trace.StringAttribute("v5", v5))
+	s.AddAttributes(trace.StringAttribute("v5", v5))
 	v6 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
-	a = append(a, trace.StringAttribute("Warn", v6))
+	s.AddAttributes(trace.StringAttribute("Warn", v6))
 	slog.Logger().Warn().Str("op", op).Str("value", v5).Msg(v6)
 	slog.Logger().Debug().Str("op", op).Str("v5", v5).Msg("return")
 	return v5, nil

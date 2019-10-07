@@ -80,8 +80,6 @@ func main() {
 	ctx := context.Background()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	v0 := slog.NewStackdriverZerologWriter(ctx)
 	c, closer := cmd.NewCommand(v0.Gen, defaults, initFlag, subCmd)
@@ -116,7 +114,7 @@ func main() {
 	case <-ch:
 	case v := <-sCh:
 		const op = op + ".signal.Notify"
-		a = append(a, trace.StringAttribute("signal", v.String()))
+		s.AddAttributes(trace.StringAttribute("signal", v.String()))
 		slog.Logger().Info().Str("op", op).Str("signal", v.String()).Msg("signal")
 	}
 }

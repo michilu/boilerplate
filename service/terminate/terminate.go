@@ -25,7 +25,5 @@ func Terminate(ctx context.Context) (context.Context, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	return ctx, nil
 }

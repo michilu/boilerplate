@@ -17,8 +17,6 @@ func Run(_ *cobra.Command, _ []string) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	Dataflow(ctx)
 }

@@ -31,19 +31,17 @@ func Run() {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	{
 		const v0 = "google.application.credentials"
 		v1 := viper.GetString(v0)
-		a = append(a, trace.StringAttribute(v0, v1))
+		s.AddAttributes(trace.StringAttribute(v0, v1))
 		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", v1)
 	}
 	{
 		const v0 = "service.trace.enable"
 		v1 := viper.GetBool(v0)
-		a = append(a, trace.BoolAttribute(v0, v1))
+		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if !v1 {
 			return
 		}

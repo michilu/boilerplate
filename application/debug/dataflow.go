@@ -77,15 +77,18 @@ func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) 
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
+	t := slog.Trace(ctx)
 
 	v0, err := p.clientRepo.Config(ctx)
 	if err != nil {
+		const op = op + ".clientRepo.Config"
+		err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return nil, err
 	}
-	a = append(a, trace.StringAttribute("v0", v0.String()))
+	s.AddAttributes(trace.StringAttribute("v0", v0.String()))
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v0).Msg("return")
 	return v0, nil
 }
 
@@ -105,22 +108,24 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 
-	a = append(a, trace.StringAttribute("m", m.String()))
+	s.AddAttributes(trace.StringAttribute("m", m.String()))
 	err := m.Validate()
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return nil, err
 	}
 	err = p.clientRepo.Connect(m)
 	ctx = context.Background()
 	if err != nil {
-		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		const op = op + ".context.Background"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return ctx, err
 	}
 	ctx, _ = trace.StartSpan(ctx, op)

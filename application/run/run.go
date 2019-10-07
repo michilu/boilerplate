@@ -25,13 +25,11 @@ func Run(_ *cobra.Command, _ []string) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 
 	{
 		v0 := "service.profile.profiler.enable"
 		v1 := viper.GetBool(v0)
-		a = append(a, trace.BoolAttribute(v0, v1))
+		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
 			err := profile.RunProfiler(ctx)
 			if err != nil {
@@ -44,7 +42,7 @@ func Run(_ *cobra.Command, _ []string) {
 	{
 		v0 := "service.trace.enable"
 		v1 := viper.GetBool(v0)
-		a = append(a, trace.BoolAttribute(v0, v1))
+		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
 			go exporter.Run()
 		}
@@ -52,7 +50,7 @@ func Run(_ *cobra.Command, _ []string) {
 	{
 		v0 := "service.profile.pprof.enable"
 		v1 := viper.GetBool(v0)
-		a = append(a, trace.BoolAttribute(v0, v1))
+		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
 			go profile.Profile(ctx)
 			go profile.RunPprof()
@@ -61,7 +59,7 @@ func Run(_ *cobra.Command, _ []string) {
 	{
 		v0 := "application.event.enable"
 		v1 := viper.GetBool(v0)
-		a = append(a, trace.BoolAttribute(v0, v1))
+		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
 			go event.Dataflow(ctx)
 		}

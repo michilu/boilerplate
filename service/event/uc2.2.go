@@ -19,8 +19,6 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg("arg")
 
@@ -49,13 +47,19 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 		v2, err = v2.AddTimePoint(Occurred, v3)
 		if err != nil {
 			const op = op + ".AddTimePoint(Occurred)"
-			return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+			return nil, err
 		}
 	}
 	v2, err = v2.AddTimePoint(Entered, v3)
 	if err != nil {
 		const op = op + ".AddTimePoint(Entered)"
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		return nil, err
 	}
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
 	return v2, nil

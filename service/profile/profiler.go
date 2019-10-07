@@ -24,8 +24,6 @@ func RunProfiler(ctx context.Context) error {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 
 	v0 := meta.Get()
@@ -37,7 +35,7 @@ func RunProfiler(ctx context.Context) error {
 	}
 	{
 		v2 := fmt.Sprintf("%v", v1)
-		a = append(a, trace.StringAttribute("v2", v2))
+		s.AddAttributes(trace.StringAttribute("v2", v2))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg("value")
 	}
 	err := profiler.Start(v1)
@@ -45,6 +43,7 @@ func RunProfiler(ctx context.Context) error {
 		const op = op + ".profiler.Start"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return err
 	}
 	return nil

@@ -24,20 +24,23 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
+	t := slog.Trace(ctx)
 
 	v0, err := GenerateUUID(ctx)
 	if err != nil {
-		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		const op = op + ".GenerateUUID"
+		err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
 		return nil, err
 	}
-	a = append(a, trace.StringAttribute("GenerateUUID", v0))
+	s.AddAttributes(trace.StringAttribute("GenerateUUID", v0))
 	v1 := &debug.ClientWithContext{
 		Context: ctx,
 		Client:  &debug.Client{Id: v0},
 	}
-	a = append(a, trace.StringAttribute("debug.ClientWithContext", v1.String()))
+	s.AddAttributes(trace.StringAttribute("debug.ClientWithContext", v1.String()))
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg("return")
 	return v1, nil
 }
 
@@ -52,8 +55,6 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	a := make([]trace.Attribute, 0)
-	defer s.AddAttributes(a...)
 	t := slog.Trace(ctx)
 
 	{
@@ -62,8 +63,8 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 			return err
 		}
+		s.AddAttributes(trace.StringAttribute("debug.ClientWithContexter", m.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
-		a = append(a, trace.StringAttribute("debug.ClientWithContexter", m.String()))
 	}
 	{
 		err := m.Validate()
@@ -77,8 +78,6 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		defer close(ch)
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		a := make([]trace.Attribute, 0)
-		defer s.AddAttributes(a...)
 		vctx := m.GetContext()
 		select {
 		case ch <- OpenDebugPort(ctx, m.GetClient()):
