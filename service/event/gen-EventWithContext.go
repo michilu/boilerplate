@@ -9,6 +9,7 @@ import (
 	fmt "fmt"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
 )
@@ -31,11 +32,15 @@ func (p *EventWithContext) GetEvent() Eventer {
 
 // MarshalZerologObject writes EventWithContext to given zerolog.Event.
 func (p *EventWithContext) MarshalZerologObject(e *zerolog.Event) {
+	const op = op + ".EventWithContext.MarshalZerologObject"
 	if p.Event == nil {
 		return
 	}
 	v, ok := p.Event.(zerolog.LogObjectMarshaler)
 	if !ok {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
+			Message: "'*EventWithContext.Event' must be zerolog.LogObjectMarshaler'"}
+		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
 	e.Object("EventWithContext", v)
@@ -67,7 +72,7 @@ func (p *EventWithContext) Validate() error {
 	}
 	v0, ok := p.Event.(interface{ Validate() error })
 	if !ok {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*EventWithContext.Event' has not 'Validate() error'"}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "'*EventWithContext.Event' must be have 'Validate() error'"}
 		return err
 	}
 	{

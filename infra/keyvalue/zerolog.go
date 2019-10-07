@@ -9,6 +9,18 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
+func (p *Key) MarshalZerologObject(e *zerolog.Event) {
+	const op = op + ".Key.MarshalZerologObject"
+	v, err := json.Marshal(&p)
+	if err != nil {
+		const op = op + ".json.Marshal"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+		return
+	}
+	e.RawJSON("key", v)
+}
+
 func (p *KeyValue) MarshalZerologObject(e *zerolog.Event) {
 	const op = op + ".KeyValue.MarshalZerologObject"
 	v, err := json.Marshal(&p)
