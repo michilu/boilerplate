@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.46.3
+	cloud.google.com/go/bigquery v1.1.0 // indirect
 	cloud.google.com/go/logging v1.0.0
 	cloud.google.com/go/storage v1.1.0 // indirect
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.7 // indirect
@@ -11,7 +12,7 @@ require (
 	github.com/Azure/azure-storage-blob-go v0.8.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.25.6 // indirect
+	github.com/aws/aws-sdk-go v1.25.9 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/gin-contrib/pprof v1.2.1
@@ -29,7 +30,7 @@ require (
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/marusama/semaphore v0.0.0-20190110074507-6952cef993b2
 	github.com/mattn/go-ieproxy v0.0.0-20190805055040-f9202b1cfdeb // indirect
-	github.com/mattn/go-isatty v0.0.9 // indirect
+	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/michilu/go-selfupdate v0.0.0-20190902055940-b88c2f57bddf
 	github.com/mwitkow/go-proto-validators v0.2.0
 	github.com/pelletier/go-toml v1.5.0 // indirect
@@ -49,13 +50,12 @@ require (
 	gocloud.dev v0.17.0
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3 // indirect
 	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
-	golang.org/x/net v0.0.0-20191003171128-d98b1b443823 // indirect
+	golang.org/x/net v0.0.0-20191009170851-d66e71096ffb // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
-	golang.org/x/sys v0.0.0-20191005200804-aed5e4c7ecf9 // indirect
-	golang.org/x/tools v0.0.0-20191005014404-c9f9432ec4b2 // indirect
-	google.golang.org/api v0.10.0 // indirect
-	google.golang.org/appengine v1.6.4 // indirect
-	google.golang.org/genproto v0.0.0-20191002211648-c459b9ce5143
+	golang.org/x/sys v0.0.0-20191009170203-06d7bd2c5f4f // indirect
+	golang.org/x/tools v0.0.0-20191009213438-b090f1f24028 // indirect
+	google.golang.org/appengine v1.6.5 // indirect
+	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	google.golang.org/grpc v1.24.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.2.4

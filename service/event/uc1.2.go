@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
@@ -10,13 +11,13 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type Marshaler interface {
-	XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
+type Message interface {
+	proto.Message
 	zerolog.LogObjectMarshaler
 }
 
 // StoreEvent returns a bytes from given Marshaler.
-func StoreEvent(ctx context.Context, event Marshaler) ([]byte, error) {
+func StoreEvent(ctx context.Context, message Message) ([]byte, error) {
 	const op = op + ".StoreEvent"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
@@ -25,12 +26,11 @@ func StoreEvent(ctx context.Context, event Marshaler) ([]byte, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(event).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(message).Msg("arg")
 
-	v0 := make([]byte, 0)
-	v1, err := event.XXX_Marshal(v0, false)
+	v1, err := proto.Marshal(message)
 	if err != nil {
-		const op = op + ".Marshaler.XXX_Marshal"
+		const op = op + ".proto.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")

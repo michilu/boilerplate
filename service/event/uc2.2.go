@@ -3,6 +3,7 @@ package event
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/slog"
@@ -23,8 +24,9 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg("arg")
 
 	v0 := &Event{}
-	err := v0.XXX_Unmarshal(b)
+	err := proto.Unmarshal(b, v0)
 	if err != nil {
+		const op = op + ".proto.Unmarshal"
 		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 	}
 	v1 := make([]*TimePoint, 0, len(v0.TimePoint)+1)
