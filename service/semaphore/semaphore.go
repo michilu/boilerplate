@@ -25,7 +25,7 @@ func Init(parallel int) {
 	err := SetParallel(parallel)
 	if err != nil {
 		slog.Logger().Fatal().Str("op", op).Int("value", parallel).
-			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
+			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg(err.Error())
 	}
 }
 

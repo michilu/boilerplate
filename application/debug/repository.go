@@ -31,7 +31,7 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 		const op = op + ".GenerateUUID"
 		err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return nil, err
 	}
 	s.AddAttributes(trace.StringAttribute("GenerateUUID", v0))

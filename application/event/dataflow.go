@@ -25,7 +25,7 @@ func Dataflow(ctx context.Context) {
 	const op = op + ".Dataflow"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+		slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -36,7 +36,7 @@ func Dataflow(ctx context.Context) {
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+		slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
 	defer func(ctx context.Context, v1 func() error) {
@@ -45,7 +45,7 @@ func Dataflow(ctx context.Context) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+			slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 			return
 		}
 	}(ctx, v1)

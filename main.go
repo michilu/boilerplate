@@ -92,7 +92,7 @@ func main() {
 			const op = op + ".closer"
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+			slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
 		}
 	}()
 	ch := make(chan struct{})
@@ -103,7 +103,7 @@ func main() {
 			const op = op + ".cmd.Execute"
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).Err(err).Msg("error")
+			slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
 		}
 		ch <- struct{}{}
 	}()

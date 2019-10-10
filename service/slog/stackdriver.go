@@ -180,7 +180,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		const op = op + ".NewStackdriverLogging"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return nil, nil, err
 	}
 	SetDefaultTracer(writer)

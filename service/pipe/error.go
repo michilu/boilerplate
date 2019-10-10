@@ -17,7 +17,7 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 		ctx = context.Background()
 		slog.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("must be given. 'ctx' is nil")
 	}
-	v0.EmbedObject(slog.Trace(ctx)).Msg("error")
+	v0.EmbedObject(slog.Trace(ctx)).Msg(err.Error())
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
@@ -32,7 +32,7 @@ func FatalErrorHandler(ctx context.Context, err error) (returns bool) {
 		ctx = context.Background()
 		slog.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("must be given. 'ctx' is nil")
 	}
-	v0.EmbedObject(slog.Trace(ctx)).Msg("error")
+	v0.EmbedObject(slog.Trace(ctx)).Msg(err.Error())
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})

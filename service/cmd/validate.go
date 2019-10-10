@@ -28,7 +28,7 @@ func isDirExists(s string) bool {
 			Str("op", op).
 			Str("s", s).
 			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
+			Msg(err.Error())
 
 		return false
 	}
@@ -58,7 +58,7 @@ func isFileExists(s string) bool {
 			Str("op", op).
 			Str("s", s).
 			Err(&errs.Error{Op: op, Err: err}).
-			Msg("error")
+			Msg(err.Error())
 
 		return false
 	}

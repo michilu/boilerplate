@@ -38,7 +38,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		const op = op + ".Meta.GetChannel"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given Meta.Channel"}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return ctx, err
 	}
 	url := viper.GetString("service.update.url") + channel + "/"
@@ -79,13 +79,13 @@ func Update(ctx context.Context) (context.Context, error) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return ctx, err
 		}
 		if !ok {
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Message: "no updates. must be try after"}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return ctx, err
 		}
 	}

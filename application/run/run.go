@@ -35,7 +35,7 @@ func Run(_ *cobra.Command, _ []string) {
 			if err != nil {
 				const op = op + ".profile.RunProfiler"
 				err := &errs.Error{Op: op, Err: err}
-				slog.Logger().Error().Str("op", op).Err(err).Msg("error")
+				slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 			}
 		}
 	}

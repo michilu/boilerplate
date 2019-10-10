@@ -59,7 +59,7 @@ func Profile(ctx context.Context) {
 		err := os.Rename(before, after)
 		if err != nil {
 			const op = op + ".os.Rename"
-			slog.Logger().Error().Str("op", op).Err(err).Str("before", before).Str("after", after).Msg("error")
+			slog.Logger().Error().Str("op", op).Err(err).Str("before", before).Str("after", after).Msg(err.Error())
 		} else {
 			slog.Logger().Info().Str("op", op).Str("before", before).Str("after", after).Msg("rotated")
 		}

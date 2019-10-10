@@ -24,8 +24,8 @@ func Dataflow(ctx context.Context) {
 		defer slog.Logger().Debug().Str("op", op).Msg("end")
 	}
 	if ctx == nil {
-		slog.Logger().Fatal().Str("op", op).
-			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}).Msg("error")
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -84,7 +84,7 @@ func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) 
 		const op = op + ".clientRepo.Config"
 		err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return nil, err
 	}
 	s.AddAttributes(trace.StringAttribute("v0", v0.String()))
@@ -116,7 +116,7 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return nil, err
 	}
 	err = p.clientRepo.Connect(m)
@@ -125,7 +125,7 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 		const op = op + ".context.Background"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg("error")
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return ctx, err
 	}
 	ctx, _ = trace.StartSpan(ctx, op)

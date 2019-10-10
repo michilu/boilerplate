@@ -19,7 +19,9 @@ func Run(cmd *cobra.Command, _ []string) {
 	const op = op + ".Run"
 	s, err := meta.Yaml()
 	if err != nil {
-		slog.Logger().Error().Str("op", op).Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}).Msg("error")
+		const op = op + ".meta.Meta"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
 	fmt.Printf("%s", s)
