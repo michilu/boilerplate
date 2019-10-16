@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	_ "net/http/pprof"
+	"os"
 
 	"cloud.google.com/go/profiler"
 	"github.com/michilu/boilerplate/service/errs"
@@ -37,6 +38,13 @@ func RunProfiler(ctx context.Context) error {
 		v2 := fmt.Sprintf("%v", v1)
 		s.AddAttributes(trace.StringAttribute("v2", v2))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg("value")
+	}
+	{
+		const v3 = "google.application.credentials"
+		v4 := viper.GetString(v3)
+		s.AddAttributes(trace.StringAttribute(v3, v4))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str(v3, v4).Msg("value")
+		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", v4)
 	}
 	err := profiler.Start(v1)
 	if err != nil {

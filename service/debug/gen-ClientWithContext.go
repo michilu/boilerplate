@@ -6,7 +6,7 @@ package debug
 
 import (
 	"context"
-	fmt "fmt"
+	"fmt"
 
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"

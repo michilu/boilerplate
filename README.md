@@ -19,6 +19,7 @@ $ make
 - [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
   - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
 - [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
+- [protocolbuffers/protobuf: Protocol Buffers \- Google's data interchange format](https://github.com/protocolbuffers/protobuf) `$ brew install protobuf`
 - [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
 
 - [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
@@ -52,7 +53,7 @@ $ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21,
 ## launch
 
 ```console
-$ ./assets/daemon/loop ./boilerplate --debug --verbose --trace run
+$ ./assets/daemon/loop ./boilerplate --debug --verbose --trace --profiler --update run
 ```
 
 ## Architecture

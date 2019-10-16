@@ -6,9 +6,10 @@ package keyvalue
 
 import (
 	"context"
-	fmt "fmt"
+	"fmt"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
 )
@@ -31,11 +32,15 @@ func (p *KeyValueWithContext) GetKeyValue() KeyValuer {
 
 // MarshalZerologObject writes KeyValueWithContext to given zerolog.Event.
 func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
+	const op = op + ".KeyValueWithContext.MarshalZerologObject"
 	if p.KeyValue == nil {
 		return
 	}
 	v, ok := p.KeyValue.(zerolog.LogObjectMarshaler)
 	if !ok {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
+			Message: "'*KeyValueWithContext.KeyValue' must be zerolog.LogObjectMarshaler'"}
+		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
 	e.Object("KeyValueWithContext", v)
@@ -67,7 +72,7 @@ func (p *KeyValueWithContext) Validate() error {
 	}
 	v0, ok := p.KeyValue.(interface{ Validate() error })
 	if !ok {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. '*KeyValueWithContext.KeyValue' has not 'Validate() error'"}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "'*KeyValueWithContext.KeyValue' must be have 'Validate() error'"}
 		return err
 	}
 	{

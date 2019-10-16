@@ -3,21 +3,22 @@ module github.com/michilu/boilerplate
 go 1.12
 
 require (
-	cloud.google.com/go v0.46.3
+	cloud.google.com/go v0.47.0
 	cloud.google.com/go/bigquery v1.1.0 // indirect
 	cloud.google.com/go/logging v1.0.0
-	cloud.google.com/go/storage v1.1.0 // indirect
+	cloud.google.com/go/storage v1.1.1 // indirect
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.7 // indirect
 	github.com/Azure/azure-pipeline-go v0.2.2 // indirect
 	github.com/Azure/azure-storage-blob-go v0.8.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.25.9 // indirect
+	github.com/aws/aws-sdk-go v1.25.13 // indirect
 	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/gin-contrib/pprof v1.2.1
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.4.0
+	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/groupcache v0.0.0-20191002201903-404acd9df4cc // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-replayers/grpcreplay v1.0.0 // indirect
@@ -48,12 +49,11 @@ require (
 	github.com/xujiajun/nutsdb v0.4.1-0.20190830023507-14f036b46675
 	go.opencensus.io v0.22.1
 	gocloud.dev v0.17.0
-	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3 // indirect
-	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
-	golang.org/x/net v0.0.0-20191009170851-d66e71096ffb // indirect
+	golang.org/x/exp v0.0.0-20191014171548-69215a2ee97e // indirect
+	golang.org/x/net v0.0.0-20191014212845-da9a3fd4c582 // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e // indirect
-	golang.org/x/sys v0.0.0-20191009170203-06d7bd2c5f4f // indirect
-	golang.org/x/tools v0.0.0-20191009213438-b090f1f24028 // indirect
+	golang.org/x/sys v0.0.0-20191010194322-b09406accb47 // indirect
+	golang.org/x/tools v0.0.0-20191015211201-9c6d90b5a7d0 // indirect
 	google.golang.org/appengine v1.6.5 // indirect
 	google.golang.org/genproto v0.0.0-20191009194640-548a555dbc03
 	google.golang.org/grpc v1.24.0

@@ -61,6 +61,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		if m == nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return err
 		}
 		s.AddAttributes(trace.StringAttribute("debug.ClientWithContexter", m.String()))
@@ -70,21 +71,26 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		err := m.Validate()
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return err
 		}
 	}
 	ch := make(chan error)
 	go func(ctx context.Context, ch chan<- error, m debug.ClientWithContexter) {
+		const op = op + ".#go"
 		defer close(ch)
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
+		t := slog.Trace(ctx)
 		vctx := m.GetContext()
 		select {
 		case ch <- OpenDebugPort(ctx, m.GetClient()):
 		case <-vctx.Done():
-			err := vctx.Err()
+			const op = op + ".ctx.Done"
+			err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 			if err != nil {
 				s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+				slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			}
 			ch <- vctx.Err()
 		}
@@ -95,10 +101,12 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		const op = op + ".ctx.Done"
 		err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 		s.SetStatus(trace.Status{Code: int32(codes.Aborted), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return err
 	case err := <-ch:
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return err
 		}
 		return nil

@@ -10,6 +10,7 @@ import (
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
 	"github.com/michilu/boilerplate/service/update"
+	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
@@ -28,6 +29,18 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
+	t := slog.Trace(ctx)
+
+	{
+		v0 := viper.GetString("service.update.enable")
+		s.AddAttributes(trace.StringAttribute("v0", v0))
+		v1 := viper.GetBool("service.update.enable")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Bool("v1", v1).Msg("value")
+		if !v1 {
+			<-ctx.Done()
+			return
+		}
+	}
 
 	tUpdate := now.GetTopicContextContext(topic("update"))
 	tTerminate := terminate.GetTopicContextContext(topic("terminate"))

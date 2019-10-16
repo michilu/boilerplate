@@ -99,6 +99,7 @@ vendor: go.mod $(GOSRC)
 	-git checkout -f vendor
 .PHONY: generate
 generate: vendor
+	rm -f $(IF_GO)
 	-@for pkg in $(GOLIST); do\
 		go generate $$pkg/...;\
 	done

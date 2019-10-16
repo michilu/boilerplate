@@ -31,11 +31,13 @@ func Run() {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
+	t := slog.Trace(ctx)
 
 	{
 		const v0 = "google.application.credentials"
 		v1 := viper.GetString(v0)
 		s.AddAttributes(trace.StringAttribute(v0, v1))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str(v0, v1).Msg("value")
 		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", v1)
 	}
 	{
@@ -49,12 +51,16 @@ func Run() {
 	credentials, err := gcp.DefaultCredentials(ctx)
 	if err != nil {
 		const op = op + ".gcp.DefaultCredentials"
-		slog.Logger().Fatal().Str("op", op).Err(&errs.Error{Op: op, Code: codes.Internal, Err: err}).Msg("exporter")
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
 	projectID, err := gcp.DefaultProjectID(credentials)
 	if err != nil {
 		const op = op + ".gcp.DefaultProjectID"
-		slog.Logger().Fatal().Str("op", op).Err(&errs.Error{Op: op, Code: codes.Internal, Err: err}).Msg("exporter")
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
 	exporter, _, err := sdserver.NewExporter(projectID,
 		gcp.CredentialsTokenSource(credentials),
@@ -62,7 +68,9 @@ func Run() {
 	)
 	if err != nil {
 		const op = op + ".sdserver.NewExporter"
-		slog.Logger().Fatal().Str("op", op).Err(&errs.Error{Op: op, Code: codes.Internal, Err: err}).Msg("exporter")
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
 	trace.RegisterExporter(exporter)
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})

@@ -20,6 +20,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
+	t := slog.Trace(ctx)
 
 	const v0 = "application.debug.client.id"
 	s.AddAttributes(trace.StringAttribute("v0", v0))
@@ -39,7 +40,9 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	}
 	v5, err := debug.NewID()
 	if err != nil {
+		const op = op + ".debug.NewID"
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return "", err
 	}
 	s.AddAttributes(trace.StringAttribute("v5", v5))
