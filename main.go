@@ -47,6 +47,7 @@ type Flag struct {
 	Pprof    bool
 	Profiler bool
 	Trace    bool
+	Update   bool
 	Verbose  bool
 }
 
@@ -70,6 +71,9 @@ func initFlag(command *cobra.Command) {
 
 	f.BoolVar(&flag.Trace, "trace", false, "enable the Google Stackdriver Trace")
 	viper.BindPFlag("service.trace.enable", f.Lookup("trace"))
+
+	f.BoolVar(&flag.Update, "update", false, "enable the OTA update")
+	viper.BindPFlag("service.update.enable", f.Lookup("update"))
 
 	f.BoolVar(&flag.Verbose, "verbose", false, "enable verbosely")
 	viper.BindPFlag("service.slog.verbose", f.Lookup("verbose"))

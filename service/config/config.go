@@ -4,6 +4,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	op = "service/config"
+)
+
 type (
 	KV struct {
 		K string

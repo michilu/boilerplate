@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/logging"
+	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
@@ -170,9 +171,17 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 	t := Trace(ctx)
 	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg("arg")
 
-	writer, client, err := NewStackdriverLogging(
+	v0, err := config.GCPProjectID(ctx)
+	if err != nil {
+		const op = op + ".config.GCPProjectID"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		return nil, nil, err
+	}
+	v1, v2, err := NewStackdriverLogging(
 		ctx,
-		viper.GetString("gcp.project.id"),
+		string(v0),
 		viper.GetString("gcp.logging.id"),
 		nil,
 	)
@@ -183,9 +192,9 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return nil, nil, err
 	}
-	SetDefaultTracer(writer)
+	SetDefaultTracer(v1)
 	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg("return")
-	return []io.Writer{writer}, &StackdriverCloser{client}, nil
+	return []io.Writer{v1}, &StackdriverCloser{v2}, nil
 }
 
 func (p *StackdriverZerologWriter) MarshalZerologObject(e *zerolog.Event) {

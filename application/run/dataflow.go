@@ -32,10 +32,11 @@ func Dataflow(ctx context.Context) {
 	t := slog.Trace(ctx)
 
 	{
-		v0 := viper.GetString("service.update.enable")
-		s.AddAttributes(trace.StringAttribute("v0", v0))
-		v1 := viper.GetBool("service.update.enable")
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Bool("v1", v1).Msg("value")
+		const c0 = "service.update.enable"
+		v0 := viper.GetString(c0)
+		s.AddAttributes(trace.StringAttribute(c0, v0))
+		v1 := viper.GetBool(c0)
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Bool(c0, v1).Msg("value")
 		if !v1 {
 			<-ctx.Done()
 			return

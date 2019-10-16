@@ -2,8 +2,8 @@ package exporter
 
 import (
 	"context"
-	"os"
 
+	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/viper"
@@ -34,13 +34,6 @@ func Run() {
 	t := slog.Trace(ctx)
 
 	{
-		const v0 = "google.application.credentials"
-		v1 := viper.GetString(v0)
-		s.AddAttributes(trace.StringAttribute(v0, v1))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str(v0, v1).Msg("value")
-		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", v1)
-	}
-	{
 		const v0 = "service.trace.enable"
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
@@ -48,23 +41,23 @@ func Run() {
 			return
 		}
 	}
-	credentials, err := gcp.DefaultCredentials(ctx)
+	v2, err := config.GCPCredentials(ctx)
 	if err != nil {
-		const op = op + ".gcp.DefaultCredentials"
+		const op = op + ".config.GCPCredentials"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
-	projectID, err := gcp.DefaultProjectID(credentials)
+	v3, err := config.GCPProjectID(ctx)
 	if err != nil {
-		const op = op + ".gcp.DefaultProjectID"
+		const op = op + ".config.GCPProjectID"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
-	exporter, _, err := sdserver.NewExporter(projectID,
-		gcp.CredentialsTokenSource(credentials),
-		GlobalMonitoredResource{projectID: string(projectID)},
+	v4, _, err := sdserver.NewExporter(v3,
+		gcp.CredentialsTokenSource(v2),
+		GlobalMonitoredResource{projectID: string(v3)},
 	)
 	if err != nil {
 		const op = op + ".sdserver.NewExporter"
@@ -72,6 +65,6 @@ func Run() {
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 	}
-	trace.RegisterExporter(exporter)
+	trace.RegisterExporter(v4)
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 }

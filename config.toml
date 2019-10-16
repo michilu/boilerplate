@@ -1,7 +1,5 @@
 [google.application]
 credentials=''
-[gcp.project]
-id=''
 [gcp.logging]
 id=''
 [service.profile.pprof]
