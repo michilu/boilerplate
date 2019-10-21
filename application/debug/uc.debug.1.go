@@ -30,13 +30,13 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	if err == nil {
 		v3 := v2.String()
 		s.AddAttributes(trace.StringAttribute("v3", v3))
-		slog.Logger().Debug().Str("op", op).Str("v3", v3).Msg("return")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg("return")
 		return v3, nil
 	} else {
 		const op = op + ".uuid.Parse"
 		v4 := fmt.Sprintf("check '%s' in config.toml", v0)
 		s.AddAttributes(trace.StringAttribute("Warn", v4))
-		slog.Logger().Warn().Str("op", op).Err(err).Str("value", v1).Msg(v4)
+		slog.Logger().Warn().Str("op", op).EmbedObject(t).Err(err).Str("value", v1).Msg(v4)
 	}
 	v5, err := debug.NewID()
 	if err != nil {
@@ -48,7 +48,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	s.AddAttributes(trace.StringAttribute("v5", v5))
 	v6 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
 	s.AddAttributes(trace.StringAttribute("Warn", v6))
-	slog.Logger().Warn().Str("op", op).Str("value", v5).Msg(v6)
-	slog.Logger().Debug().Str("op", op).Str("v5", v5).Msg("return")
+	slog.Logger().Warn().Str("op", op).EmbedObject(t).Str("value", v5).Msg(v6)
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v5", v5).Msg("return")
 	return v5, nil
 }

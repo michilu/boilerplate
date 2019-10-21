@@ -8,6 +8,7 @@ import (
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
@@ -39,14 +40,21 @@ func (p *TWithContext) MarshalZerologObject(e *zerolog.Event) {
 	if p.T == nil {
 		return
 	}
-	v, ok := p.T.(zerolog.LogObjectMarshaler)
+	v0, ok := p.T.(zerolog.LogObjectMarshaler)
 	if !ok {
+		const op = op + ".type-assetion"
+		v1 := slog.Logger().Error().Str("op", op)
+		if p.Context != nil {
+			ctx, s := trace.StartSpan(p.Context, op)
+			defer s.End()
+			v1.EmbedObject(slog.Atrace(ctx))
+		}
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
 			Message: "'*TWithContext.T' must be zerolog.LogObjectMarshaler'"}
-		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+		v1.Err(err).Msg(err.Error())
 		return
 	}
-	e.Object("TWithContext", v)
+	e.Object("TWithContext", v0)
 }
 
 // String returns TWithContext as string.

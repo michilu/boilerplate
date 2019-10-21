@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/profile"
 	"github.com/spf13/viper"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 
 	"github.com/michilu/boilerplate/service/errs"
@@ -53,15 +54,18 @@ func Profile(ctx context.Context) {
 			p.Stop()
 			return
 		case <-t.C:
+			p.Stop()
 		}
-		p.Stop()
+		ctx, s := trace.StartSpan(ctx, op)
+		t := slog.Trace(ctx)
 		after := before + "." + now.Now().UTC().Format(time.RFC3339)
 		err := os.Rename(before, after)
 		if err != nil {
 			const op = op + ".os.Rename"
-			slog.Logger().Error().Str("op", op).Err(err).Str("before", before).Str("after", after).Msg(err.Error())
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Str("before", before).Str("after", after).Msg(err.Error())
 		} else {
-			slog.Logger().Info().Str("op", op).Str("before", before).Str("after", after).Msg("rotated")
+			slog.Logger().Info().Str("op", op).EmbedObject(t).Str("before", before).Str("after", after).Msg("rotated")
 		}
+		s.End()
 	}
 }

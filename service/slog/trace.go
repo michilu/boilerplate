@@ -8,6 +8,10 @@ import (
 	"go.opencensus.io/trace"
 )
 
+var (
+	Atrace = Trace
+)
+
 func Trace(ctx context.Context) zerolog.LogObjectMarshaler {
 	return &TraceObject{ctx}
 }

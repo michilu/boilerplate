@@ -11,6 +11,7 @@ import (
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/rs/zerolog"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
@@ -36,14 +37,21 @@ func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
 	if p.KeyValue == nil {
 		return
 	}
-	v, ok := p.KeyValue.(zerolog.LogObjectMarshaler)
+	v0, ok := p.KeyValue.(zerolog.LogObjectMarshaler)
 	if !ok {
+		const op = op + ".type-assetion"
+		v1 := slog.Logger().Error().Str("op", op)
+		if p.Context != nil {
+			ctx, s := trace.StartSpan(p.Context, op)
+			defer s.End()
+			v1.EmbedObject(slog.Atrace(ctx))
+		}
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
 			Message: "'*KeyValueWithContext.KeyValue' must be zerolog.LogObjectMarshaler'"}
-		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+		v1.Err(err).Msg(err.Error())
 		return
 	}
-	e.Object("KeyValueWithContext", v)
+	e.Object("KeyValueWithContext", v0)
 }
 
 // String returns KeyValueWithContext as string.
