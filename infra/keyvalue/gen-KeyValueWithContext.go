@@ -33,13 +33,12 @@ func (p *KeyValueWithContext) GetKeyValue() KeyValuer {
 
 // MarshalZerologObject writes KeyValueWithContext to given zerolog.Event.
 func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
-	const op = op + ".KeyValueWithContext.MarshalZerologObject"
 	if p.KeyValue == nil {
 		return
 	}
 	v0, ok := p.KeyValue.(zerolog.LogObjectMarshaler)
 	if !ok {
-		const op = op + ".type-assetion"
+		const op = op + ".KeyValueWithContext.MarshalZerologObject.type-assetion"
 		v1 := slog.Logger().Error().Str("op", op)
 		if p.Context != nil {
 			ctx, s := trace.StartSpan(p.Context, op)
@@ -51,12 +50,12 @@ func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
 		v1.Err(err).Msg(err.Error())
 		return
 	}
-	e.Object("KeyValueWithContext", v0)
+	e.Object(op+".KeyValueWithContext", v0)
 }
 
 // String returns KeyValueWithContext as string.
 func (p *KeyValueWithContext) String() string {
-	const v0 = "KeyValueWithContext<Context: %v, KeyValue: %v>"
+	const v0 = op + ".KeyValueWithContext<Context: %v, KeyValue: %v>"
 	if p.KeyValue == nil {
 		return fmt.Sprintf(v0, p.Context, p.KeyValue)
 	}

@@ -13,6 +13,7 @@ import (
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
+	_ "github.com/michilu/boilerplate/service/topic"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )

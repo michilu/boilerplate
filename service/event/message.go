@@ -29,8 +29,6 @@ type (
 	KeyValueWithContexter = keyvalue.KeyValueWithContexter
 )
 
-//go:generate interfacer -for github.com/michilu/boilerplate/service/event.Event -as event.Eventer -o entity-Eventer.go
-
 // NewEvent returns a timestamp for the time the event occurred.
 func NewEvent(timeStamp *time.Time, origin string) (Eventer, error) {
 	const op = op + ".NewEvent"
@@ -86,6 +84,8 @@ func (p *Event) AddTimePoint(tag string, timeStamp time.Time) (Eventer, error) {
 func (p *Event) GetKey() []byte {
 	return []byte(fmt.Sprintf("%s+%s", p.GetOrigin(), p.GetId()))
 }
+
+//go:generate interfacer -for github.com/michilu/boilerplate/service/event.Event -as event.Eventer -o entity-Eventer.go
 
 //go:generate genny -in=../topic/with-context.go -out=gen-EventWithContext.go -pkg=$GOPACKAGE gen "T=Event Ier=Eventer"
 //go:generate genny -in=../topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=EventWithContexter"

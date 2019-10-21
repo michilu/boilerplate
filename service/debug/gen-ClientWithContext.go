@@ -33,13 +33,12 @@ func (p *ClientWithContext) GetClient() Clienter {
 
 // MarshalZerologObject writes ClientWithContext to given zerolog.Event.
 func (p *ClientWithContext) MarshalZerologObject(e *zerolog.Event) {
-	const op = op + ".ClientWithContext.MarshalZerologObject"
 	if p.Client == nil {
 		return
 	}
 	v0, ok := p.Client.(zerolog.LogObjectMarshaler)
 	if !ok {
-		const op = op + ".type-assetion"
+		const op = op + ".ClientWithContext.MarshalZerologObject.type-assetion"
 		v1 := slog.Logger().Error().Str("op", op)
 		if p.Context != nil {
 			ctx, s := trace.StartSpan(p.Context, op)
@@ -51,12 +50,12 @@ func (p *ClientWithContext) MarshalZerologObject(e *zerolog.Event) {
 		v1.Err(err).Msg(err.Error())
 		return
 	}
-	e.Object("ClientWithContext", v0)
+	e.Object(op+".ClientWithContext", v0)
 }
 
 // String returns ClientWithContext as string.
 func (p *ClientWithContext) String() string {
-	const v0 = "ClientWithContext<Context: %v, Client: %v>"
+	const v0 = op + ".ClientWithContext<Context: %v, Client: %v>"
 	if p.Client == nil {
 		return fmt.Sprintf(v0, p.Context, p.Client)
 	}

@@ -36,13 +36,12 @@ func (p *TWithContext) GetT() Ier {
 
 // MarshalZerologObject writes TWithContext to given zerolog.Event.
 func (p *TWithContext) MarshalZerologObject(e *zerolog.Event) {
-	const op = op + ".TWithContext.MarshalZerologObject"
 	if p.T == nil {
 		return
 	}
 	v0, ok := p.T.(zerolog.LogObjectMarshaler)
 	if !ok {
-		const op = op + ".type-assetion"
+		const op = op + ".TWithContext.MarshalZerologObject.type-assetion"
 		v1 := slog.Logger().Error().Str("op", op)
 		if p.Context != nil {
 			ctx, s := trace.StartSpan(p.Context, op)
@@ -54,12 +53,12 @@ func (p *TWithContext) MarshalZerologObject(e *zerolog.Event) {
 		v1.Err(err).Msg(err.Error())
 		return
 	}
-	e.Object("TWithContext", v0)
+	e.Object(op+".TWithContext", v0)
 }
 
 // String returns TWithContext as string.
 func (p *TWithContext) String() string {
-	const v0 = "TWithContext<Context: %v, T: %v>"
+	const v0 = op + ".TWithContext<Context: %v, T: %v>"
 	if p.T == nil {
 		return fmt.Sprintf(v0, p.Context, p.T)
 	}

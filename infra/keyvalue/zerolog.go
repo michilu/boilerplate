@@ -11,36 +11,36 @@ import (
 
 func (p *Key) MarshalZerologObject(e *zerolog.Event) {
 	const op = op + ".Key.MarshalZerologObject"
-	v, err := json.Marshal(&p)
+	v0, err := json.Marshal(&p)
 	if err != nil {
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
-	e.RawJSON("key", v)
+	e.RawJSON(op+".Key", v0)
 }
 
 func (p *KeyValue) MarshalZerologObject(e *zerolog.Event) {
 	const op = op + ".KeyValue.MarshalZerologObject"
-	v, err := json.Marshal(&p)
+	v0, err := json.Marshal(&p)
 	if err != nil {
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
-	e.RawJSON("keyValue", v)
+	e.RawJSON(op+".KeyValue", v0)
 }
 
 func (p *Prefix) MarshalZerologObject(e *zerolog.Event) {
 	const op = op + ".Prefix.MarshalZerologObject"
-	v, err := json.Marshal(&p)
+	v0, err := json.Marshal(&p)
 	if err != nil {
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
 		return
 	}
-	e.RawJSON("prefix", v)
+	e.RawJSON(op+".Prefix", v0)
 }
