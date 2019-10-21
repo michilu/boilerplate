@@ -81,8 +81,7 @@ func initFlag(command *cobra.Command) {
 
 func main() {
 	const op = op + ".main"
-	ctx := context.Background()
-	ctx, s := trace.StartSpan(ctx, op)
+	ctx, s := trace.StartSpan(context.Background(), op)
 	defer s.End()
 
 	v0 := slog.NewStackdriverZerologWriter(ctx)
@@ -94,9 +93,12 @@ func main() {
 		err := closer.Close()
 		if err != nil {
 			const op = op + ".closer"
+			ctx, s := trace.StartSpan(ctx, op)
+			defer s.End()
+			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
+			slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		}
 	}()
 	ch := make(chan struct{})
@@ -105,9 +107,12 @@ func main() {
 		err := c.Execute()
 		if err != nil {
 			const op = op + ".cmd.Execute"
+			ctx, s := trace.StartSpan(ctx, op)
+			defer s.End()
+			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
+			slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		}
 		ch <- struct{}{}
 	}()
@@ -119,9 +124,10 @@ func main() {
 	case <-ch:
 	case v := <-sCh:
 		const op = op + ".signal.Notify"
-		_, s := trace.StartSpan(ctx, op)
+		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
+		t := slog.Trace(ctx)
 		s.AddAttributes(trace.StringAttribute("signal", v.String()))
-		slog.Logger().Info().Str("op", op).Str("signal", v.String()).Msg("signal")
+		slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg("signal")
 	}
 }
