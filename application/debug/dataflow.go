@@ -45,10 +45,10 @@ func Dataflow(ctx context.Context) {
 		tClient.Subscribe(iCh)
 		tCtx.Publish(ctx, oCh)
 	}
-
-	m := context.Background()
-	m, _ = trace.StartSpan(m, op)
-	tCtx.Publisher(ctx) <- m
+	{
+		m, _ := trace.StartSpan(context.Background(), op)
+		tCtx.Publisher(ctx) <- m
+	}
 	<-ctx.Done()
 }
 
@@ -109,27 +109,34 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 
-	s.AddAttributes(trace.StringAttribute("m", m.String()))
-	err := m.Validate()
-	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
-		return nil, err
+	{
+		s.AddAttributes(trace.StringAttribute("m", m.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
 	}
-	err = p.clientRepo.Connect(m)
-	ctx = context.Background()
-	if err != nil {
-		const op = op + ".context.Background"
-		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
-		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
-		return ctx, err
+	{
+		err := m.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			return nil, err
+		}
 	}
-	ctx, _ = trace.StartSpan(ctx, op)
-	return ctx, nil
+	{
+		err := p.clientRepo.Connect(m)
+		if err != nil {
+			const op = op + ".clientRepo.Connect"
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			return ctx, err
+		}
+	}
+	{
+		m, _ := trace.StartSpan(context.Background(), op)
+		return m, nil
+	}
 }
 
 // ErrorHandler ...

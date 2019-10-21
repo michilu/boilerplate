@@ -9,6 +9,7 @@ import (
 
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/event"
+	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
@@ -105,24 +106,29 @@ func GetFanoutSaver(
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
-			o, err := fn(i)
+			v0, err := fn(i)
 			if err != nil {
-				var vctx context.Context
-				vctx, ok := i.(context.Context)
+				var ctx0 context.Context
+				ctx0, ok := i.(context.Context)
 				if !ok {
-					v, ok := i.(SaverGetContexter)
+					v1, ok := i.(SaverGetContexter)
 					if ok {
-						vctx = v.GetContext()
+						ctx0 = v1.GetContext()
 					} else {
-						vctx = context.Background()
+						ctx0 = context.Background()
 					}
 				}
-				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
+				v2 := fnErr(ctx0, &errs.Error{Op: op, Err: err})
+				v0 := trace.FromContext(ctx0)
+				if v0 != nil {
+					v0.End()
+				}
+				if v2 {
 					return
 				}
 				continue
 			}
-			for _, v := range o {
+			for _, v3 := range v0 {
 				select {
 				case <-ctx.Done():
 					err := ctx.Err()
@@ -130,7 +136,7 @@ func GetFanoutSaver(
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
-				case outCh <- v:
+				case outCh <- v3:
 				default:
 				}
 			}

@@ -96,14 +96,22 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		}
 	}(ctx, ch, m)
 	vctx := m.GetContext()
+	s.End()
 	select {
 	case <-vctx.Done():
 		const op = op + ".ctx.Done"
+		ctx, s := trace.StartSpan(ctx, op)
+		defer s.End()
+		t := slog.Trace(ctx)
 		err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 		s.SetStatus(trace.Status{Code: int32(codes.Aborted), Message: err.Error()})
 		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return err
 	case err := <-ch:
+		const op = op + ".#case-ch"
+		ctx, s := trace.StartSpan(ctx, op)
+		defer s.End()
+		t := slog.Trace(ctx)
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())

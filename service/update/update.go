@@ -74,8 +74,12 @@ func Update(ctx context.Context) (context.Context, error) {
 			Bytes("Sha256", updater.Info.Sha256))
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg("arg")
 	{
+		s.End()
 		ok, err := updater.ForegroundRun()
 		const op = op + ".updater.BackgroundRun"
+		ctx, s := trace.StartSpan(ctx, op)
+		defer s.End()
+		t := slog.Trace(ctx)
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})

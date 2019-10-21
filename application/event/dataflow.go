@@ -31,12 +31,13 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
+	t := slog.Trace(ctx)
 
 	v0, v1, err := infra.NewRepository()
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 		return
 	}
 	defer func(ctx context.Context, v1 func() error) {
@@ -45,7 +46,7 @@ func Dataflow(ctx context.Context) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
 			return
 		}
 	}(ctx, v1)
@@ -72,9 +73,11 @@ func Dataflow(ctx context.Context) {
 		tTerminate.Publish(ctx, oCh)
 	}
 
-	m := context.Background()
-	m, _ = trace.StartSpan(m, op)
-	tStart.Publisher(ctx) <- m
+	{
+		m, _ := trace.StartSpan(context.Background(), op)
+		tStart.Publisher(ctx) <- m
+	}
+	s.End()
 	<-ctx.Done()
 }
 

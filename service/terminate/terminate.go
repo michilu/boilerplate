@@ -3,9 +3,7 @@ package terminate
 import (
 	"context"
 
-	"github.com/michilu/boilerplate/service/errs"
 	"go.opencensus.io/trace"
-	"google.golang.org/grpc/codes"
 )
 
 //go:generate genny -in=../topic/topic.go -out=gen-topic-Context.go -pkg=$GOPACKAGE gen "ChanT=context.Context"
@@ -19,11 +17,11 @@ const (
 func Terminate(ctx context.Context) (context.Context, error) {
 	const op = op + ".Terminate"
 	if ctx == nil {
-		ctx := context.Background()
-		ctx, _ = trace.StartSpan(ctx, op)
-		return ctx, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		return context.Background(), nil
 	}
-	ctx, s := trace.StartSpan(ctx, op)
-	defer s.End()
+	s := trace.FromContext(ctx)
+	if s != nil {
+		s.End()
+	}
 	return ctx, nil
 }

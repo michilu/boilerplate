@@ -41,8 +41,7 @@ func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.C
 				return
 			case <-ticker.C:
 			}
-			m := context.Background()
-			m, _ = trace.StartSpan(m, op)
+			m, _ := trace.StartSpan(context.Background(), op)
 			oCh <- m
 		}
 	}(ctx, duration, oCh)

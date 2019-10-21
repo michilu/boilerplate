@@ -40,10 +40,11 @@ func Dataflow(ctx context.Context) {
 	{
 		iCh, oCh := terminate.GetPipeTerminate(ctx, terminate.Terminate, pipe.FatalErrorHandler)
 		tTerminate.Subscribe(iCh)
-
-		m := context.Background()
-		m, _ = trace.StartSpan(m, op)
-		tTick.Publisher(ctx) <- m
+		{
+			m, _ := trace.StartSpan(context.Background(), op)
+			tTick.Publisher(ctx) <- m
+		}
+		s.End()
 		<-oCh
 	}
 }

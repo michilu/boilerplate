@@ -114,10 +114,13 @@ func main() {
 	sCh := make(chan os.Signal)
 	defer close(sCh)
 	signal.Notify(sCh, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+	s.End()
 	select {
 	case <-ch:
 	case v := <-sCh:
 		const op = op + ".signal.Notify"
+		_, s := trace.StartSpan(ctx, op)
+		defer s.End()
 		s.AddAttributes(trace.StringAttribute("signal", v.String()))
 		slog.Logger().Info().Str("op", op).Str("signal", v.String()).Msg("signal")
 	}

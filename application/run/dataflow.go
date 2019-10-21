@@ -58,6 +58,7 @@ func Dataflow(ctx context.Context) {
 	{
 		iCh, oCh := terminate.GetPipeTerminate(ctx, terminate.Terminate, pipe.FatalErrorHandler)
 		tTerminate.Subscribe(iCh)
+		s.End()
 		<-oCh
 	}
 }
