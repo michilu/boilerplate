@@ -11,6 +11,7 @@ import (
 	"github.com/michilu/boilerplate/service/cmd"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -98,9 +99,10 @@ func main() {
 			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		}
 	}()
+	pipe.Init(ctx)
 	ch := make(chan struct{})
 	go func() {
 		defer close(ch)
@@ -112,7 +114,7 @@ func main() {
 			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-			slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		}
 		ch <- struct{}{}
 	}()

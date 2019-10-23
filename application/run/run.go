@@ -25,6 +25,7 @@ func Run(_ *cobra.Command, _ []string) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
+	t := slog.Trace(ctx)
 
 	{
 		v0 := "service.profile.profiler.enable"
@@ -35,7 +36,7 @@ func Run(_ *cobra.Command, _ []string) {
 			if err != nil {
 				const op = op + ".profile.RunProfiler"
 				err := &errs.Error{Op: op, Err: err}
-				slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			}
 		}
 	}
@@ -65,5 +66,8 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 	}
 	go debug.Dataflow(ctx)
-	Dataflow(ctx)
+	{
+		s.End()
+		Dataflow(ctx)
+	}
 }

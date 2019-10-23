@@ -39,15 +39,15 @@ func (p *KeyValueWithContext) MarshalZerologObject(e *zerolog.Event) {
 	v0, ok := p.KeyValue.(zerolog.LogObjectMarshaler)
 	if !ok {
 		const op = op + ".KeyValueWithContext.MarshalZerologObject.type-assetion"
-		v1 := slog.Logger().Error().Str("op", op)
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
+			Message: "'*KeyValueWithContext.KeyValue' must be zerolog.LogObjectMarshaler'"}
+		v1 := slog.Logger().Err(err).Str("op", op)
 		if p.Context != nil {
 			ctx, s := trace.StartSpan(p.Context, op)
 			defer s.End()
 			v1.EmbedObject(slog.Atrace(ctx))
 		}
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument,
-			Message: "'*KeyValueWithContext.KeyValue' must be zerolog.LogObjectMarshaler'"}
-		v1.Err(err).Msg(err.Error())
+		v1.Msg(err.Error())
 		return
 	}
 	e.Object(op+".KeyValueWithContext", v0)

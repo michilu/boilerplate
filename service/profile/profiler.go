@@ -32,7 +32,7 @@ func RunProfiler(ctx context.Context) error {
 		const op = op + ".config.GCPProjectID"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	v1 := meta.Get()
@@ -53,7 +53,7 @@ func RunProfiler(ctx context.Context) error {
 			const op = op + ".profiler.Start"
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 	}

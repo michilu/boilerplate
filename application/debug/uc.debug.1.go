@@ -42,7 +42,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	if err != nil {
 		const op = op + ".debug.NewID"
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return "", err
 	}
 	s.AddAttributes(trace.StringAttribute("v5", v5))

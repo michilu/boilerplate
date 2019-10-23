@@ -31,7 +31,7 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 		const op = op + ".GenerateUUID"
 		err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
 	s.AddAttributes(trace.StringAttribute("GenerateUUID", v0))
@@ -61,7 +61,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		if m == nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 		s.AddAttributes(trace.StringAttribute("debug.ClientWithContexter", m.String()))
@@ -71,7 +71,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		err := m.Validate()
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 	}
@@ -90,7 +90,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 			err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 			if err != nil {
 				s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-				slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			}
 			ch <- vctx.Err()
 		}
@@ -105,7 +105,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		t := slog.Trace(ctx)
 		err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 		s.SetStatus(trace.Status{Code: int32(codes.Aborted), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	case err := <-ch:
 		const op = op + ".#case-ch"
@@ -114,7 +114,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		t := slog.Trace(ctx)
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 		return nil

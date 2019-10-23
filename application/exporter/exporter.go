@@ -46,14 +46,14 @@ func Run() {
 		const op = op + ".config.GCPCredentials"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 	}
 	v3, err := config.GCPProjectID(ctx)
 	if err != nil {
 		const op = op + ".config.GCPProjectID"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 	}
 	v4, _, err := sdserver.NewExporter(v3,
 		gcp.CredentialsTokenSource(v2),
@@ -63,7 +63,7 @@ func Run() {
 		const op = op + ".sdserver.NewExporter"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 	}
 	trace.RegisterExporter(v4)
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})

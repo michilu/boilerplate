@@ -51,7 +51,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 			const op = op + ".AddTimePoint(Occurred)"
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 	}
@@ -60,7 +60,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 		const op = op + ".AddTimePoint(Entered)"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")

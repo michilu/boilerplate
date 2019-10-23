@@ -13,7 +13,8 @@ import (
 //go:generate genny -in=../../service/topic/topic.go -out=gen-topic-Clienter.go -pkg=$GOPACKAGE gen "ChanT=Clienter"
 
 func (p *Client) MarshalZerologObject(e *zerolog.Event) {
-	if v, err := json.Marshal(&p); err == nil {
+	v, err := json.Marshal(&p)
+	if err == nil {
 		e.RawJSON("Client", v)
 	}
 }

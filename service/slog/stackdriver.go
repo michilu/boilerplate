@@ -176,7 +176,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		const op = op + ".config.GCPProjectID"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, nil, err
 	}
 	v1, v2, err := NewStackdriverLogging(
@@ -189,7 +189,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		const op = op + ".NewStackdriverLogging"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, nil, err
 	}
 	SetDefaultTracer(v1)

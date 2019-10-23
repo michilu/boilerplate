@@ -15,7 +15,7 @@ func (p *Event) MarshalZerologObject(e *zerolog.Event) {
 	if err != nil {
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
 		return
 	}
 	e.RawJSON(op+".Event", v0)

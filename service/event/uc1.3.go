@@ -30,13 +30,13 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 	if repository == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. repository is nil"}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	if keyvalue == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. keyvalue is nil"}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	{
@@ -44,7 +44,7 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg("arg")
@@ -55,7 +55,7 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 			const op = op + ".Repository.Save"
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 	}

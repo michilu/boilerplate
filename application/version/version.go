@@ -21,7 +21,7 @@ func Run(cmd *cobra.Command, _ []string) {
 	if err != nil {
 		const op = op + ".meta.Meta"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		slog.Logger().Error().Str("op", op).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
 		return
 	}
 	fmt.Printf("%s", s)

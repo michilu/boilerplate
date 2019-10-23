@@ -28,7 +28,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 		if m == nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
@@ -39,7 +39,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 			const op = op + ".Validate"
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 	}
@@ -50,7 +50,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 		const op = op + ".viper.GetString"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("check '%s' in config.toml", v0)}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	v2 := strings.Split(v1, " ")
@@ -58,7 +58,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 		const op = op + ".len"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("check '%s' in config.toml", v0)}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	file := v2[0]
@@ -68,7 +68,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 		const op = op + ".exec.LookPath"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	}
 	c := exec.Command(v3, v2[1:]...)
@@ -80,7 +80,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
 	}

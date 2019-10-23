@@ -26,7 +26,7 @@ func Dataflow(ctx context.Context) {
 	const op = op + ".Dataflow"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Fatal().Str("op", op).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Err(err).Str("op", op).Msg(err.Error())
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -38,7 +38,7 @@ func Dataflow(ctx context.Context) {
 	if err != nil {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return
 	}
 	defer func(ctx context.Context, v1 func() error) {
@@ -47,7 +47,7 @@ func Dataflow(ctx context.Context) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return
 		}
 	}(ctx, v1)
@@ -106,7 +106,7 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 		const op = op + ".event.NewEvent"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
 	v2 := &event.EventWithContext{
@@ -118,7 +118,7 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 	}
@@ -151,7 +151,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
@@ -162,7 +162,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
 	v1 := &event.KeyValueWithContext{
@@ -177,7 +177,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 	}
@@ -212,7 +212,7 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 		s.AddAttributes(trace.StringAttribute("m", m.String()))
@@ -224,7 +224,7 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 			const op = op + ".SaveEventPayload"
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Error().Str("op", op).EmbedObject(t).Err(err).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
 	}
