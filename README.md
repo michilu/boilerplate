@@ -115,6 +115,7 @@ see: https://app.wercker.com/<organization>/<application>/workflows
 - [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 - [PlantUML - Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml)
+  - [kazukousen/gouml: Automatically generate PlantUML from Go Code\.](https://github.com/kazukousen/gouml) `go get -u github.com/kazukousen/gouml/cmd/gouml`
 - [XML Pretty Print](https://jsonformatter.org/xml-pretty-print)
 
 # optimize
