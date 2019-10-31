@@ -1,4 +1,4 @@
-FROM circleci/golang:1.12-stretch
+FROM circleci/golang:1.13-stretch
 USER root
 RUN apt-get -q update && apt-get install --no-install-recommends -y -q \
   libbz2-dev \
