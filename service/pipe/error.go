@@ -65,7 +65,9 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-	_errorreportingClient.Report(errorreporting.Entry{Error: err})
+	if _errorreportingClient != nil {
+		_errorreportingClient.Report(errorreporting.Entry{Error: err})
+	}
 	return
 }
 
@@ -83,6 +85,8 @@ func FatalErrorHandler(ctx context.Context, err error) (returns bool) {
 
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-	_errorreportingClient.Report(errorreporting.Entry{Error: err})
+	if _errorreportingClient != nil {
+		_errorreportingClient.Report(errorreporting.Entry{Error: err})
+	}
 	return true
 }
