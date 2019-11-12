@@ -28,9 +28,17 @@ $ make
 
 ### go generate
 
+require go1.12.x
+
+```console
+$ brew install go@1.12
+$ echo "PATH_add /usr/local/opt/go@1.12/bin" >> .envrc
+$ direnv allow
+```
+
 ```console
 $ go get -u github.com/cheekybits/genny
-$ go get -u github.com/rjeczalik/interfaces/cmd/interfacer # @60bd913 on Dec 21, 2018
+$ GO111MODULE=on go get -u github.com/rjeczalik/interfaces/cmd/interfacer
 ```
 
 ## build
