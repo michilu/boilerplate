@@ -76,6 +76,7 @@ func NewCommand(
 			if err != nil {
 				const op = op + ".logger"
 				os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
+				os.Exit(1)
 			}
 		}
 		{

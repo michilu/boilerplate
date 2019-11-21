@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -16,6 +17,16 @@ import (
 	"go.opencensus.io/trace"
 	logpb "google.golang.org/genproto/googleapis/logging/v2"
 	"google.golang.org/grpc/codes"
+)
+
+const (
+	// https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+	// [LOG_ID] must be URL-encoded within logName. Example: "organizations/1234567890/logs/cloudresourcemanager.googleapis.com%2Factivity". [LOG_ID] must be less than 512 characters long and can only include the following characters: upper and lower case alphanumeric characters, forward-slash, underscore, hyphen, and period.
+	_reLogID = `^[A-z\d\/_\-\.]{1,512}$`
+)
+
+var (
+	_logID = regexp.MustCompile(_reLogID)
 )
 
 // NewStackdriverLogging returns a new StackdriverLoggingWriter.
@@ -54,7 +65,16 @@ func NewStackdriverLogging(
 		err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 		return nil, nil, err
 	}
-	v0.Logger = v1.Logger(logID,
+	{
+		ok := _logID.MatchString(logID)
+		if !ok {
+			const op = op + ".Regexp.MatchString"
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
+			return nil, nil, err
+		}
+	}
+	v0.Logger = v1.Logger(
+		logID,
 		// labels comes before opts so that any CommonLabels in opts take precedence.
 		append([]logging.LoggerOption{logging.CommonLabels(labels)}, opts...)...,
 	)
