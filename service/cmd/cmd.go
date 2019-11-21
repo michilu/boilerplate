@@ -75,8 +75,10 @@ func NewCommand(
 			w, closer, err = logger()
 			if err != nil {
 				const op = op + ".logger"
-				os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
-				os.Exit(1)
+				if os.Args[1] == "run" {
+					os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
+					os.Exit(1)
+				}
 			}
 		}
 		{
