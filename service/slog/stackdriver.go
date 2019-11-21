@@ -199,10 +199,17 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, nil, err
 	}
-	v1, v2, err := NewStackdriverLogging(
+	v1 := viper.GetString("gcp.logging.id")
+	if v1 == "" {
+		v2 := viper.GetString("gcp.logging.id.alias")
+		if v2 != "" {
+			v1 = strings.ReplaceAll(viper.GetString(v2), ":", "-")
+		}
+	}
+	v2, v3, err := NewStackdriverLogging(
 		ctx,
 		string(v0),
-		viper.GetString("gcp.logging.id"),
+		v1,
 		nil,
 	)
 	if err != nil {
@@ -212,9 +219,9 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, nil, err
 	}
-	SetDefaultTracer(v1)
+	SetDefaultTracer(v2)
 	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg("return")
-	return []io.Writer{v1}, &StackdriverCloser{v2}, nil
+	return []io.Writer{v2}, &StackdriverCloser{v3}, nil
 }
 
 func (p *StackdriverZerologWriter) MarshalZerologObject(e *zerolog.Event) {

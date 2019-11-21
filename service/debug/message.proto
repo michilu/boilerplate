@@ -10,7 +10,6 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 message Client {
   string id = 1 [
     (validator.field) = {
-      uuid_ver: 4
       string_not_empty: true
     }
   ];

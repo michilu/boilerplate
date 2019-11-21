@@ -3,8 +3,8 @@ package debug
 import (
 	"context"
 	"fmt"
+	"strings"
 
-	"github.com/google/uuid"
 	"github.com/michilu/boilerplate/service/debug"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
@@ -22,33 +22,34 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	defer s.End()
 	t := slog.Trace(ctx)
 
-	const v0 = "application.debug.client.id"
-	s.AddAttributes(trace.StringAttribute("v0", v0))
-	v1 := viper.GetString(v0)
-	s.AddAttributes(trace.StringAttribute("v1", v1))
-	v2, err := uuid.Parse(v1)
-	if err == nil {
-		v3 := v2.String()
-		s.AddAttributes(trace.StringAttribute("v3", v3))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg("return")
-		return v3, nil
-	} else {
-		const op = op + ".uuid.Parse"
-		v4 := fmt.Sprintf("check '%s' in config.toml", v0)
-		s.AddAttributes(trace.StringAttribute("Warn", v4))
-		slog.Logger().Warn().Str("op", op).EmbedObject(t).Err(err).Str("value", v1).Msg(v4)
+	const (
+		c0 = "application.debug.client.id"
+		c1 = "application.debug.client.id.alias"
+	)
+	s.AddAttributes(trace.StringAttribute("c0", c0))
+	v0 := viper.GetString(c0)
+	if v0 == "" {
+		v1 := viper.GetString(c1)
+		if v1 != "" {
+			v0 = strings.ReplaceAll(viper.GetString(v1), ":", "-")
+		}
 	}
-	v5, err := debug.NewID()
+	s.AddAttributes(trace.StringAttribute("v0", v0))
+	if v0 == "" {
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v0", v0).Msg("return")
+		return v0, nil
+	}
+	v2, err := debug.NewID()
 	if err != nil {
 		const op = op + ".debug.NewID"
 		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return "", err
 	}
-	s.AddAttributes(trace.StringAttribute("v5", v5))
-	v6 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
-	s.AddAttributes(trace.StringAttribute("Warn", v6))
-	slog.Logger().Warn().Str("op", op).EmbedObject(t).Str("value", v5).Msg(v6)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v5", v5).Msg("return")
-	return v5, nil
+	s.AddAttributes(trace.StringAttribute("v2", v2))
+	v3 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
+	s.AddAttributes(trace.StringAttribute("Warn", v3))
+	slog.Logger().Warn().Str("op", op).EmbedObject(t).Str("value", v2).Msg(v3)
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg("return")
+	return v2, nil
 }
