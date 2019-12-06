@@ -40,7 +40,7 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 		Client:  &debug.Client{Id: v0},
 	}
 	s.AddAttributes(trace.StringAttribute("debug.ClientWithContext", v1.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg(op + ": return")
 	return v1, nil
 }
 
@@ -65,7 +65,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 			return err
 		}
 		s.AddAttributes(trace.StringAttribute("debug.ClientWithContexter", m.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 	{
 		err := m.Validate()

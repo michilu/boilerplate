@@ -123,7 +123,7 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 		}
 	}
 	s.AddAttributes(trace.StringAttribute("return", v2.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg(op + ": return")
 	return v2, nil
 }
 
@@ -154,7 +154,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 
 	v0, err := json.Marshal(m.GetEvent())
@@ -182,7 +182,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 		}
 	}
 	s.AddAttributes(trace.StringAttribute("return", v1.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg(op + ": return")
 	return v1, nil
 }
 
@@ -216,7 +216,7 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 			return nil, err
 		}
 		s.AddAttributes(trace.StringAttribute("m", m.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 	{
 		err := event.SaveEventPayload(ctx, p.Saver, m.GetKeyValue())

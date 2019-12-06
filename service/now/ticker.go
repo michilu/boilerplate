@@ -27,7 +27,7 @@ func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.C
 
 	{
 		s.AddAttributes(trace.StringAttribute("duration", fmt.Sprintf("%v", duration)))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dur("duration", duration).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dur("duration", duration).Msg(op + ": arg")
 	}
 	oCh := make(chan context.Context)
 	go func(ctx context.Context, duration time.Duration, oCh chan<- context.Context) {
@@ -48,7 +48,7 @@ func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.C
 	{
 		v0 := fmt.Sprintf("%v", oCh)
 		s.AddAttributes(trace.StringAttribute("oCh", v0))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("oCh", v0).Msg("return")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("oCh", v0).Msg(op + ": return")
 	}
 	return oCh
 }

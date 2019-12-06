@@ -45,7 +45,7 @@ func RunProfiler(ctx context.Context) error {
 	{
 		v3 := fmt.Sprintf("%v", v2)
 		s.AddAttributes(trace.StringAttribute("v3", v3))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg("value")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg(op + ": value")
 	}
 	{
 		err := profiler.Start(v2)

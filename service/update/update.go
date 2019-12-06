@@ -72,7 +72,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		Dict("Info", zerolog.Dict().
 			Str("Version", updater.Info.Version).
 			Bytes("Sha256", updater.Info.Sha256))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg(op + ": arg")
 	{
 		s.End()
 		ok, err := updater.ForegroundRun()
@@ -93,6 +93,6 @@ func Update(ctx context.Context) (context.Context, error) {
 			return ctx, err
 		}
 	}
-	slog.Logger().Info().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg("updated")
+	slog.Logger().Info().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg(op + ": updated")
 	return ctx, nil
 }

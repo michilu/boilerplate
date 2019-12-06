@@ -42,7 +42,7 @@ func Profile(ctx context.Context) {
 	if d == 0 {
 		slog.Logger().Warn().Str("op", op).
 			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "service.pprof.duration"}).
-			Dur("value", d).Msg("warnning")
+			Dur("value", d).Msg(op + ": warnning")
 		d = 5 * time.Minute
 	}
 	t := time.NewTicker(d)
@@ -64,7 +64,7 @@ func Profile(ctx context.Context) {
 			const op = op + ".os.Rename"
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Str("before", before).Str("after", after).Msg(err.Error())
 		} else {
-			slog.Logger().Info().Str("op", op).EmbedObject(t).Str("before", before).Str("after", after).Msg("rotated")
+			slog.Logger().Info().Str("op", op).EmbedObject(t).Str("before", before).Str("after", after).Msg(op + ": rotated")
 		}
 		s.End()
 	}

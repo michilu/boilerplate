@@ -36,7 +36,7 @@ func Dataflow(ctx context.Context) {
 		v0 := viper.GetString(c0)
 		s.AddAttributes(trace.StringAttribute(c0, v0))
 		v1 := viper.GetBool(c0)
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Bool(c0, v1).Msg("value")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Bool(c0, v1).Msg(op + ": value")
 		if !v1 {
 			<-ctx.Done()
 			return

@@ -26,7 +26,7 @@ func StoreEvent(ctx context.Context, message Message) ([]byte, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(message).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(message).Msg(op + ": arg")
 
 	v1, err := proto.Marshal(message)
 	if err != nil {
@@ -36,6 +36,6 @@ func StoreEvent(ctx context.Context, message Message) ([]byte, error) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return v1, err
 	}
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("v1", v1).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("v1", v1).Msg(op + ": return")
 	return v1, nil
 }

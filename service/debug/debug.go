@@ -14,8 +14,8 @@ const (
 func NewID() (string, error) {
 	const op = op + ".NewID"
 	{
-		slog.Logger().Debug().Str("op", op).Msg("start")
-		defer slog.Logger().Debug().Str("op", op).Msg("end")
+		slog.Logger().Debug().Str("op", op).Msg(op + ": start")
+		defer slog.Logger().Debug().Str("op", op).Msg(op + ": end")
 	}
 	v0, err := uuid.NewRandom()
 	if err != nil {

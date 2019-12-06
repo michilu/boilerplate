@@ -106,7 +106,7 @@ func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg(op + ": arg")
 	}
 
 	err := &errs.Error{Op: op, Code: codes.Unimplemented}
@@ -140,7 +140,7 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 			return err
 		}
 		s.AddAttributes(trace.StringAttribute("arg", keyvalue.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
 
 	{

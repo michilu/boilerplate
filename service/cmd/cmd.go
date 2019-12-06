@@ -72,6 +72,7 @@ func NewCommand(
 			err error
 		)
 		if logger != nil {
+			slog.Logger().Debug().Str("op", op).Strs("os.Args", os.Args).Msg(op + ": value")
 			w, closer, err = logger()
 			if err != nil {
 				const op = op + ".logger"
@@ -83,8 +84,8 @@ func NewCommand(
 		}
 		{
 			slog.SetDefaultLogger(w)
-			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg("config")
-			slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg("config")
+			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg(op + ": config")
+			slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg(op + ": config")
 		}
 	})
 	for _, f := range subCmd {

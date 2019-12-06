@@ -130,6 +130,6 @@ func main() {
 		defer s.End()
 		t := slog.Trace(ctx)
 		s.AddAttributes(trace.StringAttribute("signal", v.String()))
-		slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg("signal")
+		slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg(op + ": signal")
 	}
 }

@@ -21,7 +21,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg("arg")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg(op + ": arg")
 
 	v0 := &Event{}
 	err := proto.Unmarshal(b, v0)
@@ -63,6 +63,6 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg(op + ": return")
 	return v2, nil
 }

@@ -31,7 +31,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 	{
 		err := m.Validate()

@@ -20,8 +20,8 @@ type (
 func Dataflow(ctx context.Context) {
 	const op = op + ".Dataflow"
 	{
-		slog.Logger().Debug().Str("op", op).Msg("start")
-		defer slog.Logger().Debug().Str("op", op).Msg("end")
+		slog.Logger().Debug().Str("op", op).Msg(op + ": start")
+		defer slog.Logger().Debug().Str("op", op).Msg(op + ": end")
 	}
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
@@ -88,7 +88,7 @@ func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) 
 		return nil, err
 	}
 	s.AddAttributes(trace.StringAttribute("v0", v0.String()))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v0).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v0).Msg(op + ": return")
 	return v0, nil
 }
 
@@ -112,7 +112,7 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 
 	{
 		s.AddAttributes(trace.StringAttribute("m", m.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 	{
 		err := m.Validate()

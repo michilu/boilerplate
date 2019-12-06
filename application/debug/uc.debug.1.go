@@ -36,7 +36,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	}
 	s.AddAttributes(trace.StringAttribute("v0", v0))
 	if v0 == "" {
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v0", v0).Msg("return")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v0", v0).Msg(op + ": return")
 		return v0, nil
 	}
 	v2, err := debug.NewID()
@@ -50,6 +50,6 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	v3 := fmt.Sprintf("you can set to '%s' in config.toml", v0)
 	s.AddAttributes(trace.StringAttribute("Warn", v3))
 	slog.Logger().Warn().Str("op", op).EmbedObject(t).Str("value", v2).Msg(v3)
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg("return")
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg(op + ": return")
 	return v2, nil
 }

@@ -47,7 +47,7 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg("arg")
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
 	{
 		err := repository.Save(ctx, keyvalue)

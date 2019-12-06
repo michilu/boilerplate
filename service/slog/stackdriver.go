@@ -189,7 +189,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := Trace(ctx)
-	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg("arg")
+	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg(op + ": arg")
 
 	v0, err := config.GCPProjectID(ctx)
 	if err != nil {
@@ -220,7 +220,7 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		return nil, nil, err
 	}
 	SetDefaultTracer(v2)
-	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg("return")
+	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg(op + ": return")
 	return []io.Writer{v2}, &StackdriverCloser{v3}, nil
 }
 
@@ -236,12 +236,12 @@ type StackdriverCloser struct {
 
 func (p *StackdriverCloser) Close() error {
 	const op = op + ".StackdriverCloser.Close"
-	Logger().Debug().Str("op", op).Msg("start clean up")
+	Logger().Debug().Str("op", op).Msg(op + ": start clean up")
 	err := p.client.Close()
 	if err != nil {
 		const op = op + ".client.Close"
 		return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 	}
-	Logger().Debug().Str("op", op).Msg("cleaned up")
+	Logger().Debug().Str("op", op).Msg(op + ": cleaned up")
 	return nil
 }
