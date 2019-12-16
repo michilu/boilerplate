@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/debug"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
@@ -23,8 +24,8 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	t := slog.Trace(ctx)
 
 	const (
-		c0 = "application.debug.client.id"
-		c1 = "application.debug.client.id.alias"
+		c0 = k.ApplicationDebugClientId
+		c1 = k.ApplicationDebugClientIdAlias
 	)
 	s.AddAttributes(trace.StringAttribute("c0", c0))
 	v0 := viper.GetString(c0)

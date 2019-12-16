@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
@@ -32,7 +33,7 @@ func Dataflow(ctx context.Context) {
 	t := slog.Trace(ctx)
 
 	{
-		const c0 = "service.update.enable"
+		const c0 = k.ServiceUpdateEnable
 		v0 := viper.GetString(c0)
 		s.AddAttributes(trace.StringAttribute(c0, v0))
 		v1 := viper.GetBool(c0)

@@ -6,6 +6,7 @@ import (
 	_ "net/http/pprof"
 
 	"cloud.google.com/go/profiler"
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
@@ -40,7 +41,7 @@ func RunProfiler(ctx context.Context) error {
 		Service:        v1.GetName(),
 		ServiceVersion: v1.GetSemver(),
 		ProjectID:      string(v0),
-		DebugLogging:   viper.GetBool("service.profile.profiler.debug-logging"),
+		DebugLogging:   viper.GetBool(k.ServiceProfileProfilerDebugLogging),
 	}
 	{
 		v3 := fmt.Sprintf("%v", v2)

@@ -6,13 +6,13 @@ import (
 	"os/exec"
 	"strings"
 
-	"go.opencensus.io/trace"
-	"google.golang.org/grpc/codes"
-
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/debug"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/viper"
+	"go.opencensus.io/trace"
+	"google.golang.org/grpc/codes"
 )
 
 func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
@@ -43,7 +43,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 			return err
 		}
 	}
-	const v0 = "application.debug.open-debug-port.command"
+	const v0 = k.ApplicationDebugOpenDebugPortCommand
 	v1 := viper.GetString(v0)
 	s.AddAttributes(trace.StringAttribute(v0, v1))
 	if v1 == "" {

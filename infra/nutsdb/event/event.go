@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/infra/keyvalue"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
@@ -38,7 +39,7 @@ func NewOptions() nutsdb.Options {
 
 func NewRepository() (keyvalue.LoadSaveCloser, func() error, error) {
 	const op = op + ".NewRepository"
-	v0 := viper.GetString("infra.nutsdb.event.path")
+	v0 := viper.GetString(k.InfraNutsdbEventPath)
 	{
 		v1 := filepath.Dir(v0)
 		_, err := os.Stat(v1)

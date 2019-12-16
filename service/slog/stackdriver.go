@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/logging"
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/zerolog"
@@ -199,9 +200,9 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, nil, err
 	}
-	v1 := viper.GetString("gcp.logging.id")
+	v1 := viper.GetString(k.GcpLoggingId)
 	if v1 == "" {
-		v2 := viper.GetString("gcp.logging.id.alias")
+		v2 := viper.GetString(k.GcpLoggingIdAlias)
 		if v2 != "" {
 			v1 = strings.ReplaceAll(viper.GetString(v2), ":", "-")
 		}

@@ -3,6 +3,7 @@ package update
 import (
 	"context"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/slog"
@@ -29,7 +30,7 @@ func Update(ctx context.Context) (context.Context, error) {
 	v := meta.Get()
 	channel := v.GetChannel()
 	if channel == "" {
-		const v = "service.update.channel"
+		const v = k.ServiceUpdateChannel
 		channel = viper.GetString(v)
 		s.AddAttributes(trace.StringAttribute(v, channel))
 	}
@@ -41,7 +42,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return ctx, err
 	}
-	url := viper.GetString("service.update.url") + channel + "/"
+	url := viper.GetString(k.ServiceUpdateUrl) + channel + "/"
 	s.AddAttributes(trace.StringAttribute("url", url))
 	updater := &selfupdate.Updater{
 		CurrentVersion: v.GetSemver(),

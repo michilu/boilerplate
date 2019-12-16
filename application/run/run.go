@@ -3,6 +3,7 @@ package run
 import (
 	"context"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/profile"
 	"github.com/michilu/boilerplate/service/slog"
@@ -28,7 +29,7 @@ func Run(_ *cobra.Command, _ []string) {
 	t := slog.Trace(ctx)
 
 	{
-		v0 := "service.profile.profiler.enable"
+		v0 := k.ServiceProfileProfilerEnable
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
@@ -41,7 +42,7 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 	}
 	{
-		v0 := "service.trace.enable"
+		v0 := k.ServiceTraceEnable
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
@@ -49,7 +50,7 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 	}
 	{
-		v0 := "service.profile.pprof.enable"
+		v0 := k.ServiceProfilePprofEnable
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
@@ -58,7 +59,7 @@ func Run(_ *cobra.Command, _ []string) {
 		}
 	}
 	{
-		v0 := "application.event.enable"
+		v0 := k.ApplicationEventEnable
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {

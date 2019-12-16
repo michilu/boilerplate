@@ -3,6 +3,7 @@ package exporter
 import (
 	"context"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/slog"
@@ -34,7 +35,7 @@ func Run() {
 	t := slog.Trace(ctx)
 
 	{
-		const v0 = "service.trace.enable"
+		const v0 = k.ServiceTraceEnable
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if !v1 {

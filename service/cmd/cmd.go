@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
@@ -32,9 +33,9 @@ func init() {
 
 func initialize(v []config.KV) {
 	const op = op + ".initialize"
-	semaphore.Init(viper.GetInt("service.semaphore.parallel"))
+	semaphore.Init(viper.GetInt(k.ServiceSemaphoreParallel))
 	{
-		s := viper.GetString("service.config.file")
+		s := viper.GetString(k.ServiceConfigFile)
 		_, err := os.Stat(s)
 		if err == nil {
 			viper.SetConfigFile(s)

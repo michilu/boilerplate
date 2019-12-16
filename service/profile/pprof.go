@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/pkg/profile"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
@@ -24,7 +25,7 @@ func RunPprof() error {
 	runtime.SetBlockProfileRate(1)
 	e := gin.Default()
 	pprof.Register(e)
-	err := e.Run(viper.GetString("service.profile.pprof.addr"))
+	err := e.Run(viper.GetString(k.ServiceProfilePprofAddr))
 	if err != nil {
 		const op = op + ".gin.Run"
 		return &errs.Error{Op: op, Err: err}
@@ -36,12 +37,13 @@ func Profile(ctx context.Context) {
 	const (
 		op = op + ".Pprof"
 		s  = "assets/pprof"
+		c0 = k.ServiceProfilePprofDuration
 	)
 	before := s + "/cpu.pprof"
-	d := viper.GetDuration("service.profile.pprof.duration")
+	d := viper.GetDuration(c0)
 	if d == 0 {
 		slog.Logger().Warn().Str("op", op).
-			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "service.pprof.duration"}).
+			Err(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: c0}).
 			Dur("value", d).Msg(op + ": warnning")
 		d = 5 * time.Minute
 	}

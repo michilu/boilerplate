@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"syscall"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/cmd"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
@@ -29,9 +30,9 @@ const (
 
 var (
 	defaults = []config.KV{
-		{K: "service.profile.pprof.addr", V: ":8888"},
-		{K: "service.update.channel", V: "release"},
-		{K: "service.update.url", V: "http://localhost:8000/"},
+		{K: k.ServiceProfilePprofAddr, V: ":8888"},
+		{K: k.ServiceUpdateChannel, V: "release"},
+		{K: k.ServiceUpdateUrl, V: "http://localhost:8000/"},
 	}
 	subCmd = []func() (*cobra.Command, error){
 		run.New,
@@ -56,28 +57,28 @@ func initFlag(command *cobra.Command) {
 	f := command.PersistentFlags()
 
 	f.StringVar(&flag.Config, "config", "config.toml", "config file")
-	viper.BindPFlag("service.config.file", f.Lookup("config"))
+	viper.BindPFlag(k.ServiceConfigFile, f.Lookup("config"))
 
 	f.BoolVar(&flag.Debug, "debug", false, "open the debug port")
-	viper.BindPFlag("service.slog.debug", f.Lookup("debug"))
+	viper.BindPFlag(k.ServiceSlogDebug, f.Lookup("debug"))
 
 	f.IntVar(&flag.Parallel, "parallel", runtime.NumCPU(), "specify the maximum number of concurrent")
-	viper.BindPFlag("service.semaphore.parallel", f.Lookup("parallel"))
+	viper.BindPFlag(k.ServiceSemaphoreParallel, f.Lookup("parallel"))
 
 	f.BoolVar(&flag.Pprof, "pprof", false, "launch the Go runtime/pprof")
-	viper.BindPFlag("service.profile.pprof.enable", f.Lookup("pprof"))
+	viper.BindPFlag(k.ServiceProfilePprofEnable, f.Lookup("pprof"))
 
 	f.BoolVar(&flag.Profiler, "profiler", false, "enable the Google Stackdriver Profiler")
-	viper.BindPFlag("service.profile.profiler.enable", f.Lookup("profiler"))
+	viper.BindPFlag(k.ServiceProfileProfilerEnable, f.Lookup("profiler"))
 
 	f.BoolVar(&flag.Trace, "trace", false, "enable the Google Stackdriver Trace")
-	viper.BindPFlag("service.trace.enable", f.Lookup("trace"))
+	viper.BindPFlag(k.ServiceTraceEnable, f.Lookup("trace"))
 
 	f.BoolVar(&flag.Update, "update", false, "enable the OTA update")
-	viper.BindPFlag("service.update.enable", f.Lookup("update"))
+	viper.BindPFlag(k.ServiceUpdateEnable, f.Lookup("update"))
 
 	f.BoolVar(&flag.Verbose, "verbose", false, "enable verbosely")
-	viper.BindPFlag("service.slog.verbose", f.Lookup("verbose"))
+	viper.BindPFlag(k.ServiceSlogVerbose, f.Lookup("verbose"))
 }
 
 func main() {

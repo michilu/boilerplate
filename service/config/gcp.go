@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
@@ -26,7 +27,7 @@ func GCPCredentials(ctx context.Context) (*google.Credentials, error) {
 		return gcpCredentials, nil
 	}
 	{
-		const c0 = "google.application.credentials"
+		const c0 = k.GoogleApplicationCredentials
 		v0 := viper.GetString(c0)
 		s.AddAttributes(trace.StringAttribute(c0, v0))
 		os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", v0)

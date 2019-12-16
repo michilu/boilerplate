@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
@@ -37,14 +38,14 @@ func SetTimeFieldFormat() {
 func SetDefaultLogger(writer []io.Writer) {
 	{
 		level := zerolog.InfoLevel
-		if viper.GetBool("service.slog.verbose") {
+		if viper.GetBool(k.ServiceSlogVerbose) {
 			level = zerolog.DebugLevel
 		}
 		zerolog.SetGlobalLevel(level)
 	}
 	{
 		var w io.Writer = os.Stdout
-		if viper.GetBool("service.slog.debug") {
+		if viper.GetBool(k.ServiceSlogDebug) {
 			w = newConsoleWriter()
 		} else {
 			SetTimeFieldFormat()
