@@ -27,57 +27,77 @@ func Update(ctx context.Context) (context.Context, error) {
 	defer s.End()
 	t := slog.Trace(ctx)
 
-	v := meta.Get()
-	channel := v.GetChannel()
-	if channel == "" {
-		const v = k.ServiceUpdateChannel
-		channel = viper.GetString(v)
-		s.AddAttributes(trace.StringAttribute(v, channel))
+	v0 := meta.Get()
+	v1 := ""
+	{
+		const c0 = k.ServiceUpdateChannel
+		v2 := viper.GetString(c0)
+		{
+			s.AddAttributes(trace.StringAttribute(c0, v2))
+			slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v2", v2).Msg(op + ": value")
+		}
+		v1 = v2
 	}
-	s.AddAttributes(trace.StringAttribute("channel", channel))
-	if channel == "" {
-		const op = op + ".Meta.GetChannel"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given Meta.Channel"}
-		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return ctx, err
+	if v1 == "" {
+		v3 := v0.GetChannel()
+		{
+			s.AddAttributes(trace.StringAttribute("meta.channel", v3))
+			slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg(op + ": value")
+		}
+		v1 = v3
 	}
-	url := viper.GetString(k.ServiceUpdateUrl) + channel + "/"
-	s.AddAttributes(trace.StringAttribute("url", url))
-	updater := &selfupdate.Updater{
-		CurrentVersion: v.GetSemver(),
-		ApiURL:         url,
-		BinURL:         url,
-		DiffURL:        url,
+	{
+		s.AddAttributes(trace.StringAttribute("v1", v1))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v1", v1).Msg(op + ": value")
+		if v1 == "" {
+			const op = op + ".Meta.GetChannel"
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given Meta.Channel"}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return ctx, err
+		}
+	}
+	v4 := viper.GetString(k.ServiceUpdateUrl) + v1 + "/"
+	{
+		s.AddAttributes(trace.StringAttribute("v4", v4))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v4", v4).Msg(op + ": value")
+	}
+	v5 := &selfupdate.Updater{
+		CurrentVersion: v0.GetSemver(),
+		ApiURL:         v4,
+		BinURL:         v4,
+		DiffURL:        v4,
 		Dir:            "assets/update/",
-		CmdName:        v.GetName(),
+		CmdName:        v0.GetName(),
 		ForceCheck:     true,
 	}
-	s.AddAttributes(
-		trace.StringAttribute("selfupdate.Updater.CurrentVersion", updater.CurrentVersion),
-		trace.StringAttribute("selfupdate.Updater.ApiURL", updater.ApiURL),
-		trace.StringAttribute("selfupdate.Updater.BinURL", updater.BinURL),
-		trace.StringAttribute("selfupdate.Updater.DiffURL", updater.DiffURL),
-		trace.StringAttribute("selfupdate.Updater.Dir", updater.Dir),
-		trace.StringAttribute("selfupdate.Updater.CmdName", updater.CmdName),
-		trace.BoolAttribute("selfupdate.Updater.ForceCheck", updater.ForceCheck),
-	)
-	v0 := zerolog.Dict().
-		Str("CurrentVersion", updater.CurrentVersion).
-		Str("ApiURL", updater.ApiURL).
-		Str("CmdName", updater.CmdName).
-		Str("BinURL", updater.BinURL).
-		Str("DiffURL", updater.DiffURL).
-		Str("Dir", updater.Dir).
-		Bool("ForceCheck", updater.ForceCheck).
+	v6 := zerolog.Dict().
+		Str("CurrentVersion", v5.CurrentVersion).
+		Str("ApiURL", v5.ApiURL).
+		Str("CmdName", v5.CmdName).
+		Str("BinURL", v5.BinURL).
+		Str("DiffURL", v5.DiffURL).
+		Str("Dir", v5.Dir).
+		Bool("ForceCheck", v5.ForceCheck).
 		Dict("Info", zerolog.Dict().
-			Str("Version", updater.Info.Version).
-			Bytes("Sha256", updater.Info.Sha256))
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg(op + ": arg")
+			Str("Version", v5.Info.Version).
+			Bytes("Sha256", v5.Info.Sha256))
+	{
+		s.AddAttributes(
+			trace.StringAttribute("selfupdate.Updater.CurrentVersion", v5.CurrentVersion),
+			trace.StringAttribute("selfupdate.Updater.ApiURL", v5.ApiURL),
+			trace.StringAttribute("selfupdate.Updater.BinURL", v5.BinURL),
+			trace.StringAttribute("selfupdate.Updater.DiffURL", v5.DiffURL),
+			trace.StringAttribute("selfupdate.Updater.Dir", v5.Dir),
+			trace.StringAttribute("selfupdate.Updater.CmdName", v5.CmdName),
+			trace.BoolAttribute("selfupdate.Updater.ForceCheck", v5.ForceCheck),
+		)
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("v6", v6).Msg(op + ": value")
+	}
 	{
 		s.End()
-		ok, err := updater.ForegroundRun()
-		const op = op + ".updater.BackgroundRun"
+		ok, err := v5.ForegroundRun()
+		const op = op + ".Updater.BackgroundRun"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx)
@@ -94,6 +114,6 @@ func Update(ctx context.Context) (context.Context, error) {
 			return ctx, err
 		}
 	}
-	slog.Logger().Info().Str("op", op).EmbedObject(t).Dict("updater", v0).Msg(op + ": updated")
+	slog.Logger().Info().Str("op", op).EmbedObject(t).Dict("updater", v6).Msg(op + ": updated")
 	return ctx, nil
 }
