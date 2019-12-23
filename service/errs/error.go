@@ -34,7 +34,10 @@ func (e *Error) Error() string {
 	}
 
 	const c0 = ": "
-	var v0, v1, v2 string
+	var (
+		v0, v1, v2, v3 string
+		v4             strings.Builder
+	)
 
 	// If wrapping an error, print its Error() message.
 	// Otherwise print the error code & message.
@@ -44,18 +47,20 @@ func (e *Error) Error() string {
 		if e.Code != nil {
 			v1 = e.Code.String()
 		}
-		v2 = e.Message
+		v3 = e.Message
+		if v3 != "" {
+			v2 = c0
+		}
 	}
 
-	var v3 strings.Builder
-	v3.Grow(len(e.Op) + len(c0) + len(v0) + len(v1) + len(v2))
+	v4.Grow(len(e.Op) + len(c0) + len(v0) + len(v1) + len(v2) + len(v3))
 
 	// Print the current operation in our stack, if any.
 	if e.Op != "" {
-		fmt.Fprint(&v3, e.Op, c0)
+		fmt.Fprint(&v4, e.Op, c0)
 	}
 
-	fmt.Fprint(&v3, v0, v1, v2)
-	e.errorMessage = v3.String()
+	fmt.Fprint(&v4, v0, v1, v2, v3)
+	e.errorMessage = v4.String()
 	return e.errorMessage
 }
