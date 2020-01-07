@@ -83,7 +83,7 @@ func NewCommand(
 				}
 			}
 		}
-		{
+		if os.Args[1] != "version" {
 			slog.SetDefaultLogger(w)
 			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg(op + ": config")
 			slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg(op + ": config")
