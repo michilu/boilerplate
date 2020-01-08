@@ -13,12 +13,12 @@ import (
 
 //go:generate genny -in=../topic/topic.go -out=gen-topic-context.go -pkg=$GOPACKAGE gen "ChanT=context.Context"
 
-func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.Context {
+func ContextTicker(ctx context.Context, duration time.Duration) (<-chan context.Context, error) {
 	const op = op + ".ContextTicker"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
-		return nil
+		return nil, err
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -51,5 +51,5 @@ func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.C
 		s.AddAttributes(trace.StringAttribute("oCh", v0))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("oCh", v0).Msg(op + ": return")
 	}
-	return oCh
+	return oCh, nil
 }

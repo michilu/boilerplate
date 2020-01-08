@@ -54,7 +54,13 @@ func Dataflow(ctx context.Context) {
 		tUpdate.Subscribe(iCh)
 	}
 	{
-		oCh := now.ContextTicker(ctx, 3*time.Second)
+		oCh, err := now.ContextTicker(ctx, 3*time.Second)
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return
+		}
 		tUpdate.Publish(ctx, oCh)
 	}
 	{
