@@ -93,7 +93,8 @@ func NewCommand(
 		const op = op + ".subCmd"
 		c, err := f()
 		if err != nil {
-			slog.Logger().Fatal().Err(err).Str("op", op).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+			continue
 		}
 		rootCmd.AddCommand(c)
 	}

@@ -25,7 +25,8 @@ func Dataflow(ctx context.Context) {
 	}
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Fatal().Err(err).Str("op", op).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+		return
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()

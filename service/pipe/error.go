@@ -19,7 +19,8 @@ func Init(ctx context.Context) {
 	const op = op + ".Init"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Fatal().Err(err).Str("op", op).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+		return
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
@@ -30,7 +31,8 @@ func Init(ctx context.Context) {
 		const op = op + ".config.GCPProjectID"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return
 	}
 	v1, err := errorreporting.NewClient(ctx, string(v0), errorreporting.Config{
 		ServiceName: "myservice",
@@ -46,7 +48,8 @@ func Init(ctx context.Context) {
 		const op = op + ".config.GCPCredentials"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-		slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return
 	}
 	_errorreportingClient = v1
 }

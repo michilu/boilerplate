@@ -17,7 +17,8 @@ func ContextTicker(ctx context.Context, duration time.Duration) <-chan context.C
 	const op = op + ".ContextTicker"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Fatal().Err(err).Str("op", op).Msg(err.Error())
+		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+		return nil
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()

@@ -100,7 +100,8 @@ func main() {
 			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return
 		}
 	}()
 	pipe.Init(ctx)
@@ -115,7 +116,8 @@ func main() {
 			t := slog.Trace(ctx)
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-			slog.Logger().Fatal().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return
 		}
 		ch <- struct{}{}
 	}()
