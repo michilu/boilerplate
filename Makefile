@@ -131,6 +131,7 @@ channel: deps $(GOSRC)
  $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\" -X \"main.channel=channel/$(BRANCH)\""
 	mkdir -p docs/channel/$(BRANCH)/$(GOBIN)
 	./assets/script/selfupdate.sh docs/channel/$(BRANCH)/$(GOBIN) 3
+	rm -rf docs/channel/$(BRANCH)/*.json
 	time go-selfupdate -o docs/channel/$(BRANCH)/$(GOBIN) assets/gox/$(BRANCH)/$(SERIAL)+$(HASH) $(SERIAL)+$(HASH)
 
 .PHONY: release
@@ -141,6 +142,7 @@ release: deps $(GOSRC) $(GOCEL)
  $(LDFLAGS)" -X \"main.semver=$(TAG)\" -X \"main.channel=release\""
 	mkdir -p docs/release/$(GOBIN)
 	./assets/script/selfupdate.sh docs/release/$(GOBIN) 3
+	rm -rf docs/channel/$(BRANCH)/*.json
 	time go-selfupdate -o docs/release/$(GOBIN) assets/gox/$(TAG) $(TAG)
 
 .PHONY: package
@@ -229,9 +231,10 @@ deploy: $(APP_DIR_PATH)/build
 
 .PHONY: clean
 clean:
-	find . -type f -name coverprofile -delete
 	rm -f $(GOBIN) $(GOLIB) $(wildcard lib/*.h)
 	rm -rf package $(APP_DIR_PATH)/build
+	find . -type f -name coverprofile -delete
+	find . -type f -name "coverage.*" -depth 1 -delete
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
 	for file in $$(find . -type d -name vendor -prune\
@@ -240,7 +243,7 @@ clean:
  -or -type f -name "if-*.go" -print\
  -or -type f -name "vo-*.go" -print\
 ); do\
-  sed -i '' 's|"github.com/michilu/boilerplate/vendor/github.com/|"github.com/|g' $$file;\
+  sed -i '' 's|"github.com/michilu/boilerplate/vendor/|"|g' $$file;\
   chmod -x $$file;\
   done
 
@@ -305,3 +308,10 @@ review:
 .PHONY: review-dupl
 review-dupl:
 	-git diff $(COMMIT) HEAD --name-only --diff-filter=AM|grep -e "\.go$$" | xargs dupl
+
+.PHONY: godoc
+godoc:
+	mkdir -p $@
+	for i in $(GOLIST); do\
+  godocdown $$i > "godoc/$${i//\//-}".md;\
+  done

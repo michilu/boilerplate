@@ -10,11 +10,13 @@
 /app/test/**/*.g.dart
 /app/web/*.js
 /app/web/*.js.*
+/assets/credentials/gcp.json
 /assets/db
 /assets/gox
 /assets/pprof
 /assets/update
 /bench
+/coverage.*
 /docs
 /hackernews/dart/pubspec.lock
 /package
@@ -22,3 +24,9 @@
 Gemfile.lock
 go.sum
 package-lock.json
+
+# https://github.com/google/gofuzz
+*-fuzz.zip
+corpus/
+crashers/
+suppressions/

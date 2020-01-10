@@ -9,19 +9,17 @@ import (
 	"syscall"
 
 	k "github.com/michilu/boilerplate/application/config"
+	"github.com/michilu/boilerplate/presentation/cmd/run"
+	"github.com/michilu/boilerplate/presentation/cmd/update"
+	"github.com/michilu/boilerplate/presentation/cmd/version"
 	"github.com/michilu/boilerplate/service/cmd"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
-	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
-
-	"github.com/michilu/boilerplate/presentation/cmd/run"
-	"github.com/michilu/boilerplate/presentation/cmd/update"
-	"github.com/michilu/boilerplate/presentation/cmd/version"
 )
 
 const (
@@ -30,9 +28,22 @@ const (
 
 var (
 	defaults = []config.KV{
+
+		{K: k.InfraNutsdbEventPath, V: "assets/db/event.db"},
+		{K: k.InfraNutsdbKeystorePath, V: "assets/db/keystore.db"},
+		{K: k.InfraNutsdbKeystoreAutoRecovery, V: true},
+
+		// GCP
+		{K: k.GoogleApplicationCredentials, V: "assets/credentials/gcp.json"},
+		{K: k.GcpLoggingId, V: ""},
+
 		{K: k.ServiceProfilePprofAddr, V: ":8888"},
+		{K: k.ServiceProfileProfilerDebugLogging, V: true},
 		{K: k.ServiceUpdateChannel, V: "release"},
 		{K: k.ServiceUpdateUrl, V: "http://localhost:8000/"},
+
+		{K: k.ApplicationEventEnable, V: true},
+		{K: k.ApplicationDebugClientId, V: ""},
 	}
 	subCmd = []func() (*cobra.Command, error){
 		run.New,
@@ -89,22 +100,18 @@ func main() {
 	v0 := slog.NewStackdriverZerologWriter(ctx)
 	c, closer := cmd.NewCommand(v0.Gen, defaults, initFlag, subCmd)
 	defer func() {
-		if closer == nil {
-			return
-		}
-		err := closer.Close()
-		if err != nil {
-			const op = op + ".closer"
-			ctx, s := trace.StartSpan(ctx, op)
-			defer s.End()
-			t := slog.Trace(ctx)
-			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return
+		const op = op + "#defer"
+		ctx, s := trace.StartSpan(ctx, op)
+		defer s.End()
+		t := slog.Trace(ctx)
+		if closer != nil {
+			err := closer.Close()
+			if err != nil {
+				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
+				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			}
 		}
 	}()
-	pipe.Init(ctx)
 	ch := make(chan struct{})
 	go func() {
 		defer close(ch)
@@ -132,7 +139,9 @@ func main() {
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx)
-		s.AddAttributes(trace.StringAttribute("signal", v.String()))
-		slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg(op + ": signal")
+		{
+			s.AddAttributes(trace.StringAttribute("signal", v.String()))
+			slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg(op + ": signal")
+		}
 	}
 }

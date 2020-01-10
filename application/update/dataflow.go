@@ -45,7 +45,9 @@ func Dataflow(ctx context.Context) {
 			m, _ := trace.StartSpan(context.Background(), op)
 			tTick.Publisher(ctx) <- m
 		}
-		s.End()
-		<-oCh
+		{
+			s.End()
+			<-oCh
+		}
 	}
 }

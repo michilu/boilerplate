@@ -77,7 +77,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 	}
 	ch := make(chan error)
 	go func(ctx context.Context, ch chan<- error, m debug.ClientWithContexter) {
-		const op = op + ".#go"
+		const op = op + "#go"
 		defer close(ch)
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
@@ -108,7 +108,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return err
 	case err := <-ch:
-		const op = op + ".#case-ch"
+		const op = op + "#case-ch"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx)

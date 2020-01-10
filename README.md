@@ -24,6 +24,7 @@ $ make
 
 - [mitchellh/gox: A dead simple, no frills Go cross compile tool](https://github.com/mitchellh/gox)
 - [rjeczalik/interfaces: Code generation tools for Go.](https://github.com/rjeczalik/interfaces)
+- [robertkrimen/godocdown: Format package documentation (godoc) as GitHub friendly Markdown](https://github.com/robertkrimen/godocdown)
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 
 ### go generate

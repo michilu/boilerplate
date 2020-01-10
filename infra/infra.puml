@@ -1,11 +1,42 @@
 @startuml
 
+package "event" {
+	class "Repository" as event.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Load(ctx: context.Context, prefix: keyvalue.Prefixer): (keyvalue.KeyValuer, error)
+		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
+	}
+}
+
+
+	event.Repository ..> keyvalue.Prefixer : <<use>> 
+	event.Repository ..> keyvalue.KeyValuer : <<use>> 
+
+package "keystore" {
+	class "Repository" as keystore.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Get(ctx: context.Context, key: keyvalue.Keyer): (keyvalue.KeyValuer, error)
+		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
+	}
+}
+
+
+	keystore.Repository ..> keyvalue.Keyer : <<use>> 
+	keystore.Repository ..> keyvalue.KeyValuer : <<return>> 
+	keystore.Repository ..> keyvalue.KeyValuer : <<use>> 
+
 package "keyvalue" {
 	class "Key" as keyvalue.Key <<E,#FFCC00>> {
 		+Key: []byte
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -16,7 +47,6 @@ package "keyvalue" {
 		+XXX_Size(): int
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
-		+Validate(): error
 	}
 }
 
@@ -29,6 +59,8 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -40,12 +72,23 @@ package "keyvalue" {
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
 		+GetValue(): []byte
-		+MarshalZerologObject(e: zerolog.Event)
-		+Validate(): error
 	}
 }
 
 
+
+package "keyvalue" {
+	interface "KeyValueCloser" as keyvalue.KeyValueCloser {
+		+Close(): error
+		+Get(: context.Context, : keyvalue.Keyer): (keyvalue.KeyValuer, error)
+		+Save(: context.Context, : keyvalue.KeyValuer): error
+	}
+}
+
+
+	keyvalue.KeyValueCloser ..> keyvalue.Keyer : <<use>> 
+	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<return>> 
+	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<use>> 
 
 package "keyvalue" {
 	class "KeyValueWithContext" as keyvalue.KeyValueWithContext <<E,#FFCC00>> {
@@ -129,6 +172,7 @@ package "keyvalue" {
 	interface "Keyer" as keyvalue.Keyer {
 		+Descriptor(): ([]byte, []int)
 		+GetKey(): []byte
+		+MarshalZerologObject(: zerolog.Event)
 		+ProtoMessage()
 		+Reset()
 		+String(): string
@@ -161,6 +205,8 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
+		+Validate(): error
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -171,8 +217,6 @@ package "keyvalue" {
 		+XXX_Size(): int
 		+XXX_DiscardUnknown()
 		+GetPrefix(): []byte
-		+MarshalZerologObject(e: zerolog.Event)
-		+Validate(): error
 	}
 }
 
@@ -260,20 +304,6 @@ package "keyvalue" {
 }
 
 
-
-package "event" {
-	class "Repository" as event.Repository <<E,#FFCC00>> {
-		-bucket: string
-		-db: nutsdb.DB
-		+Close(): error
-		+Load(ctx: context.Context, prefix: keyvalue.Prefixer): (keyvalue.KeyValuer, error)
-		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
-	}
-}
-
-
-	event.Repository ..> keyvalue.Prefixer : <<use>> 
-	event.Repository ..> keyvalue.KeyValuer : <<use>> 
 
 	keyvalue.Key -up-|> keyvalue.Keyer
 	keyvalue.KeyValue -up-|> keyvalue.KeyValuer

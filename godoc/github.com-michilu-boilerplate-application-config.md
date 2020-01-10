@@ -1,5 +1,11 @@
-package config
+# config
+--
+    import "github.com/michilu/boilerplate/application/config"
 
+
+## Usage
+
+```go
 const (
 	ApplicationDebugClientId             = "application.debug.client.id"
 	ApplicationDebugClientIdAlias        = "application.debug.client.id.alias"
@@ -26,3 +32,4 @@ const (
 	ServiceUpdateEnable                  = "service.update.enable"
 	ServiceUpdateUrl                     = "service.update.url"
 )
+```

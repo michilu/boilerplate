@@ -4,10 +4,6 @@ import (
 	"context"
 )
 
-const (
-	op = "infra/keyvalue"
-)
-
 type LoadSaveCloser interface {
 	Load(context.Context, Prefixer) (<-chan KeyValuer, error)
 	Save(context.Context, KeyValuer) error
