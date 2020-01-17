@@ -63,8 +63,8 @@ GOLIB:=$(LIBGO:.go=.so)
 all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 .PHONY: uml
 uml:
-	for i in domain application infra service usecase; do\
-  [ -d $$i ] && gouml init --file $$i --out $$i/$$i.puml || echo no exists $$i;\
+	for i in domain application infra service $(shell find usecase -maxdepth 2 -type d -print); do\
+  [ -d $$i ] && gouml init --file $$i --out $$i/$$(basename $$i).puml || echo no exists $$i;\
   done
 $(VALIDATOR_PB_GO):
 .PHONY: proto

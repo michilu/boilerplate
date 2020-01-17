@@ -16,8 +16,9 @@ $ make
 ## dependencies
 
 ### protobuf
+
+- [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
 - [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
-  - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
 - [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
 - [protocolbuffers/protobuf: Protocol Buffers \- Google's data interchange format](https://github.com/protocolbuffers/protobuf) `$ brew install protobuf`
 - [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
@@ -46,13 +47,14 @@ $ GO111MODULE=on go get -u github.com/rjeczalik/interfaces/cmd/interfacer
 
 - `make`
 
-- `make golang`
-- `make proto`
-- `make generate`
-- `make gox`:       cross compile
-- `make channel`:   push out self update files to develop channel
-- `make release`:   push out self update files to release channel
-- `make uml`:       generate PlantUML from Go codes
+- `make golang`       build Go code
+- `make proto`        generate Go codes from proto
+- `make generate`     generate Go codes via go-generate
+- `make gox`:         cross compile
+- `make channel`:     push out self update files to develop channel
+- `make release`:     push out self update files to release channel
+- `make uml`:         generate PlantUML from Go codes
+- `make godoc`:       generate GoDoc from Go codes
 
 - `make gopherjs`
 - `make serve`
