@@ -19,7 +19,7 @@ $ make
 
 - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf)
 - [Protocol Buffers Version 3 Language Specification  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec)
-- [mwitkow/go-proto-validators: Generate message validators from .proto annotations.](https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto)
+- [envoyproxy/protoc\-gen\-validate: protoc plugin to generate polyglot message validators](https://github.com/envoyproxy/protoc-gen-validate) require `==v0.1.0`
 - [protocolbuffers/protobuf: Protocol Buffers \- Google's data interchange format](https://github.com/protocolbuffers/protobuf) `$ brew install protobuf`
 - [uber/prototool: Your Swiss Army Knife for Protocol Buffers](https://github.com/uber/prototool) `$ brew install prototool`
 

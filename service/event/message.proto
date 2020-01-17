@@ -4,25 +4,25 @@ package michilu.boilerplate.service.event;
 
 option go_package = "event";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 
 // Event is Entity.
 message Event {
   bytes id = 1 [
-    (validator.field) = {
-      length_gt: 0
+    (validate.rules).bytes = {
+      min_len: 1
     }
   ];
   // origin is an identity of the operator who entered the event.
   string origin = 2 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   repeated TimePoint time_point = 3 [
-    (validator.field) = {
-      repeated_count_min: 1
+    (validate.rules).repeated = {
+      min_items: 1
     }
   ];
 }
@@ -31,8 +31,8 @@ message Event {
 message TimePoint {
   google.protobuf.Timestamp timestamp = 1;
   string tag = 2 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
 }

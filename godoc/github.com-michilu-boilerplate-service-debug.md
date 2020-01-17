@@ -63,8 +63,10 @@ func (m *Client) String() string
 #### func (*Client) Validate
 
 ```go
-func (this *Client) Validate() error
+func (m *Client) Validate() error
 ```
+Validate checks the field values on Client with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Client) XXX_DiscardUnknown
 
@@ -105,6 +107,58 @@ type ClientRepository interface {
 }
 ```
 
+
+#### type ClientValidationError
+
+```go
+type ClientValidationError struct {
+}
+```
+
+ClientValidationError is the validation error returned by Client.Validate if the
+designated constraints aren't met.
+
+#### func (ClientValidationError) Cause
+
+```go
+func (e ClientValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (ClientValidationError) Error
+
+```go
+func (e ClientValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (ClientValidationError) ErrorName
+
+```go
+func (e ClientValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (ClientValidationError) Field
+
+```go
+func (e ClientValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (ClientValidationError) Key
+
+```go
+func (e ClientValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (ClientValidationError) Reason
+
+```go
+func (e ClientValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type ClientWithContext
 

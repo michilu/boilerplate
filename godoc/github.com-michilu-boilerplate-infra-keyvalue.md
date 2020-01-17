@@ -57,8 +57,10 @@ func (m *Key) String() string
 #### func (*Key) Validate
 
 ```go
-func (this *Key) Validate() error
+func (m *Key) Validate() error
 ```
+Validate checks the field values on Key with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Key) XXX_DiscardUnknown
 
@@ -89,6 +91,58 @@ func (m *Key) XXX_Size() int
 ```go
 func (m *Key) XXX_Unmarshal(b []byte) error
 ```
+
+#### type KeyValidationError
+
+```go
+type KeyValidationError struct {
+}
+```
+
+KeyValidationError is the validation error returned by Key.Validate if the
+designated constraints aren't met.
+
+#### func (KeyValidationError) Cause
+
+```go
+func (e KeyValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (KeyValidationError) Error
+
+```go
+func (e KeyValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (KeyValidationError) ErrorName
+
+```go
+func (e KeyValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (KeyValidationError) Field
+
+```go
+func (e KeyValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (KeyValidationError) Key
+
+```go
+func (e KeyValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (KeyValidationError) Reason
+
+```go
+func (e KeyValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type KeyValue
 
@@ -149,8 +203,10 @@ func (m *KeyValue) String() string
 #### func (*KeyValue) Validate
 
 ```go
-func (this *KeyValue) Validate() error
+func (m *KeyValue) Validate() error
 ```
+Validate checks the field values on KeyValue with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*KeyValue) XXX_DiscardUnknown
 
@@ -193,6 +249,58 @@ type KeyValueCloser interface {
 }
 ```
 
+
+#### type KeyValueValidationError
+
+```go
+type KeyValueValidationError struct {
+}
+```
+
+KeyValueValidationError is the validation error returned by KeyValue.Validate if
+the designated constraints aren't met.
+
+#### func (KeyValueValidationError) Cause
+
+```go
+func (e KeyValueValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (KeyValueValidationError) Error
+
+```go
+func (e KeyValueValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (KeyValueValidationError) ErrorName
+
+```go
+func (e KeyValueValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (KeyValueValidationError) Field
+
+```go
+func (e KeyValueValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (KeyValueValidationError) Key
+
+```go
+func (e KeyValueValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (KeyValueValidationError) Reason
+
+```go
+func (e KeyValueValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type KeyValueWithContext
 
@@ -425,8 +533,10 @@ func (m *Prefix) String() string
 #### func (*Prefix) Validate
 
 ```go
-func (this *Prefix) Validate() error
+func (m *Prefix) Validate() error
 ```
+Validate checks the field values on Prefix with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Prefix) XXX_DiscardUnknown
 
@@ -457,6 +567,58 @@ func (m *Prefix) XXX_Size() int
 ```go
 func (m *Prefix) XXX_Unmarshal(b []byte) error
 ```
+
+#### type PrefixValidationError
+
+```go
+type PrefixValidationError struct {
+}
+```
+
+PrefixValidationError is the validation error returned by Prefix.Validate if the
+designated constraints aren't met.
+
+#### func (PrefixValidationError) Cause
+
+```go
+func (e PrefixValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (PrefixValidationError) Error
+
+```go
+func (e PrefixValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (PrefixValidationError) ErrorName
+
+```go
+func (e PrefixValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (PrefixValidationError) Field
+
+```go
+func (e PrefixValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (PrefixValidationError) Key
+
+```go
+func (e PrefixValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (PrefixValidationError) Reason
+
+```go
+func (e PrefixValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type Prefixer
 

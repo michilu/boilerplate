@@ -140,8 +140,10 @@ func (m *Meta) String() string
 #### func (*Meta) Validate
 
 ```go
-func (this *Meta) Validate() error
+func (m *Meta) Validate() error
 ```
+Validate checks the field values on Meta with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Meta) XXX_DiscardUnknown
 
@@ -172,6 +174,58 @@ func (m *Meta) XXX_Size() int
 ```go
 func (m *Meta) XXX_Unmarshal(b []byte) error
 ```
+
+#### type MetaValidationError
+
+```go
+type MetaValidationError struct {
+}
+```
+
+MetaValidationError is the validation error returned by Meta.Validate if the
+designated constraints aren't met.
+
+#### func (MetaValidationError) Cause
+
+```go
+func (e MetaValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (MetaValidationError) Error
+
+```go
+func (e MetaValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (MetaValidationError) ErrorName
+
+```go
+func (e MetaValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (MetaValidationError) Field
+
+```go
+func (e MetaValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (MetaValidationError) Key
+
+```go
+func (e MetaValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (MetaValidationError) Reason
+
+```go
+func (e MetaValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type Metaer
 
@@ -262,8 +316,10 @@ func (m *Runtime) String() string
 #### func (*Runtime) Validate
 
 ```go
-func (this *Runtime) Validate() error
+func (m *Runtime) Validate() error
 ```
+Validate checks the field values on Runtime with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Runtime) XXX_DiscardUnknown
 
@@ -294,6 +350,58 @@ func (m *Runtime) XXX_Size() int
 ```go
 func (m *Runtime) XXX_Unmarshal(b []byte) error
 ```
+
+#### type RuntimeValidationError
+
+```go
+type RuntimeValidationError struct {
+}
+```
+
+RuntimeValidationError is the validation error returned by Runtime.Validate if
+the designated constraints aren't met.
+
+#### func (RuntimeValidationError) Cause
+
+```go
+func (e RuntimeValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (RuntimeValidationError) Error
+
+```go
+func (e RuntimeValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (RuntimeValidationError) ErrorName
+
+```go
+func (e RuntimeValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (RuntimeValidationError) Field
+
+```go
+func (e RuntimeValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (RuntimeValidationError) Key
+
+```go
+func (e RuntimeValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (RuntimeValidationError) Reason
+
+```go
+func (e RuntimeValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type Vcs
 
@@ -355,8 +463,10 @@ func (m *Vcs) String() string
 #### func (*Vcs) Validate
 
 ```go
-func (this *Vcs) Validate() error
+func (m *Vcs) Validate() error
 ```
+Validate checks the field values on Vcs with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Vcs) XXX_DiscardUnknown
 
@@ -387,3 +497,55 @@ func (m *Vcs) XXX_Size() int
 ```go
 func (m *Vcs) XXX_Unmarshal(b []byte) error
 ```
+
+#### type VcsValidationError
+
+```go
+type VcsValidationError struct {
+}
+```
+
+VcsValidationError is the validation error returned by Vcs.Validate if the
+designated constraints aren't met.
+
+#### func (VcsValidationError) Cause
+
+```go
+func (e VcsValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (VcsValidationError) Error
+
+```go
+func (e VcsValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (VcsValidationError) ErrorName
+
+```go
+func (e VcsValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (VcsValidationError) Field
+
+```go
+func (e VcsValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (VcsValidationError) Key
+
+```go
+func (e VcsValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (VcsValidationError) Reason
+
+```go
+func (e VcsValidationError) Reason() string
+```
+Reason function returns reason value.

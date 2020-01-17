@@ -124,8 +124,10 @@ func (m *Event) String() string
 #### func (*Event) Validate
 
 ```go
-func (this *Event) Validate() error
+func (m *Event) Validate() error
 ```
+Validate checks the field values on Event with the rules defined in the proto
+definition for this message. If any rules are violated, an error is returned.
 
 #### func (*Event) XXX_DiscardUnknown
 
@@ -156,6 +158,58 @@ func (m *Event) XXX_Size() int
 ```go
 func (m *Event) XXX_Unmarshal(b []byte) error
 ```
+
+#### type EventValidationError
+
+```go
+type EventValidationError struct {
+}
+```
+
+EventValidationError is the validation error returned by Event.Validate if the
+designated constraints aren't met.
+
+#### func (EventValidationError) Cause
+
+```go
+func (e EventValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (EventValidationError) Error
+
+```go
+func (e EventValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (EventValidationError) ErrorName
+
+```go
+func (e EventValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (EventValidationError) Field
+
+```go
+func (e EventValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (EventValidationError) Key
+
+```go
+func (e EventValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (EventValidationError) Reason
+
+```go
+func (e EventValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type EventWithContext
 
@@ -363,8 +417,11 @@ func (m *TimePoint) String() string
 #### func (*TimePoint) Validate
 
 ```go
-func (this *TimePoint) Validate() error
+func (m *TimePoint) Validate() error
 ```
+Validate checks the field values on TimePoint with the rules defined in the
+proto definition for this message. If any rules are violated, an error is
+returned.
 
 #### func (*TimePoint) XXX_DiscardUnknown
 
@@ -395,6 +452,58 @@ func (m *TimePoint) XXX_Size() int
 ```go
 func (m *TimePoint) XXX_Unmarshal(b []byte) error
 ```
+
+#### type TimePointValidationError
+
+```go
+type TimePointValidationError struct {
+}
+```
+
+TimePointValidationError is the validation error returned by TimePoint.Validate
+if the designated constraints aren't met.
+
+#### func (TimePointValidationError) Cause
+
+```go
+func (e TimePointValidationError) Cause() error
+```
+Cause function returns cause value.
+
+#### func (TimePointValidationError) Error
+
+```go
+func (e TimePointValidationError) Error() string
+```
+Error satisfies the builtin error interface
+
+#### func (TimePointValidationError) ErrorName
+
+```go
+func (e TimePointValidationError) ErrorName() string
+```
+ErrorName returns error name.
+
+#### func (TimePointValidationError) Field
+
+```go
+func (e TimePointValidationError) Field() string
+```
+Field function returns field value.
+
+#### func (TimePointValidationError) Key
+
+```go
+func (e TimePointValidationError) Key() bool
+```
+Key function returns key value.
+
+#### func (TimePointValidationError) Reason
+
+```go
+func (e TimePointValidationError) Reason() string
+```
+Reason function returns reason value.
 
 #### type TopicEventWithContexter
 

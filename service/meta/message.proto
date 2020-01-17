@@ -4,28 +4,28 @@ package michilu.boilerplate.service.meta;
 
 option go_package = "meta";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 
 // Meta is ValueObject of meta infomation
 message Meta {
   string name = 1 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   string semver = 2 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   string channel = 3 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   Runtime runtime = 4 [
-    (validator.field) = {
-      msg_exists: true
+    (validate.rules).message = {
+      required: true
     }
   ];
   string serial = 5;
@@ -36,18 +36,18 @@ message Meta {
 // Runtime is ValueObject of Runtime
 message Runtime {
   string version = 1 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   string arch = 2 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
   string os = 3 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
 }

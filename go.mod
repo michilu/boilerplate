@@ -13,10 +13,10 @@ require (
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
 	github.com/aws/aws-sdk-go v1.27.4 // indirect
 	github.com/cheekybits/genny v1.0.0
+	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/gin-contrib/pprof v1.2.1
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect
-	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/golang/protobuf v1.3.2
 	github.com/google/go-cmp v0.4.0 // indirect
 	github.com/google/go-replayers/grpcreplay v1.0.0 // indirect
@@ -30,7 +30,6 @@ require (
 	github.com/mattn/go-ieproxy v0.0.0-20190805055040-f9202b1cfdeb // indirect
 	github.com/mattn/go-isatty v0.0.11 // indirect
 	github.com/michilu/go-selfupdate v0.0.0-20190902055940-b88c2f57bddf
-	github.com/mwitkow/go-proto-validators v0.3.0
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/profile v1.4.0
 	github.com/rs/xid v1.2.1

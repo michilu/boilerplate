@@ -32,7 +32,7 @@ GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
 PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
-VALIDATOR_PB_GO:=$(PROTO:.proto=.validator.pb.go)
+PB_VALIDATE_GO:=$(PROTO:.proto=.pb.validate.go)
 IF_GO:=$(shell find . -type d -name vendor -prune\
  -or -type f -name "if-*.go" -print\
  -or -type f -name "entity-*.go" -print\
@@ -55,8 +55,13 @@ GOLIB:=$(LIBGO:.go=.so)
 	$(GO) build -buildmode=c-shared -o $@ $<
 %.pb.go: %.proto
 	prototool all $<
-%.validator.pb.go: %.proto
-	( type protoc > /dev/null 2>&1 ) && protoc --govalidators_out=$(dir $<) -I $(dir $<) -I vendor $<
+%.pb.validate.go: %.proto
+	d=$(dir $<);\
+ ( type protoc > /dev/null 2>&1 ) && protoc\
+ -I $$d\
+ -I vendor\
+ --validate_out="lang=go:$$d"\
+ $<
 
 
 .PHONY: all
@@ -66,9 +71,9 @@ uml:
 	for i in domain application infra service $(shell find usecase -maxdepth 2 -type d -print); do\
   [ -d $$i ] && gouml init --file $$i --out $$i/$$(basename $$i).puml || echo no exists $$i;\
   done
-$(VALIDATOR_PB_GO):
+$(PB_VALIDATE_GO):
 .PHONY: proto
-proto: vendor $(PB_GO) $(VALIDATOR_PB_GO)
+proto: vendor $(PB_GO) $(PB_VALIDATE_GO)
 .PHONY: golang
 golang: $(GOBIN) $(GOLIB)
 .PHONY: gopherjs

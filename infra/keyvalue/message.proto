@@ -4,13 +4,13 @@ package michilu.boilerplate.infra.keyvalue;
 
 option go_package = "keyvalue";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 
 // Key is Entity.
 message Key {
   bytes key = 1 [
-    (validator.field) = {
-      length_gt: 0
+    (validate.rules).bytes = {
+      min_len: 1
     }
   ];
 }
@@ -18,13 +18,13 @@ message Key {
 // KeyValue is Entity.
 message KeyValue {
   bytes key = 1 [
-    (validator.field) = {
-      length_gt: 0
+    (validate.rules).bytes = {
+      min_len: 1
     }
   ];
   bytes value = 2 [
-    (validator.field) = {
-      length_gt: 0
+    (validate.rules).bytes = {
+      min_len: 1
     }
   ];
 }
@@ -32,8 +32,8 @@ message KeyValue {
 // Prefix is ValueObject.
 message Prefix {
   bytes prefix = 1 [
-    (validator.field) = {
-      length_gt: 0
+    (validate.rules).bytes = {
+      min_len: 1
     }
   ];
 }

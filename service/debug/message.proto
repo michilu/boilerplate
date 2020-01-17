@@ -4,13 +4,13 @@ package michilu.boilerplate.service.debug;
 
 option go_package = "debug";
 
-import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 
 // Client is Entity
 message Client {
   string id = 1 [
-    (validator.field) = {
-      string_not_empty: true
+    (validate.rules).string = {
+      min_len: 1
     }
   ];
 }

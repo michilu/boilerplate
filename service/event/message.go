@@ -4,10 +4,10 @@ import (
 	fmt "fmt"
 	"time"
 
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/michilu/boilerplate/infra/keyvalue"
 	"github.com/michilu/boilerplate/service/errs"
-	_ "github.com/mwitkow/go-proto-validators" // https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
 	"github.com/rs/xid"
 	"google.golang.org/grpc/codes"
 )

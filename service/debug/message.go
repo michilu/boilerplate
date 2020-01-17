@@ -3,7 +3,7 @@ package debug
 import (
 	"encoding/json"
 
-	_ "github.com/mwitkow/go-proto-validators" // https://github.com/mwitkow/go-proto-validators/blob/master/validator.proto
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	"github.com/rs/zerolog"
 )
 
