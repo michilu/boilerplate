@@ -24,7 +24,7 @@ func ContextTicker(ctx context.Context, duration time.Duration) (<-chan context.
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		s.AddAttributes(trace.StringAttribute("duration", fmt.Sprintf("%v", duration)))

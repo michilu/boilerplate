@@ -189,8 +189,8 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := Trace(ctx)
-	Logger().Info().Str("op", op).EmbedObject(Trace(ctx)).Object("arg", p).Msg(op + ": arg")
+	t := Trace(ctx, s)
+	Logger().Info().Str("op", op).EmbedObject(Trace(ctx, s)).Object("arg", p).Msg(op + ": arg")
 
 	v0, err := config.GCPProjectID(ctx)
 	if err != nil {

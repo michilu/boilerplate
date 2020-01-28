@@ -45,7 +45,7 @@ func NewRepository(ctx context.Context) (keyvalue.KeyValueCloser, func() error, 
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	const c0 = k.InfraNutsdbKeystorePath
 	v0 := viper.GetString(c0)
@@ -134,7 +134,7 @@ func (p *Repository) Get(ctx context.Context, key keyvalue.Keyer) (keyvalue.KeyV
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if key == nil {
@@ -196,7 +196,7 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if keyvalue == nil {

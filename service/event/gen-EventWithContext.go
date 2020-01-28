@@ -45,7 +45,7 @@ func (p *EventWithContext) MarshalZerologObject(e *zerolog.Event) {
 		if p.Context != nil {
 			ctx, s := trace.StartSpan(p.Context, op)
 			defer s.End()
-			v1.EmbedObject(slog.Atrace(ctx))
+			v1.EmbedObject(slog.Atrace(ctx, s))
 		}
 		v1.Msg(err.Error())
 		return

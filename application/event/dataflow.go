@@ -33,7 +33,7 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0, v1, err := infra.NewRepository()
 	if err != nil {
@@ -99,7 +99,7 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0 := now.Now()
 	v1, err := event.NewEvent(&v0, op)
@@ -144,7 +144,7 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	s.AddAttributes(trace.StringAttribute("m", m.String()))
 	{
@@ -207,7 +207,7 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 	{
 		err := m.Validate()
 		if err != nil {

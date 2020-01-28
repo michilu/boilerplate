@@ -91,7 +91,7 @@ func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if prefix == nil {
@@ -124,7 +124,7 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if keyvalue == nil {

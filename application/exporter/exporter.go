@@ -32,7 +32,7 @@ func Run() {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		const v0 = k.ServiceTraceEnable

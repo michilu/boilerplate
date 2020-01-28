@@ -59,7 +59,7 @@ func Profile(ctx context.Context) {
 			p.Stop()
 		}
 		ctx, s := trace.StartSpan(ctx, op)
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		after := before + "." + now.Now().UTC().Format(time.RFC3339)
 		err := os.Rename(before, after)
 		if err != nil {

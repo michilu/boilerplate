@@ -26,7 +26,7 @@ func RunProfiler(ctx context.Context) error {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0, err := config.GCPProjectID(ctx)
 	if err != nil {

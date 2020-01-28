@@ -78,7 +78,7 @@ func (p *Config) Config(ctx context.Context) (debug.ClientWithContexter, error) 
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0, err := p.clientRepo.Config(ctx)
 	if err != nil {
@@ -109,7 +109,7 @@ func (p *Config) Connect(m debug.ClientWithContexter) (context.Context, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		s.AddAttributes(trace.StringAttribute("m", m.String()))

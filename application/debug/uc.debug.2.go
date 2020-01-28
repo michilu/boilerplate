@@ -22,7 +22,7 @@ func OpenDebugPort(ctx context.Context, m debug.Clienter) error {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if m == nil {

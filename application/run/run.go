@@ -26,7 +26,7 @@ func Run(_ *cobra.Command, _ []string) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		v0 := k.ServiceProfileProfilerEnable

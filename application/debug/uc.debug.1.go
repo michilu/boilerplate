@@ -21,7 +21,7 @@ func GenerateUUID(ctx context.Context) (string, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	const (
 		c0 = k.ApplicationDebugClientId

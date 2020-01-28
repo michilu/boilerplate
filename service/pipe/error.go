@@ -24,7 +24,7 @@ func Init(ctx context.Context) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0, err := config.GCPProjectID(ctx)
 	if err != nil {
@@ -64,7 +64,7 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
@@ -84,7 +84,7 @@ func FatalErrorHandler(ctx context.Context, err error) (returns bool) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())

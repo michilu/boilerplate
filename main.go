@@ -103,7 +103,7 @@ func main() {
 		const op = op + "#defer"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		if closer != nil {
 			err := closer.Close()
 			if err != nil {
@@ -120,7 +120,7 @@ func main() {
 			const op = op + ".cmd.Execute"
 			ctx, s := trace.StartSpan(ctx, op)
 			defer s.End()
-			t := slog.Trace(ctx)
+			t := slog.Trace(ctx, s)
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
@@ -138,7 +138,7 @@ func main() {
 		const op = op + ".signal.Notify"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		{
 			s.AddAttributes(trace.StringAttribute("signal", v.String()))
 			slog.Logger().Info().Str("op", op).EmbedObject(t).Str("signal", v.String()).Msg(op + ": signal")

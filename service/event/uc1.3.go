@@ -25,7 +25,7 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	if repository == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. repository is nil"}

@@ -20,7 +20,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg(op + ": arg")
 
 	v0 := &Event{}

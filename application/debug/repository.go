@@ -24,7 +24,7 @@ func (*clientRepository) Config(ctx context.Context) (debug.ClientWithContexter,
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0, err := GenerateUUID(ctx)
 	if err != nil {
@@ -55,7 +55,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 	}
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		if m == nil {
@@ -81,7 +81,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		defer close(ch)
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		vctx := m.GetContext()
 		select {
 		case ch <- OpenDebugPort(ctx, m.GetClient()):
@@ -102,7 +102,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		const op = op + ".ctx.Done"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		err := &errs.Error{Op: op, Code: codes.Aborted, Err: vctx.Err()}
 		s.SetStatus(trace.Status{Code: int32(codes.Aborted), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
@@ -111,7 +111,7 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 		const op = op + "#case-ch"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		if err != nil {
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())

@@ -25,7 +25,7 @@ func Update(ctx context.Context) (context.Context, error) {
 	const op = op + ".Update"
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	v0 := meta.Get()
 	v1 := ""
@@ -100,7 +100,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		const op = op + ".Updater.BackgroundRun"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
-		t := slog.Trace(ctx)
+		t := slog.Trace(ctx, s)
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})

@@ -31,7 +31,7 @@ func Dataflow(ctx context.Context) {
 	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
-	t := slog.Trace(ctx)
+	t := slog.Trace(ctx, s)
 
 	{
 		const c0 = k.ServiceUpdateEnable
