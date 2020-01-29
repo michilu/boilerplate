@@ -22,6 +22,7 @@ var (
 
 type Tracer interface {
 	GetTraceIDTemplate() string
+	GetTraceURLTemplate() string
 }
 
 type Closer interface {
@@ -75,4 +76,11 @@ func GetTraceIDTemplate() string {
 		return ""
 	}
 	return tracer.GetTraceIDTemplate()
+}
+
+func GetTraceURLTemplate() string {
+	if tracer == nil {
+		return ""
+	}
+	return tracer.GetTraceURLTemplate()
 }

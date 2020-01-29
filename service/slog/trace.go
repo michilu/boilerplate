@@ -35,8 +35,10 @@ func (p *TraceObject) MarshalZerologObject(e *zerolog.Event) {
 		return
 	}
 	v1 := v0.SpanContext()
+	v2 := v1.TraceID.String()
 	e.
-		Str("trace", fmt.Sprintf(GetTraceIDTemplate(), v1.TraceID.String())).
+		Str("traceURL", fmt.Sprintf(GetTraceURLTemplate(), v2)).
+		Str("trace", fmt.Sprintf(GetTraceIDTemplate(), v2)).
 		Str("spanID", v1.SpanID.String())
 	return
 }

@@ -137,6 +137,11 @@ func (p *StackdriverLoggingWriter) GetTraceIDTemplate() string {
 	return p.GetParentProjects() + "/traces/%s"
 }
 
+// GetTraceURLTemplate returns a template string of the stackdriver traces URL.
+func (p *StackdriverLoggingWriter) GetTraceURLTemplate() string {
+	return "https://console.cloud.google.com/traces/traces?tid=%s"
+}
+
 // GetParentProjects returns a string of parent projects.
 // https://godoc.org/cloud.google.com/go/logging#NewClient
 func (p *StackdriverLoggingWriter) GetParentProjects() string {

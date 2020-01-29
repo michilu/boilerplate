@@ -17,6 +17,12 @@ var (
 func GetTraceIDTemplate() string
 ```
 
+#### func  GetTraceURLTemplate
+
+```go
+func GetTraceURLTemplate() string
+```
+
 #### func  Logger
 
 ```go
@@ -53,7 +59,7 @@ SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 #### func  Trace
 
 ```go
-func Trace(ctx context.Context) zerolog.LogObjectMarshaler
+func Trace(ctx context.Context, s *trace.Span) zerolog.LogObjectMarshaler
 ```
 
 #### type Closer
@@ -141,6 +147,13 @@ func (p *StackdriverLoggingWriter) GetTraceIDTemplate() string
 ```
 GetTraceIDTemplate returns a template string of the stackdriver traceID.
 
+#### func (*StackdriverLoggingWriter) GetTraceURLTemplate
+
+```go
+func (p *StackdriverLoggingWriter) GetTraceURLTemplate() string
+```
+GetTraceURLTemplate returns a template string of the stackdriver traces URL.
+
 #### func (*StackdriverLoggingWriter) Write
 
 ```go
@@ -202,5 +215,6 @@ func (p *TraceObject) MarshalZerologObject(e *zerolog.Event)
 ```go
 type Tracer interface {
 	GetTraceIDTemplate() string
+	GetTraceURLTemplate() string
 }
 ```
