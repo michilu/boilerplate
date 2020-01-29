@@ -16,7 +16,7 @@ func Trace(ctx context.Context, s *trace.Span) zerolog.LogObjectMarshaler {
 	v0 := s.SpanContext()
 	s.AddAttributes(
 		trace.StringAttribute("trace", v0.TraceID.String()),
-		trace.StringAttribute("spanID", v0.SpanID.String()),
+		trace.StringAttribute("span", v0.SpanID.String()),
 	)
 	return &TraceObject{ctx}
 }
