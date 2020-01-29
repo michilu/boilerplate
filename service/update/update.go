@@ -65,11 +65,16 @@ func Update(ctx context.Context) (context.Context, error) {
 	v5 := &selfupdate.Updater{
 		CurrentVersion: v0.GetSemver(),
 		ApiURL:         v4,
+		CmdName:        v0.GetName(),
 		BinURL:         v4,
 		DiffURL:        v4,
 		Dir:            "assets/update/",
-		CmdName:        v0.GetName(),
 		ForceCheck:     true,
+	}
+	if viper.GetBool(k.ServiceUpdateForce) {
+		v5.Info = selfupdate.UpdateInfo{
+			Version: "0.0.0",
+		}
 	}
 	v6 := zerolog.Dict().
 		Str("CurrentVersion", v5.CurrentVersion).

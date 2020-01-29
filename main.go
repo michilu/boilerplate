@@ -54,14 +54,15 @@ var (
 )
 
 type Flag struct {
-	Config   string
-	Debug    bool
-	Parallel int
-	Pprof    bool
-	Profiler bool
-	Trace    bool
-	Update   bool
-	Verbose  bool
+	Config      string
+	Debug       bool
+	Parallel    int
+	Pprof       bool
+	Profiler    bool
+	Trace       bool
+	Update      bool
+	UpdateForce bool
+	Verbose     bool
 }
 
 func initFlag(command *cobra.Command) {
@@ -87,6 +88,9 @@ func initFlag(command *cobra.Command) {
 
 	f.BoolVar(&flag.Update, "update", false, "enable the OTA update")
 	viper.BindPFlag(k.ServiceUpdateEnable, f.Lookup("update"))
+
+	f.BoolVar(&flag.UpdateForce, "update-force", false, "force update")
+	viper.BindPFlag(k.ServiceUpdateForce, f.Lookup("update-force"))
 
 	f.BoolVar(&flag.Verbose, "verbose", false, "enable verbosely")
 	viper.BindPFlag(k.ServiceSlogVerbose, f.Lookup("verbose"))

@@ -24,5 +24,6 @@ const (
 	ServiceTraceEnable                   = "service.trace.enable"
 	ServiceUpdateChannel                 = "service.update.channel"
 	ServiceUpdateEnable                  = "service.update.enable"
+	ServiceUpdateForce                   = "service.update.force"
 	ServiceUpdateUrl                     = "service.update.url"
 )
