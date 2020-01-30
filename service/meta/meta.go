@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"runtime"
 
+	"github.com/jeremywohl/flatten"
+	"github.com/michilu/boilerplate/service/errs"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/yaml.v2"
-
-	"github.com/michilu/boilerplate/service/errs"
 )
 
 const (
@@ -61,4 +61,19 @@ func (m Meta) JSON() []byte {
 		panic(err)
 	}
 	return b
+}
+
+func (m Meta) Flatten() map[string]interface{} {
+	var v0 map[string]interface{}
+	{
+		err := json.Unmarshal(m.JSON(), &v0)
+		if err != nil {
+			panic(err)
+		}
+	}
+	v1, err := flatten.Flatten(v0, "", flatten.PathStyle)
+	if err != nil {
+		panic(err)
+	}
+	return v1
 }

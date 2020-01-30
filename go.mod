@@ -23,6 +23,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f
+	github.com/jeremywohl/flatten v1.0.1
 	github.com/jessevdk/go-assets v0.0.0-20160921144138-4f4301a06e15
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect

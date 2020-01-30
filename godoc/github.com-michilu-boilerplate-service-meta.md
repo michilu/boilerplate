@@ -65,6 +65,12 @@ Get returns a Meta.
 func (*Meta) Descriptor() ([]byte, []int)
 ```
 
+#### func (Meta) Flatten
+
+```go
+func (m Meta) Flatten() map[string]interface{}
+```
+
 #### func (*Meta) GetBuild
 
 ```go
