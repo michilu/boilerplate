@@ -14,6 +14,7 @@ require (
 	github.com/aws/aws-sdk-go v1.27.4 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
+	github.com/getsentry/sentry-go v0.4.0
 	github.com/gin-contrib/pprof v1.2.1
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-playground/universal-translator v0.17.0 // indirect

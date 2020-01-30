@@ -2,8 +2,10 @@ package pipe
 
 import (
 	"context"
+	"time"
 
 	"cloud.google.com/go/errorreporting"
+	"github.com/getsentry/sentry-go"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/meta"
@@ -69,30 +71,29 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 	defer s.End()
 	t := slog.Trace(ctx, s)
 
-	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+	{
+		s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+	}
 	if _errorreportingClient != nil {
 		_errorreportingClient.Report(errorreporting.Entry{Error: err})
+	}
+	{
+		sentry.CaptureException(err)
+		{
+			v0 := sentry.Flush(5 * time.Second)
+			if !v0 {
+				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err,
+					Message: "Sentry: Buffer flushing reached the timeout."}
+				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			}
+		}
 	}
 	return
 }
 
 // FatalErrorHandler is an error handler with fatal level.
 func FatalErrorHandler(ctx context.Context, err error) (returns bool) {
-	const op = op + ".FatalErrorHandler"
-	if ctx == nil {
-		ctx = context.Background()
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
-		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
-	}
-	ctx, s := trace.StartSpan(ctx, op)
-	defer s.End()
-	t := slog.Trace(ctx, s)
-
-	s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
-	slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-	if _errorreportingClient != nil {
-		_errorreportingClient.Report(errorreporting.Entry{Error: err})
-	}
+	_ = ErrorHandler(ctx, err)
 	return true
 }

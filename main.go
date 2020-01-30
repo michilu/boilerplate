@@ -112,6 +112,7 @@ func main() {
 			}
 		}
 	}()
+	slog.InitSentry(ctx)
 	ch := make(chan struct{})
 	go func() {
 		defer close(ch)
