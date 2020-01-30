@@ -5,7 +5,7 @@ PROJECT_SINCE:=$(shell git log --pretty=format:"%ad" --date=unix|tail -1)
 AUTO_COUNT_SINCE:=$(shell echo $$((($(BUILD)-$(PROJECT_SINCE))/(24*60*60))))
 AUTO_COUNT_YEAR:=$(shell echo $$(($(AUTO_COUNT_SINCE)/365)))
 AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
-AUTO_COUNT_MINUTE:=$(shell echo $(($(BUILD)%(24*60*60))))
+AUTO_COUNT_MINUTE:=$(shell echo $$(($(BUILD)%(24*60*60))))
 CODEBASE_NUMBER:=0
 SERIAL:=$(CODEBASE_NUMBER).$(AUTO_COUNT_YEAR).$(AUTO_COUNT_DAY)-$(AUTO_COUNT_MINUTE)
 TAG:=$(shell git describe --tags || echo NO-TAG)
