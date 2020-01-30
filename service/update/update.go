@@ -71,11 +71,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		Dir:            "assets/update/",
 		ForceCheck:     true,
 	}
-	if viper.GetBool(k.ServiceUpdateForce) {
-		v5.Info = selfupdate.UpdateInfo{
-			Version: "0.0.0",
-		}
-	}
+	v5.Info.Version = viper.GetString(k.ServiceUpdateForce)
 	v6 := zerolog.Dict().
 		Str("CurrentVersion", v5.CurrentVersion).
 		Str("ApiURL", v5.ApiURL).
