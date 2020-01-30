@@ -6,6 +6,7 @@ import (
 	"cloud.google.com/go/errorreporting"
 	"github.com/michilu/boilerplate/service/config"
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/meta"
 	"github.com/michilu/boilerplate/service/slog"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
@@ -34,8 +35,10 @@ func Init(ctx context.Context) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return
 	}
-	v1, err := errorreporting.NewClient(ctx, string(v0), errorreporting.Config{
-		ServiceName: "myservice",
+	v1 := meta.Get()
+	v2, err := errorreporting.NewClient(ctx, string(v0), errorreporting.Config{
+		ServiceName:    v1.Name,
+		ServiceVersion: v1.Semver,
 		OnError: func(err error) {
 			const op = op + ".errorreporting.Client.OnError"
 			{
@@ -51,7 +54,7 @@ func Init(ctx context.Context) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return
 	}
-	_errorreportingClient = v1
+	_errorreportingClient = v2
 }
 
 // ErrorHandler is an error handler with error level.
