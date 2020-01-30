@@ -83,7 +83,7 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 		{
 			v0 := sentry.Flush(5 * time.Second)
 			if !v0 {
-				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err,
+				err := &errs.Error{Op: op, Code: codes.DeadlineExceeded,
 					Message: "Sentry: Buffer flushing reached the timeout."}
 				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			}
