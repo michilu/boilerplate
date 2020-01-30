@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -98,21 +99,28 @@ func main() {
 	defer s.End()
 
 	v0 := slog.NewStackdriverZerologWriter(ctx)
-	c, closer := cmd.NewCommand(v0.Gen, defaults, initFlag, subCmd)
+	v1 := []func(context.Context) (io.Closer, error){
+		v0.Init,
+		slog.InitSentry,
+	}
+	v2 := &cmd.Resource{
+		Context:  ctx,
+		Resource: v1,
+	}
+	c := cmd.NewCommand(v2, defaults, initFlag, subCmd)
 	defer func() {
 		const op = op + "#defer"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx, s)
-		if closer != nil {
-			err := closer.Close()
+		{
+			err := v2.Close()
 			if err != nil {
 				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			}
 		}
 	}()
-	slog.InitSentry(ctx)
 	ch := make(chan struct{})
 	go func() {
 		defer close(ch)

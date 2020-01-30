@@ -25,10 +25,6 @@ type Tracer interface {
 	GetTraceURLTemplate() string
 }
 
-type Closer interface {
-	Close() error
-}
-
 // SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 func SetTimeFieldFormat() {
 	timeFieldFormat = zerolog.TimeFieldFormat

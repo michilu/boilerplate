@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -24,6 +25,35 @@ const (
 var (
 	rootCmd *cobra.Command
 )
+
+type Resource struct {
+	Context  context.Context
+	Resource []func(context.Context) (io.Closer, error)
+	closer   []io.Closer
+}
+
+func (p *Resource) Init() error {
+	v0 := make([]io.Closer, 0, len(p.Resource))
+	for _, v := range p.Resource {
+		v1, err := v(p.Context)
+		if err != nil {
+			return err
+		}
+		if v1 == nil {
+			continue
+		}
+		v0 = append(v0, v1)
+	}
+	p.closer = v0
+	return nil
+}
+
+func (p Resource) Close() (err error) {
+	for _, v := range p.closer {
+		err = v.Close()
+	}
+	return
+}
 
 func init() {
 	rootCmd = &cobra.Command{
@@ -57,36 +87,26 @@ func initialize(v []config.KV) {
 }
 
 func NewCommand(
-	logger func() ([]io.Writer, slog.Closer, error),
+	resource *Resource,
 	defaults []config.KV,
 	initCmdFlag func(*cobra.Command),
 	subCmd []func() (*cobra.Command, error),
-) (*cobra.Command, slog.Closer) {
+) *cobra.Command {
 	const op = op + ".NewCommand"
-	var closer slog.Closer
 	initCmdFlag(rootCmd)
 	cobra.OnInitialize(func() {
 		const op = op + ".cobra.OnInitialize"
 		initialize(defaults)
-		var (
-			w   []io.Writer
-			err error
-		)
-		if logger != nil {
+		if resource != nil {
 			slog.Logger().Debug().Str("op", op).Strs("os.Args", os.Args).Msg(op + ": value")
-			w, closer, err = logger()
+			err := resource.Init()
 			if err != nil {
-				const op = op + ".logger"
+				const op = op + ".init"
 				if os.Args[1] == "run" {
 					os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
 					os.Exit(1)
 				}
 			}
-		}
-		if os.Args[1] != "version" {
-			slog.SetDefaultLogger(w)
-			slog.Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg(op + ": config")
-			slog.Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg(op + ": config")
 		}
 	})
 	for _, f := range subCmd {
@@ -98,5 +118,5 @@ func NewCommand(
 		}
 		rootCmd.AddCommand(c)
 	}
-	return rootCmd, closer
+	return rootCmd
 }

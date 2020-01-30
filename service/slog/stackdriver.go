@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -186,8 +187,8 @@ type StackdriverZerologWriter struct {
 	ctx context.Context
 }
 
-func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
-	const op = op + ".StackdriverZerologWriter.Gen"
+func (p *StackdriverZerologWriter) Init(context.Context) (io.Closer, error) {
+	const op = op + ".StackdriverZerologWriter.Init"
 	ctx := p.ctx
 	if ctx == nil {
 		ctx = context.Background()
@@ -203,13 +204,16 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return nil, nil, err
+		return nil, err
 	}
 	v1 := viper.GetString(k.GcpLoggingId)
 	if v1 == "" {
 		v2 := viper.GetString(k.GcpLoggingIdAlias)
 		if v2 != "" {
 			v1 = strings.ReplaceAll(viper.GetString(v2), ":", "-")
+		}
+		if v1 == "" {
+			return nil, nil
 		}
 	}
 	v2, v3, err := NewStackdriverLogging(
@@ -223,11 +227,16 @@ func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error) {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
 		Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return nil, nil, err
+		return nil, err
 	}
 	SetDefaultTracer(v2)
 	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg(op + ": return")
-	return []io.Writer{v2}, &StackdriverCloser{v3}, nil
+	if os.Args[1] != "version" {
+		SetDefaultLogger([]io.Writer{v2})
+		Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg(op + ": config")
+		Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg(op + ": config")
+	}
+	return &StackdriverCloser{v3}, nil
 }
 
 func (p *StackdriverZerologWriter) MarshalZerologObject(e *zerolog.Event) {

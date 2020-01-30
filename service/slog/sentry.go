@@ -2,6 +2,7 @@ package slog
 
 import (
 	"context"
+	"io"
 
 	sentry "github.com/getsentry/sentry-go"
 	k "github.com/michilu/boilerplate/application/config"
@@ -12,12 +13,12 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func InitSentry(ctx context.Context) {
+func InitSentry(ctx context.Context) (io.Closer, error) {
 	const op = op + ".InitSentry"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 		Logger().Err(err).Str("op", op).Msg(err.Error())
-		return
+		return nil, err
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -31,7 +32,7 @@ func InitSentry(ctx context.Context) {
 		Logger().Debug().Str("op", op).EmbedObject(t).Str("v0", v0).Msg(op + ": value")
 	}
 	if v0 == "" {
-		return
+		return nil, nil
 	}
 	v1 := viper.GetString(k.ServiceSlogSentryServerName)
 	if v1 == "" {
@@ -55,4 +56,5 @@ func InitSentry(ctx context.Context) {
 			Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		}
 	}
+	return nil, nil
 }
