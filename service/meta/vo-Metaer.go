@@ -11,6 +11,7 @@ import (
 // Metaer is an interface generated for "github.com/michilu/boilerplate/service/meta.Meta".
 type Metaer interface {
 	Descriptor() ([]byte, []int)
+	Flatten() map[string]interface{}
 	GetBuild() time.Time
 	GetChannel() string
 	GetName() string
