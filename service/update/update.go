@@ -2,6 +2,7 @@ package update
 
 import (
 	"context"
+	"errors"
 
 	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
@@ -97,11 +98,16 @@ func Update(ctx context.Context) (context.Context, error) {
 	{
 		s.End()
 		ok, err := v5.ForegroundRun()
-		const op = op + ".Updater.BackgroundRun"
+		const op = op + ".Updater.ForegroundRun"
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx, s)
 		if err != nil {
+			if errors.Is(err, selfupdate.ErrNoAvailableUpdates) {
+				err := &errs.Error{Op: op, Code: codes.NotFound, Err: err}
+				slog.Logger().Info().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+				return ctx, nil
+			}
 			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
