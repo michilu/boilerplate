@@ -81,13 +81,10 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 	{
 		sentry.WithScope(func(scope *sentry.Scope) {
 			scope.AddEventProcessor(func(event *sentry.Event, _ *sentry.EventHint) *sentry.Event {
-				v0 := make([]sentry.Exception, 0, 1)
-				for _, v := range event.Exception {
-					v.Type = err.Error()
-					v0 = append(v0, v)
+				for i := len(event.Exception) - 1; i >= 0; i-- {
+					event.Exception[i].Type = err.Error()
 					break
 				}
-				event.Exception = append(v0, event.Exception...)
 				return event
 			})
 			sentry.CaptureException(err)
