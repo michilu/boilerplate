@@ -79,7 +79,19 @@ func ErrorHandler(ctx context.Context, err error) (returns bool) {
 		_errorreportingClient.Report(errorreporting.Entry{Error: err})
 	}
 	{
-		sentry.CaptureException(err)
+		sentry.WithScope(func(scope *sentry.Scope) {
+			scope.AddEventProcessor(func(event *sentry.Event, _ *sentry.EventHint) *sentry.Event {
+				v0 := make([]sentry.Exception, 0, 1)
+				for _, v := range event.Exception {
+					v.Type = err.Error()
+					v0 = append(v0, v)
+					break
+				}
+				event.Exception = append(v0, event.Exception...)
+				return event
+			})
+			sentry.CaptureException(err)
+		})
 		{
 			v0 := sentry.Flush(5 * time.Second)
 			if !v0 {
