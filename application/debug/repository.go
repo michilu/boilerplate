@@ -57,13 +57,13 @@ func (*clientRepository) Connect(m debug.ClientWithContexter) error {
 	defer s.End()
 	t := slog.Trace(ctx, s)
 
+	if m == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
+	}
 	{
-		if m == nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'm' is nil"}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
 		s.AddAttributes(trace.StringAttribute("debug.ClientWithContexter", m.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}

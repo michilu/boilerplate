@@ -115,6 +115,10 @@ func Start(ctx context.Context) (event.EventWithContexter, error) {
 		Event:   v1,
 	}
 	{
+		s.AddAttributes(trace.StringAttribute("v2", v2.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg(op + ": value")
+	}
+	{
 		err := v2.Validate()
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
@@ -146,7 +150,10 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 	defer s.End()
 	t := slog.Trace(ctx, s)
 
-	s.AddAttributes(trace.StringAttribute("m", m.String()))
+	{
+		s.AddAttributes(trace.StringAttribute("m", m.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
+	}
 	{
 		err := m.Validate()
 		if err != nil {
@@ -155,7 +162,6 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 
 	v0, err := json.Marshal(m.GetEvent())
@@ -172,6 +178,10 @@ func EventLogger(m event.EventWithContexter) (event.KeyValueWithContexter, error
 			Key:   m.GetEvent().GetKey(),
 			Value: v0,
 		},
+	}
+	{
+		s.AddAttributes(trace.StringAttribute("v1", v1.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v1).Msg(op + ": value")
 	}
 	{
 		err := v1.Validate()
@@ -208,6 +218,11 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx, s)
+
+	{
+		s.AddAttributes(trace.StringAttribute("m", m.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
+	}
 	{
 		err := m.Validate()
 		if err != nil {
@@ -216,8 +231,6 @@ func (p *Saver) Save(m event.KeyValueWithContexter) (context.Context, error) {
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
-		s.AddAttributes(trace.StringAttribute("m", m.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(m).Msg(op + ": arg")
 	}
 	{
 		err := event.SaveEventPayload(ctx, p.Saver, m.GetKeyValue())

@@ -40,6 +40,10 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 		return err
 	}
 	{
+		s.AddAttributes(trace.StringAttribute("keyvalue", keyvalue.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
+	}
+	{
 		err := keyvalue.Validate()
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
@@ -47,7 +51,6 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
 	{
 		err := repository.Save(ctx, keyvalue)

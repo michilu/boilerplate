@@ -93,13 +93,17 @@ func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan
 	defer s.End()
 	t := slog.Trace(ctx, s)
 
+	if prefix == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'prefix' is nil"}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return nil, err
+	}
 	{
-		if prefix == nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'prefix' is nil"}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return nil, err
-		}
+		s.AddAttributes(trace.StringAttribute("prefix", prefix.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg(op + ": arg")
+	}
+	{
 		err := prefix.Validate()
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
@@ -107,7 +111,6 @@ func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return nil, err
 		}
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg(op + ": arg")
 	}
 
 	err := &errs.Error{Op: op, Code: codes.Unimplemented}
@@ -126,13 +129,17 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 	defer s.End()
 	t := slog.Trace(ctx, s)
 
+	if keyvalue == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'keyvalue' is nil"}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
+	}
 	{
-		if keyvalue == nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'keyvalue' is nil"}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+		s.AddAttributes(trace.StringAttribute("keyvalue", keyvalue.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
+	}
+	{
 		err := keyvalue.Validate()
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
@@ -140,8 +147,6 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 			return err
 		}
-		s.AddAttributes(trace.StringAttribute("arg", keyvalue.String()))
-		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
 
 	{

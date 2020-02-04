@@ -3,6 +3,7 @@ package meta
 import (
 	"encoding/json"
 	"runtime"
+	"sync"
 
 	"github.com/jeremywohl/flatten"
 	"github.com/michilu/boilerplate/service/errs"
@@ -15,7 +16,8 @@ const (
 )
 
 var (
-	m Meta
+	m  Meta
+	mu sync.RWMutex
 )
 
 // Get returns a Meta.
@@ -31,10 +33,17 @@ func Set(v *Meta) error {
 		Os:      runtime.GOOS,
 		Version: runtime.Version(),
 	}
-	m = *v
-	if err := v.Validate(); err != nil {
-		const op = op + ".Validate"
-		return &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+	{
+		mu.Lock()
+		defer mu.Unlock()
+		m = *v
+	}
+	{
+		err := v.Validate()
+		if err != nil {
+			const op = op + ".Validate"
+			return &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		}
 	}
 	return nil
 }
