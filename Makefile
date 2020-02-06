@@ -255,6 +255,7 @@ clean:
 .PHONY: test
 test: deps
 	$(GOM) test $(PKG)/...
+	[ "$$(./assets/script/blacklist.sh)" = "" ] || (./assets/script/blacklist.sh; exit 1)
 
 .PHONY: pprof
 pprof:
