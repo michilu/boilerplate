@@ -9,9 +9,31 @@
 
 ```go
 func NewCommand(
-	logger func() ([]io.Writer, slog.Closer, error),
+	resource *Resource,
 	defaults []config.KV,
 	initCmdFlag func(*cobra.Command),
 	subCmd []func() (*cobra.Command, error),
-) (*cobra.Command, slog.Closer)
+) *cobra.Command
+```
+
+#### type Resource
+
+```go
+type Resource struct {
+	Context  context.Context
+	Resource []func(context.Context) (io.Closer, error)
+}
+```
+
+
+#### func (Resource) Close
+
+```go
+func (p Resource) Close() (err error)
+```
+
+#### func (*Resource) Init
+
+```go
+func (p *Resource) Init() error
 ```

@@ -238,6 +238,7 @@ Reason function returns reason value.
 ```go
 type Metaer interface {
 	Descriptor() ([]byte, []int)
+	Flatten() map[string]interface{}
 	GetBuild() time.Time
 	GetChannel() string
 	GetName() string

@@ -23,6 +23,12 @@ func GetTraceIDTemplate() string
 func GetTraceURLTemplate() string
 ```
 
+#### func  InitSentry
+
+```go
+func InitSentry(ctx context.Context) (io.Closer, error)
+```
+
 #### func  Logger
 
 ```go
@@ -61,15 +67,6 @@ SetTimeFieldFormat sets up the zerolog.TimeFieldFormat
 ```go
 func Trace(ctx context.Context, s *trace.Span) zerolog.LogObjectMarshaler
 ```
-
-#### type Closer
-
-```go
-type Closer interface {
-	Close() error
-}
-```
-
 
 #### type HookMeta
 
@@ -183,10 +180,10 @@ func NewStackdriverZerologWriter(ctx context.Context) *StackdriverZerologWriter
 ```
 NewStackdriverZerologWriter returns a new ZerologWriter.
 
-#### func (*StackdriverZerologWriter) Gen
+#### func (*StackdriverZerologWriter) Init
 
 ```go
-func (p *StackdriverZerologWriter) Gen() ([]io.Writer, Closer, error)
+func (p *StackdriverZerologWriter) Init(context.Context) (io.Closer, error)
 ```
 
 #### func (*StackdriverZerologWriter) MarshalZerologObject

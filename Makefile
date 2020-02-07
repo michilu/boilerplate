@@ -1,7 +1,7 @@
 SHELL:=/usr/bin/env bash
 
 BUILD:=$(shell date -u +%s)
-PROJECT_SINCE:=$(shell git log --pretty=format:"%ad" --date=unix|tail -1)
+PROJECT_SINCE:=$(shell echo $$(($$(git log --pretty=format:"%ad" --date=unix|tail -1)/(24*60*60)*(24*60*60))))
 AUTO_COUNT_SINCE:=$(shell echo $$((($(BUILD)-$(PROJECT_SINCE))/(24*60*60))))
 AUTO_COUNT_YEAR:=$(shell echo $$(($(AUTO_COUNT_SINCE)/365)))
 AUTO_COUNT_DAY:=$(shell echo $$(($(AUTO_COUNT_SINCE)%365)))
@@ -70,6 +70,10 @@ all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
 uml:
 	for i in domain application infra service $(shell find usecase -maxdepth 2 -type d -print); do\
   [ -d $$i ] && gouml init --file $$i --out $$i/$$(basename $$i).puml || echo no exists $$i;\
+  done
+	for i in $$(find . -type f -name "*.puml" -print); do\
+  echo -e -n "@startuml\n\n\n\n@enduml\n" | cmp $$i > /dev/null 2>&1\
+  && (rm $$i; echo removed empty uml $$i) || echo -n;\
   done
 $(PB_VALIDATE_GO):
 .PHONY: proto

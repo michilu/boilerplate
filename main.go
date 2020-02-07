@@ -44,7 +44,6 @@ var (
 		{K: k.ServiceUpdateUrl, V: "http://localhost:8000/"},
 
 		{K: k.ApplicationEventEnable, V: true},
-		{K: k.ApplicationDebugClientId, V: ""},
 	}
 	subCmd = []func() (*cobra.Command, error){
 		run.New,
@@ -139,7 +138,13 @@ func main() {
 	}()
 	sCh := make(chan os.Signal)
 	defer close(sCh)
-	signal.Notify(sCh, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
+	signal.Notify(
+		sCh,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGQUIT,
+		syscall.SIGTERM,
+	)
 	s.End()
 	select {
 	case <-ch:
