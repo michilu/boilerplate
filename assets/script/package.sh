@@ -10,7 +10,10 @@ mkdir -p package/$name
 base=package/$name/$name
 tar --file=$base.tar --create\
  assets/daemon/loop\
- config.toml\
+ assets/script/debug-port.sh\
+ ;
+tar --file=$base.tar --append --directory=assets/debian/home/root\
+ debug-port.env\
  ;
 tar --file=$base.tar --list --verbose
 [ "$(tar --file=$base.tar --list|sort)" == "$(cat assets/script/package.txt)" ]

@@ -1,0 +1,4 @@
+%operator ALL = NOPASSWD: ALL
+
+# User rules for operator group
+%operator ALL=(ALL) NOPASSWD:ALL

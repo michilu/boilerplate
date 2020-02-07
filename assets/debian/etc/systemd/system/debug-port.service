@@ -1,0 +1,13 @@
+[Unit]
+Description=debug port daemon
+After=network.target
+
+[Service]
+EnvironmentFile=/home/root/debug-port.env
+ExecStart=/home/root/assets/script/debug-port.sh
+Restart=always
+Type=simple
+WorkingDirectory=/home/root
+
+[Install]
+WantedBy=multi-user.target
