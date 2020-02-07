@@ -12,6 +12,10 @@ tar --file=$base.tar --create\
  assets/daemon/loop\
  assets/script/debug-port.sh\
  ;
+tar --file=$base.tar --append --directory=assets/debian\
+ etc/sudoers.d/operator\
+ etc/systemd/system/debug-port.service\
+ ;
 tar --file=$base.tar --append --directory=assets/debian/home/root\
  debug-port.env\
  ;

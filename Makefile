@@ -246,6 +246,7 @@ clean:
 	find . -type f -name "coverage.*" -depth 1 -delete
 	find . -name .DS_Store -delete
 	find assets -type d -name assets -delete
+	rm -rf assets/debian && git checkout -f assets/debian
 	for file in $$(find . -type d -name vendor -prune\
  -or -type f -name "entity-*.go" -print\
  -or -type f -name "gen-*.go" -print\
