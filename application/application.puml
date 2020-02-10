@@ -1,56 +1,5 @@
 @startuml
 
-package "debug" {
-	class "Config" as debug.Config <<V,Orchid>> {
-		-ctx: context.Context
-		-clientRepo: debug.ClientRepository
-		+Config(ctx: context.Context): (debug.ClientWithContexter, error)
-		+Connect(m: debug.ClientWithContexter): (context.Context, error)
-	}
-}
-
-
-
-package "debug" {
-	interface "ConfigGetContexter" as debug.ConfigGetContexter {
-		+GetContext(): context.Context
-	}
-}
-
-
-
-package "debug" {
-	interface "Configer" as debug.Configer {
-		+Config(: context.Context): (debug.ClientWithContexter, error)
-		+Connect(: debug.ClientWithContexter): (context.Context, error)
-	}
-}
-
-
-
-package "debug" {
-	interface "ConnectGetContexter" as debug.ConnectGetContexter {
-		+GetContext(): context.Context
-	}
-}
-
-
-
-package "debug" {
-	class "clientRepository" as debug.clientRepository <<E,#FFCC00>> {
-		+Config(ctx: context.Context): (debug.ClientWithContexter, error)
-		+Connect(m: debug.ClientWithContexter): error
-	}
-}
-
-
-
-package "debug" {
-	class "topic" as debug.topic <<V,Orchid>>
-}
-
-
-
 package "event" {
 	interface "EventLoggerGetContexter" as event.EventLoggerGetContexter {
 		+GetContext(): context.Context
@@ -112,25 +61,10 @@ package "update" {
 
 
 
-	debug.Config -up-|> debug.Configer
-	debug.ConfigGetContexter -up-|> debug.ConnectGetContexter
-	debug.ConfigGetContexter -up-|> event.EventLoggerGetContexter
-	debug.ConfigGetContexter -up-|> event.SaverGetContexter
-	debug.ConfigGetContexter -up-|> event.StartGetContexter
-	debug.ConnectGetContexter -up-|> debug.ConfigGetContexter
-	debug.ConnectGetContexter -up-|> event.EventLoggerGetContexter
-	debug.ConnectGetContexter -up-|> event.SaverGetContexter
-	debug.ConnectGetContexter -up-|> event.StartGetContexter
-	event.EventLoggerGetContexter -up-|> debug.ConfigGetContexter
-	event.EventLoggerGetContexter -up-|> debug.ConnectGetContexter
 	event.EventLoggerGetContexter -up-|> event.SaverGetContexter
 	event.EventLoggerGetContexter -up-|> event.StartGetContexter
-	event.SaverGetContexter -up-|> debug.ConfigGetContexter
-	event.SaverGetContexter -up-|> debug.ConnectGetContexter
 	event.SaverGetContexter -up-|> event.EventLoggerGetContexter
 	event.SaverGetContexter -up-|> event.StartGetContexter
-	event.StartGetContexter -up-|> debug.ConfigGetContexter
-	event.StartGetContexter -up-|> debug.ConnectGetContexter
 	event.StartGetContexter -up-|> event.EventLoggerGetContexter
 	event.StartGetContexter -up-|> event.SaverGetContexter
 
