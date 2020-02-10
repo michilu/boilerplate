@@ -126,6 +126,59 @@ func (p *Repository) Close() error {
 	return nil
 }
 
+func (p *Repository) Delete(ctx context.Context, key keyvalue.Keyer) error {
+	const op = op + ".Repository.Delete"
+	if ctx == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
+		return err
+	}
+	ctx, s := trace.StartSpan(ctx, op)
+	defer s.End()
+	t := slog.Trace(ctx, s)
+
+	if key == nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'key' is nil"}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
+	}
+	{
+		s.AddAttributes(trace.StringAttribute("key", key.String()))
+		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(key).Msg(op + ": arg")
+	}
+	{
+		err := key.Validate()
+		if err != nil {
+			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return err
+		}
+	}
+
+	s.AddAttributes(trace.Int64Attribute("db.KeyCount", int64(p.db.KeyCount)))
+
+	err := p.db.View(func(tx *nutsdb.Tx) error {
+		err := tx.Delete(p.bucket, key.GetKey())
+		if err != nil {
+			const op = op + ".tx.Delete"
+			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		const op = op + ".db.View"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
+	}
+	return nil
+}
+
 func (p *Repository) Get(ctx context.Context, key keyvalue.Keyer) (keyvalue.KeyValuer, error) {
 	const op = op + ".Repository.Get"
 	if ctx == nil {

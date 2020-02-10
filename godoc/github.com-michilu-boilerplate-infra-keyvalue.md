@@ -243,7 +243,7 @@ func (m *KeyValue) XXX_Unmarshal(b []byte) error
 ```go
 type KeyValueCloser interface {
 	Close() error
-	//Delete(context.Context, keyvalue.Keyer) error
+	Delete(context.Context, Keyer) error
 	Get(context.Context, Keyer) (KeyValuer, error)
 	Put(context.Context, KeyValuer) error
 }

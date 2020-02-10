@@ -1,5 +1,17 @@
 @startuml
 
+package "run" {
+	class "topic" as run.topic <<V,Orchid>>
+}
+
+
+
+package "update" {
+	class "topic" as update.topic <<V,Orchid>>
+}
+
+
+
 package "event" {
 	interface "EventLoggerGetContexter" as event.EventLoggerGetContexter {
 		+GetContext(): context.Context
@@ -45,18 +57,6 @@ package "exporter" {
 		-projectID: string
 		+MonitoredResource(): (string, map[string]string)
 	}
-}
-
-
-
-package "run" {
-	class "topic" as run.topic <<V,Orchid>>
-}
-
-
-
-package "update" {
-	class "topic" as update.topic <<V,Orchid>>
 }
 
 

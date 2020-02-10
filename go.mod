@@ -7,11 +7,11 @@ require (
 	cloud.google.com/go/bigquery v1.1.0 // indirect
 	cloud.google.com/go/logging v1.0.0
 	cloud.google.com/go/storage v1.1.2 // indirect
-	contrib.go.opencensus.io/exporter/stackdriver v0.12.9 // indirect
+	contrib.go.opencensus.io/exporter/stackdriver v0.13.0 // indirect
 	github.com/Azure/azure-pipeline-go v0.2.2 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.28.12 // indirect
+	github.com/aws/aws-sdk-go v1.28.13 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/getsentry/sentry-go v0.5.1
@@ -50,7 +50,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
 	google.golang.org/api v0.17.0 // indirect
-	google.golang.org/genproto v0.0.0-20200205142000-a86caf926a67
+	google.golang.org/genproto v0.0.0-20200210034751-acff78025515
 	google.golang.org/grpc v1.27.1
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect

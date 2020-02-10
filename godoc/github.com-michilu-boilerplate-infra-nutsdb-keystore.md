@@ -31,6 +31,12 @@ type Repository struct {
 func (p *Repository) Close() error
 ```
 
+#### func (*Repository) Delete
+
+```go
+func (p *Repository) Delete(ctx context.Context, key keyvalue.Keyer) error
+```
+
 #### func (*Repository) Get
 
 ```go

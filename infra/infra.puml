@@ -1,27 +1,11 @@
 @startuml
 
-package "keystore" {
-	class "Repository" as keystore.Repository <<E,#FFCC00>> {
-		-bucket: string
-		-db: nutsdb.DB
-		+Close(): error
-		+Get(ctx: context.Context, key: keyvalue.Keyer): (keyvalue.KeyValuer, error)
-		+Put(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
-	}
-}
-
-
-	keystore.Repository ..> keyvalue.Keyer : <<use>> 
-	keystore.Repository ..> keyvalue.KeyValuer : <<return>> 
-	keystore.Repository ..> keyvalue.KeyValuer : <<use>> 
-
 package "keyvalue" {
 	class "Key" as keyvalue.Key <<E,#FFCC00>> {
 		+Key: []byte
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
-		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -33,6 +17,7 @@ package "keyvalue" {
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
 		+Validate(): error
+		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -62,7 +47,6 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
-		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -75,6 +59,7 @@ package "keyvalue" {
 		+GetKey(): []byte
 		+GetValue(): []byte
 		+Validate(): error
+		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -83,12 +68,14 @@ package "keyvalue" {
 package "keyvalue" {
 	interface "KeyValueCloser" as keyvalue.KeyValueCloser {
 		+Close(): error
+		+Delete(: context.Context, : keyvalue.Keyer): error
 		+Get(: context.Context, : keyvalue.Keyer): (keyvalue.KeyValuer, error)
 		+Put(: context.Context, : keyvalue.KeyValuer): error
 	}
 }
 
 
+	keyvalue.KeyValueCloser ..> keyvalue.Keyer : <<use>> 
 	keyvalue.KeyValueCloser ..> keyvalue.Keyer : <<use>> 
 	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<return>> 
 	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<use>> 
@@ -225,7 +212,6 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
-		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -237,6 +223,7 @@ package "keyvalue" {
 		+XXX_DiscardUnknown()
 		+GetPrefix(): []byte
 		+Validate(): error
+		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -355,6 +342,23 @@ package "event" {
 
 	event.Repository ..> keyvalue.Prefixer : <<use>> 
 	event.Repository ..> keyvalue.KeyValuer : <<use>> 
+
+package "keystore" {
+	class "Repository" as keystore.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Delete(ctx: context.Context, key: keyvalue.Keyer): error
+		+Get(ctx: context.Context, key: keyvalue.Keyer): (keyvalue.KeyValuer, error)
+		+Put(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
+	}
+}
+
+
+	keystore.Repository ..> keyvalue.Keyer : <<use>> 
+	keystore.Repository ..> keyvalue.Keyer : <<use>> 
+	keystore.Repository ..> keyvalue.KeyValuer : <<return>> 
+	keystore.Repository ..> keyvalue.KeyValuer : <<use>> 
 
 	keyvalue.Key -up-|> keyvalue.Keyer
 	keyvalue.KeyValue -up-|> keyvalue.KeyValuer
