@@ -1,7 +1,6 @@
 package event
 
 import (
-	"bytes"
 	"context"
 
 	"github.com/golang/protobuf/proto"
@@ -29,18 +28,14 @@ func StoreEvent(ctx context.Context, message Message) ([]byte, error) {
 	t := slog.Trace(ctx, s)
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(message).Msg(op + ": arg")
 
-	var v0 bytes.Buffer
-	{
-		err := proto.MarshalText(&v0, message)
-		if err != nil {
-			const op = op + ".proto.MarshalText"
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return v0.Bytes(), err
-		}
+	v0, err := proto.Marshal(message)
+	if err != nil {
+		const op = op + ".proto.Marshal"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return v0, err
 	}
-	v1 := v0.Bytes()
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("v1", v1).Msg(op + ": return")
-	return v1, nil
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("v0", v0).Msg(op + ": return")
+	return v0, nil
 }
