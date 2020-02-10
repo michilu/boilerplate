@@ -20,7 +20,7 @@ package "keystore" {
 		-db: nutsdb.DB
 		+Close(): error
 		+Get(ctx: context.Context, key: keyvalue.Keyer): (keyvalue.KeyValuer, error)
-		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
+		+Put(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
 	}
 }
 
@@ -81,7 +81,7 @@ package "keyvalue" {
 	interface "KeyValueCloser" as keyvalue.KeyValueCloser {
 		+Close(): error
 		+Get(: context.Context, : keyvalue.Keyer): (keyvalue.KeyValuer, error)
-		+Save(: context.Context, : keyvalue.KeyValuer): error
+		+Put(: context.Context, : keyvalue.KeyValuer): error
 	}
 }
 

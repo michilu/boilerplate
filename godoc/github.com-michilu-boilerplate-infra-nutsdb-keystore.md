@@ -37,8 +37,8 @@ func (p *Repository) Close() error
 func (p *Repository) Get(ctx context.Context, key keyvalue.Keyer) (keyvalue.KeyValuer, error)
 ```
 
-#### func (*Repository) Save
+#### func (*Repository) Put
 
 ```go
-func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) error
+func (p *Repository) Put(ctx context.Context, keyvalue keyvalue.KeyValuer) error
 ```

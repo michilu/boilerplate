@@ -191,8 +191,8 @@ func (p *Repository) Get(ctx context.Context, key keyvalue.Keyer) (keyvalue.KeyV
 	return v2, nil
 }
 
-func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) error {
-	const op = op + ".Repository.Save"
+func (p *Repository) Put(ctx context.Context, keyvalue keyvalue.KeyValuer) error {
+	const op = op + ".Repository.Put"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 		return err
