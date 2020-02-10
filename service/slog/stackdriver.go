@@ -233,8 +233,9 @@ func (p *StackdriverZerologWriter) Init(context.Context) (io.Closer, error) {
 	Logger().Info().Str("op", op).Object("ZerologWriter", p).Msg(op + ": return")
 	if os.Args[1] != "version" {
 		SetDefaultLogger([]io.Writer{v2})
-		Logger().Debug().Str("op", op).Str("file", viper.ConfigFileUsed()).Msg(op + ": config")
-		Logger().Debug().Str("op", op).Interface("viper", viper.AllSettings()).Msg(op + ": config")
+		Logger().Debug().Str("op", op).
+			Str("file", viper.ConfigFileUsed()).Interface("viper", viper.AllSettings()).
+			Msg(op + ": config")
 	}
 	return &StackdriverCloser{v3}, nil
 }
