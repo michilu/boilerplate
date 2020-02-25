@@ -45,14 +45,14 @@ func GetPipeEventLogger(
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
-			o, err := fn(i)
+			v0, err := fn(i)
 			if err != nil {
 				var vctx context.Context
 				vctx, ok := i.(context.Context)
 				if !ok {
-					v, ok := i.(EventLoggerGetContexter)
+					v1, ok := i.(EventLoggerGetContexter)
 					if ok {
-						vctx = v.GetContext()
+						vctx = v1.GetContext()
 					} else {
 						vctx = context.Background()
 					}
@@ -69,7 +69,7 @@ func GetPipeEventLogger(
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return
-			case outCh <- o:
+			case outCh <- v0:
 			}
 		}
 	}()
@@ -118,16 +118,16 @@ func GetFanoutEventLogger(
 					}
 				}
 				v2 := fnErr(ctx0, &errs.Error{Op: op, Err: err})
-				v0 := trace.FromContext(ctx0)
-				if v0 != nil {
-					v0.End()
+				v3 := trace.FromContext(ctx0)
+				if v3 != nil {
+					v3.End()
 				}
 				if v2 {
 					return
 				}
 				continue
 			}
-			for _, v3 := range v0 {
+			for _, v4 := range v0 {
 				select {
 				case <-ctx.Done():
 					err := ctx.Err()
@@ -135,7 +135,7 @@ func GetFanoutEventLogger(
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return
-				case outCh <- v3:
+				case outCh <- v4:
 				}
 			}
 		}
