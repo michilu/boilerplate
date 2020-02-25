@@ -69,7 +69,6 @@ func GetPipeTerminate(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -136,7 +135,6 @@ func GetFanoutTerminate(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}

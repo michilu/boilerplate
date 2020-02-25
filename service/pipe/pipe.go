@@ -73,7 +73,6 @@ func GetPipeName(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -140,7 +139,6 @@ func GetFanoutName(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}

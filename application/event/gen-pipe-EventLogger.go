@@ -70,7 +70,6 @@ func GetPipeEventLogger(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -137,7 +136,6 @@ func GetFanoutEventLogger(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}

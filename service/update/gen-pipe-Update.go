@@ -69,7 +69,6 @@ func GetPipeUpdate(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -136,7 +135,6 @@ func GetFanoutUpdate(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}

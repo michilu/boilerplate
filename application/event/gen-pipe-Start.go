@@ -70,7 +70,6 @@ func GetPipeStart(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -137,7 +136,6 @@ func GetFanoutStart(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}

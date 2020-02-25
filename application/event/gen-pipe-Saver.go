@@ -70,7 +70,6 @@ func GetPipeSaver(
 				}
 				return
 			case outCh <- o:
-			default:
 			}
 		}
 	}()
@@ -137,7 +136,6 @@ func GetFanoutSaver(
 					}
 					return
 				case outCh <- v3:
-				default:
 				}
 			}
 		}
