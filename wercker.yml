@@ -1,5 +1,5 @@
 go:
-  box: blueoceans/golang:1.13.3
+  box: blueoceans/golang:1.14.0
   steps:
   - script:
       name: set -x
@@ -43,7 +43,7 @@ go-get:
       code: boilerplate version
 
 gopherjs:
-  box: blueoceans/golang:1.13.3
+  box: blueoceans/golang:1.14.0
   steps:
   - script:
       name: set -x

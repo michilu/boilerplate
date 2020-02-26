@@ -23,7 +23,6 @@ COMMIT:=4b825dc
 REVIEWDOG:=| reviewdog -efm='%f:%l:%c: %m' -diff="git diff $(COMMIT) HEAD"
 
 GO:=go
-GOM:=GO111MODULE=on $(GO)
 GOPATH:=$(shell $(GO) env GOPATH)
 PKG:=$(shell $(GO) list)
 GOBIN:=$(notdir $(PKG))
@@ -101,10 +100,10 @@ endif
 
 
 deps: go.mod
-	$(GOM) mod download
+	$(GO) mod download
 vendor: go.mod $(GOSRC)
-	$(GOM) mod vendor
-	$(GOM) mod tidy
+	$(GO) mod vendor
+	$(GO) mod tidy
 	-git checkout -f vendor
 .PHONY: generate
 generate: vendor
@@ -124,11 +123,11 @@ go-get: $(GOSRC)
 	echo > go.mod
 	rm -rf vendor
 	time \
- $(GOM) build $(LDFLAGS)
+ $(GO) build $(LDFLAGS)
 
 $(GOBIN): deps $(GOSRC) $(GOCEL)
 	time \
- $(GOM) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
+ $(GO) build $(LDFLAGS)" -X \"main.semver=$(SERIAL)+$(HASH)\""
 
 GOX_OPTION:=-osarch="darwin/amd64 linux/amd64 linux/arm"
 
@@ -259,7 +258,7 @@ clean:
 
 .PHONY: test
 test: deps
-	$(GOM) test $(PKG)/...
+	$(GO) test $(PKG)/...
 	[ "$$(./assets/script/blacklist.sh)" = "" ] || (./assets/script/blacklist.sh; exit 1)
 
 .PHONY: pprof
@@ -268,7 +267,7 @@ pprof:
 
 .PHONY: bench
 bench:
-	$(GOM) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
+	$(GO) test -bench . -benchmem -count 5 -run none $(PKG)/... | tee bench/now.txt
 	[ -f bench/before.txt ] && ( type benchcmp > /dev/null 2>&1 ) && benchcmp bench/before.txt bench/now.txt || :
 
 COVERMODE:=atomic
@@ -276,11 +275,11 @@ COVERMODE:=atomic
 coverage:
 	@for pkg in $(GOLIST); do\
 		echo start test for $$pkg;\
-		$(GOM) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=$(COVERMODE);\
+		$(GO) test $$pkg -race -coverprofile=$${pkg#$(PKG)/}/coverprofile -covermode=$(COVERMODE);\
 	done
 	echo "mode: $(COVERMODE)" > coverage.txt\
   && find . -type f -name coverprofile -exec tail -n+2 {} >>coverage.txt \; -delete
-	$(GOM) tool cover -html=coverage.txt -o coverage.html
+	$(GO) tool cover -html=coverage.txt -o coverage.html
 
 .PHONY: lint
 lint:
@@ -300,9 +299,9 @@ lint:
 	@echo
 	-goconst $(GOLIST) $(REVIEWDOG)
 	@echo
-	-$(GOM) vet $(GOLIST) $(REVIEWDOG)
+	-$(GO) vet $(GOLIST) $(REVIEWDOG)
 	@echo
-	-$(GOM) vet -shadow $(GOLIST) $(REVIEWDOG)
+	-$(GO) vet -shadow $(GOLIST) $(REVIEWDOG)
 	@echo
 	-aligncheck $(GOLIST) $(REVIEWDOG)
 	@echo
