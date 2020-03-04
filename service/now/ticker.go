@@ -31,25 +31,31 @@ func ContextTicker(ctx context.Context, duration time.Duration) (<-chan context.
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dur("duration", duration).Msg(op + ": arg")
 	}
 	oCh := make(chan context.Context)
-	go func(ctx context.Context, duration time.Duration, oCh chan<- context.Context) {
-		const op = op + "#go"
-		defer close(oCh)
-		ticker := time.NewTicker(duration)
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-			}
-			m, _ := trace.StartSpan(context.Background(), op)
-			oCh <- m
-		}
-	}(ctx, duration, oCh)
+	go ticker(ctx, duration, oCh)
 	{
 		v0 := fmt.Sprintf("%v", oCh)
 		s.AddAttributes(trace.StringAttribute("oCh", v0))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("oCh", v0).Msg(op + ": return")
 	}
 	return oCh, nil
+}
+
+func ticker(ctx context.Context, duration time.Duration, oCh chan<- context.Context) {
+	const op = op + ".ticker"
+	defer close(oCh)
+	ticker := time.NewTicker(duration)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			break
+		case <-ticker.C:
+		}
+		m, _ := trace.StartSpan(context.Background(), op)
+		select {
+		case <-ctx.Done():
+			break
+		case oCh <- m:
+		}
+	}
 }
