@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"google.golang.org/grpc/codes"
 )
 
@@ -56,26 +57,30 @@ func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueW
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'c' is nil"})
 	}
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 	loop:
 		select {
 		case <-ctx.Done():
-			return
+			return nil
 		default:
 		}
 		for v := range c {
 			for _, c := range t.c {
-				go func(c chan<- KeyValueWithContexter, v KeyValueWithContexter) {
-					select {
-					case <-ctx.Done():
-						return
-					case c <- v:
-					}
-				}(c, v)
+				go slog.Recover(ctx, func(ctx context.Context) error {
+					func(c chan<- KeyValueWithContexter, v KeyValueWithContexter) {
+						select {
+						case <-ctx.Done():
+							return
+						case c <- v:
+						}
+					}(c, v)
+					return nil
+				})
 			}
 			goto loop
 		}
-	}()
+		return nil
+	})
 
 }
 

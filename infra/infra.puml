@@ -6,6 +6,7 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -17,7 +18,6 @@ package "keyvalue" {
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
 		+Validate(): error
-		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -47,6 +47,7 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -59,7 +60,6 @@ package "keyvalue" {
 		+GetKey(): []byte
 		+GetValue(): []byte
 		+Validate(): error
-		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 
@@ -212,6 +212,7 @@ package "keyvalue" {
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
 		+XXX_sizecache: int32
+		+MarshalZerologObject(e: zerolog.Event)
 		+Reset()
 		+String(): string
 		+ProtoMessage()
@@ -223,7 +224,6 @@ package "keyvalue" {
 		+XXX_DiscardUnknown()
 		+GetPrefix(): []byte
 		+Validate(): error
-		+MarshalZerologObject(e: zerolog.Event)
 	}
 }
 

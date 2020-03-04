@@ -8,7 +8,7 @@
 #### func  Run
 
 ```go
-func Run()
+func Run(ctx context.Context) error
 ```
 
 #### type GlobalMonitoredResource

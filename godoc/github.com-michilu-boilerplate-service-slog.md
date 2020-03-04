@@ -42,6 +42,12 @@ Logger returns the root logger.
 func NewEntry(p []byte) *logging.Entry
 ```
 
+#### func  Recover
+
+```go
+func Recover(ctx context.Context, task ...async.Task)
+```
+
 #### func  SetDefaultLogger
 
 ```go

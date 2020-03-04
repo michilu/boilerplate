@@ -8,6 +8,7 @@ import (
 	"context"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
@@ -40,7 +41,7 @@ func GetPipeTerminate(
 	inCh := make(chan context.Context)
 	outCh := make(chan context.Context)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -57,7 +58,7 @@ func GetPipeTerminate(
 					}
 				}
 				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
-					return
+					return nil
 				}
 				continue
 			}
@@ -67,11 +68,12 @@ func GetPipeTerminate(
 				if err != nil {
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
-				return
+				return nil
 			case outCh <- v0:
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }
@@ -100,7 +102,7 @@ func GetFanoutTerminate(
 	inCh := make(chan context.Context)
 	outCh := make(chan context.Context)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -122,7 +124,7 @@ func GetFanoutTerminate(
 					v3.End()
 				}
 				if v2 {
-					return
+					return nil
 				}
 				continue
 			}
@@ -133,12 +135,13 @@ func GetFanoutTerminate(
 					if err != nil {
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
-					return
+					return nil
 				case outCh <- v4:
 				}
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }

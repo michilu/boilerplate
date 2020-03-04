@@ -8,7 +8,7 @@
 #### func  Dataflow
 
 ```go
-func Dataflow(ctx context.Context)
+func Dataflow(ctx context.Context) error
 ```
 
 #### func  ErrorHandler

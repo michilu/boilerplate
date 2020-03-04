@@ -8,13 +8,13 @@
 #### func  Profile
 
 ```go
-func Profile(ctx context.Context)
+func Profile(ctx context.Context) error
 ```
 
 #### func  RunPprof
 
 ```go
-func RunPprof() error
+func RunPprof(ctx context.Context) error
 ```
 
 #### func  RunProfiler

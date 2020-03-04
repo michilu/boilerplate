@@ -9,6 +9,7 @@ import (
 
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/michilu/boilerplate/service/event"
+	"github.com/michilu/boilerplate/service/slog"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
@@ -41,7 +42,7 @@ func GetPipeEventLogger(
 	inCh := make(chan event.EventWithContexter)
 	outCh := make(chan event.KeyValueWithContexter)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -58,7 +59,7 @@ func GetPipeEventLogger(
 					}
 				}
 				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
-					return
+					return nil
 				}
 				continue
 			}
@@ -68,11 +69,12 @@ func GetPipeEventLogger(
 				if err != nil {
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
-				return
+				return nil
 			case outCh <- v0:
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }
@@ -101,7 +103,7 @@ func GetFanoutEventLogger(
 	inCh := make(chan event.EventWithContexter)
 	outCh := make(chan event.KeyValueWithContexter)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -123,7 +125,7 @@ func GetFanoutEventLogger(
 					v3.End()
 				}
 				if v2 {
-					return
+					return nil
 				}
 				continue
 			}
@@ -134,12 +136,13 @@ func GetFanoutEventLogger(
 					if err != nil {
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
-					return
+					return nil
 				case outCh <- v4:
 				}
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }
