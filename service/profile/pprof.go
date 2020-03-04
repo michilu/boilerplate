@@ -20,7 +20,7 @@ import (
 	"github.com/michilu/boilerplate/service/slog"
 )
 
-func RunPprof() error {
+func RunPprof(ctx context.Context) error {
 	const op = op + ".RunPprof"
 	runtime.SetBlockProfileRate(1)
 	e := gin.Default()
@@ -33,7 +33,7 @@ func RunPprof() error {
 	return nil
 }
 
-func Profile(ctx context.Context) {
+func Profile(ctx context.Context) error {
 	const (
 		op = op + ".Pprof"
 		s  = "assets/pprof"
@@ -54,7 +54,7 @@ func Profile(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			p.Stop()
-			return
+			return nil
 		case <-t.C:
 			p.Stop()
 		}

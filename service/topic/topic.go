@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 var (
@@ -57,26 +58,30 @@ func (t *tChanT) Publish(ctx context.Context, c <-chan ChanT) {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'c' is nil"})
 	}
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 	loop:
 		select {
 		case <-ctx.Done():
-			return
+			return nil
 		default:
 		}
 		for v := range c {
 			for _, c := range t.c {
-				go func(c chan<- ChanT, v ChanT) {
-					select {
-					case <-ctx.Done():
-						return
-					case c <- v:
-					}
-				}(c, v)
+				go slog.Recover(ctx, func(ctx context.Context) error {
+					func(c chan<- ChanT, v ChanT) {
+						select {
+						case <-ctx.Done():
+							return
+						case c <- v:
+						}
+					}(c, v)
+					return nil
+				})
 			}
 			goto loop
 		}
-	}()
+		return nil
+	})
 
 }
 

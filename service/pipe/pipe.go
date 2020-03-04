@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 // InT is a placeholder for the genny.
@@ -44,7 +45,7 @@ func GetPipeName(
 	inCh := make(chan InT)
 	outCh := make(chan OutT)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -61,7 +62,7 @@ func GetPipeName(
 					}
 				}
 				if fnErr(vctx, &errs.Error{Op: op, Err: err}) {
-					return
+					return nil
 				}
 				continue
 			}
@@ -71,11 +72,12 @@ func GetPipeName(
 				if err != nil {
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
-				return
+				return nil
 			case outCh <- v0:
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }
@@ -104,7 +106,7 @@ func GetFanoutName(
 	inCh := make(chan InT)
 	outCh := make(chan OutT)
 
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		const op = op + "#go"
 		defer close(outCh)
 		for i := range inCh {
@@ -126,7 +128,7 @@ func GetFanoutName(
 					v3.End()
 				}
 				if v2 {
-					return
+					return nil
 				}
 				continue
 			}
@@ -137,12 +139,13 @@ func GetFanoutName(
 					if err != nil {
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
-					return
+					return nil
 				case outCh <- v4:
 				}
 			}
 		}
-	}()
+		return nil
+	})
 
 	return inCh, outCh
 }

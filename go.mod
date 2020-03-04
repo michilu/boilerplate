@@ -7,6 +7,7 @@ require (
 	cloud.google.com/go/logging v1.0.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.0 // indirect
 	github.com/Azure/azure-pipeline-go v0.2.2 // indirect
+	github.com/StudioSol/async v0.0.0-20191018162539-af9fc371e46e
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
 	github.com/aws/aws-sdk-go v1.29.16 // indirect

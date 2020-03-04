@@ -26,7 +26,7 @@ func (g GlobalMonitoredResource) MonitoredResource() (string, map[string]string)
 	return "global", map[string]string{"project_id": g.projectID}
 }
 
-func Run() {
+func Run(ctx context.Context) error {
 	const op = op + ".Run"
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -39,7 +39,7 @@ func Run() {
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if !v1 {
-			return
+			return nil
 		}
 	}
 	v2, err := config.GCPCredentials(ctx)
@@ -48,7 +48,7 @@ func Run() {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return
+		return err
 	}
 	v3, err := config.GCPProjectID(ctx)
 	if err != nil {
@@ -56,7 +56,7 @@ func Run() {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return
+		return err
 	}
 	v4, _, err := sdserver.NewExporter(v3,
 		gcp.CredentialsTokenSource(v2),
@@ -67,8 +67,9 @@ func Run() {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return
+		return err
 	}
 	trace.RegisterExporter(v4)
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	return nil
 }

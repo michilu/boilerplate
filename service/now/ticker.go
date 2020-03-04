@@ -31,7 +31,10 @@ func ContextTicker(ctx context.Context, duration time.Duration) (<-chan context.
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dur("duration", duration).Msg(op + ": arg")
 	}
 	oCh := make(chan context.Context)
-	go ticker(ctx, duration, oCh)
+	go slog.Recover(ctx, func(ctx context.Context) error {
+		ticker(ctx, duration, oCh)
+		return nil
+	})
 	{
 		v0 := fmt.Sprintf("%v", oCh)
 		s.AddAttributes(trace.StringAttribute("oCh", v0))

@@ -44,7 +44,7 @@ func Run(_ *cobra.Command, _ []string) {
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
-			go exporter.Run()
+			go slog.Recover(ctx, exporter.Run)
 		}
 	}
 	{
@@ -52,8 +52,10 @@ func Run(_ *cobra.Command, _ []string) {
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
-			go profile.Profile(ctx)
-			go profile.RunPprof()
+			go slog.Recover(ctx,
+				profile.Profile,
+				profile.RunPprof,
+			)
 		}
 	}
 	{
@@ -61,7 +63,7 @@ func Run(_ *cobra.Command, _ []string) {
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
-			go event.Dataflow(ctx)
+			go slog.Recover(ctx, event.Dataflow)
 		}
 	}
 	{

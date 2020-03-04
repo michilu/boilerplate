@@ -22,12 +22,12 @@ type (
 	topic string
 )
 
-func Dataflow(ctx context.Context) {
+func Dataflow(ctx context.Context) error {
 	const op = op + ".Dataflow"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
-		return
+		return err
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -40,7 +40,7 @@ func Dataflow(ctx context.Context) {
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-		return
+		return err
 	}
 	defer func(ctx context.Context, v1 func() error) {
 		const op = op + ".closer"
@@ -81,6 +81,7 @@ func Dataflow(ctx context.Context) {
 	}
 	s.End()
 	<-ctx.Done()
+	return nil
 }
 
 // ErrorHandler ...
