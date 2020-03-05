@@ -52,7 +52,11 @@ func Profile(ctx context.Context) error {
 		p := profile.Start(profile.ProfilePath(s))
 		select {
 		case <-ctx.Done():
-			p.Stop()
+			err := ctx.Err() // ignore lint
+			defer p.Stop()
+			if err != nil {
+				return &errs.Error{Op: op, Err: err}
+			}
 			return nil
 		case <-t.C:
 			p.Stop()

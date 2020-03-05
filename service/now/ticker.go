@@ -51,12 +51,18 @@ func ticker(ctx context.Context, duration time.Duration, oCh chan<- context.Cont
 	for {
 		select {
 		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+			}
 			break
 		case <-ticker.C:
 		}
 		m, _ := trace.StartSpan(context.Background(), op)
 		select {
 		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+			}
 			break
 		case oCh <- m:
 		}

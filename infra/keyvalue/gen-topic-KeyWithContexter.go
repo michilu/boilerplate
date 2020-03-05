@@ -58,9 +58,13 @@ func (t *tKeyWithContexter) Publish(ctx context.Context, c <-chan KeyWithContext
 	}
 
 	go slog.Recover(ctx, func(ctx context.Context) error {
+		const op = op + "#go"
 	loop:
 		select {
 		case <-ctx.Done():
+			if err := ctx.Err(); err != nil {
+				return &errs.Error{Op: op, Err: err}
+			}
 			return nil
 		default:
 		}
@@ -68,8 +72,12 @@ func (t *tKeyWithContexter) Publish(ctx context.Context, c <-chan KeyWithContext
 			for _, c := range t.c {
 				go slog.Recover(ctx, func(ctx context.Context) error {
 					func(c chan<- KeyWithContexter, v KeyWithContexter) {
+						const op = op + "#func"
 						select {
 						case <-ctx.Done():
+							if err := ctx.Err(); err != nil {
+								slog.Logger().Err(err).Str("op", op).Msg(err.Error())
+							}
 							return
 						case c <- v:
 						}
