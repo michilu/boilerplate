@@ -15,6 +15,10 @@ $ make
 
 ## dependencies
 
+### require go1.14
+- [Go 1\.14 Release Notes \- The Go Programming Language](https://golang.org/doc/go1.14#runtime)
+  - > Goroutines are now asynchronously preemptible. As a result, loops without function calls no longer potentially deadlock the scheduler or significantly delay garbage collection.
+
 ### protobuf
 
 - [Package google\.protobuf  \|  Protocol Buffers  \|  Google Developers](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf) require `libprotoc==3.11.3`, `$ brew upgrade protobuf`
@@ -29,14 +33,6 @@ $ make
 - [sanbornm/go-selfupdate: Enable your Go applications to self update](https://github.com/sanbornm/go-selfupdate)
 
 ### go generate
-
-require go1.12.x
-
-```console
-$ brew install go@1.12
-$ echo "PATH_add /usr/local/opt/go@1.12/bin" >> .envrc
-$ direnv allow
-```
 
 ```console
 $ go get -u github.com/cheekybits/genny
