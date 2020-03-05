@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
+
 	"github.com/augustoroman/promise"
 	"github.com/gopherjs/gopherjs/js"
-
 	"github.com/michilu/boilerplate/hackernews"
+	"github.com/michilu/boilerplate/service/slog"
 )
 
 type (
@@ -22,14 +24,15 @@ func (h *hnGopherJS) GetFeed(n string, p int) *js.Object {
 	var (
 		j promise.Promise
 	)
-	go func() {
+	go slog.Recover(context.Background(), func(ctx context.Context) error {
 		v, err := h.h.GetFeed(n, p)
 		if err != nil {
 			j.Reject(err)
-			return
+			return nil
 		}
 		j.Resolve(v)
-	}()
+		return nil
+	})
 	return j.Js()
 }
 
@@ -37,13 +40,14 @@ func (h *hnGopherJS) GetItem(i string) *js.Object {
 	var (
 		j promise.Promise
 	)
-	go func() {
+	go slog.Recover(context.Background(), func(ctx context.Context) error {
 		v, err := h.h.GetItem(i)
 		if err != nil {
 			j.Reject(err)
-			return
+			return nil
 		}
 		j.Resolve(v)
-	}()
+		return nil
+	})
 	return j.Js()
 }

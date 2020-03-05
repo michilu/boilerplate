@@ -121,10 +121,9 @@ func main() {
 		}
 	}()
 	ch := make(chan struct{})
-	go func() {
+	go slog.Recover(ctx, func(ctx context.Context) error {
 		defer close(ch)
-		err := c.Execute()
-		if err != nil {
+		if err := c.Execute(); err != nil {
 			const op = op + ".cmd.Execute"
 			ctx, s := trace.StartSpan(ctx, op)
 			defer s.End()
@@ -132,10 +131,11 @@ func main() {
 			err := &errs.Error{Op: op, Code: codes.Unknown, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Unknown), Message: err.Error()})
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return
+			return err
 		}
 		ch <- struct{}{}
-	}()
+		return nil
+	})
 	sCh := make(chan os.Signal)
 	defer close(sCh)
 	signal.Notify(
