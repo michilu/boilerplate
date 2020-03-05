@@ -31,8 +31,7 @@ func Run(_ *cobra.Command, _ []string) {
 		v1 := viper.GetBool(v0)
 		s.AddAttributes(trace.BoolAttribute(v0, v1))
 		if v1 {
-			err := profile.RunProfiler(ctx)
-			if err != nil {
+			if err := profile.RunProfiler(ctx); err != nil {
 				const op = op + ".profile.RunProfiler"
 				err := &errs.Error{Op: op, Err: err}
 				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())

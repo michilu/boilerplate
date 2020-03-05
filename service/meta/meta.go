@@ -38,12 +38,9 @@ func Set(v *Meta) error {
 		defer mu.Unlock()
 		m = *v
 	}
-	{
-		err := v.Validate()
-		if err != nil {
-			const op = op + ".Validate"
-			return &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-		}
+	if err := v.Validate(); err != nil {
+		const op = op + ".Validate"
+		return &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 	}
 	return nil
 }
@@ -74,11 +71,8 @@ func (m Meta) JSON() []byte {
 
 func (m Meta) Flatten() map[string]interface{} {
 	var v0 map[string]interface{}
-	{
-		err := json.Unmarshal(m.JSON(), &v0)
-		if err != nil {
-			panic(err)
-		}
+	if err := json.Unmarshal(m.JSON(), &v0); err != nil {
+		panic(err)
 	}
 	v1, err := flatten.Flatten(v0, "", flatten.PathStyle)
 	if err != nil {

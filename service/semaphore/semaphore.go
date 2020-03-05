@@ -22,8 +22,7 @@ var (
 
 func Init(parallel int) {
 	const op = op + ".Init"
-	err := SetParallel(parallel)
-	if err != nil {
+	if err := SetParallel(parallel); err != nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		slog.Logger().Err(err).Str("op", op).Int("value", parallel).Msg(err.Error())
 		return

@@ -24,8 +24,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	slog.Logger().Debug().Str("op", op).EmbedObject(t).Bytes("b", b).Msg(op + ": arg")
 
 	v0 := &Event{}
-	err := proto.Unmarshal(b, v0)
-	if err != nil {
+	if err := proto.Unmarshal(b, v0); err != nil {
 		const op = op + ".proto.Unmarshal"
 		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 	}
@@ -45,6 +44,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 		TimePoint: v1,
 	}
 	v3 := now.Now()
+	var err error
 	if !occurred {
 		v2, err = v2.AddTimePoint(Occurred, v3)
 		if err != nil {

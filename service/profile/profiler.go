@@ -48,15 +48,12 @@ func RunProfiler(ctx context.Context) error {
 		s.AddAttributes(trace.StringAttribute("v3", v3))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Str("v3", v3).Msg(op + ": value")
 	}
-	{
-		err := profiler.Start(v2)
-		if err != nil {
-			const op = op + ".profiler.Start"
-			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := profiler.Start(v2); err != nil {
+		const op = op + ".profiler.Start"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
 	return nil
 }

@@ -60,10 +60,8 @@ func NewRepository(ctx context.Context) (keyvalue.KeyValueCloser, func() error, 
 MKDIR:
 	{
 		v1 := filepath.Dir(v0)
-		_, err := os.Stat(v1)
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(v1, 0777)
-			if err != nil {
+		if _, err := os.Stat(v1); os.IsNotExist(err) {
+			if err := os.MkdirAll(v1, 0777); err != nil {
 				const op = op + ".os.MkdirAll"
 				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 				s.SetStatus(trace.Status{Code: int32(codes.Unavailable), Message: err.Error()})
@@ -94,8 +92,7 @@ MKDIR:
 		}
 		{
 			v1++
-			err := os.RemoveAll(v0)
-			if err != nil {
+			if err := os.RemoveAll(v0); err != nil {
 				const op = op + ".os.RemoveAll"
 				err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 				s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
@@ -117,8 +114,7 @@ func (p *Repository) Close() error {
 	if p.db == nil {
 		return nil
 	}
-	err := p.db.Close()
-	if err != nil {
+	if err := p.db.Close(); err != nil {
 		const op = op + ".nutsdb.DB.Close"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return err
@@ -146,21 +142,17 @@ func (p *Repository) Delete(ctx context.Context, key keyvalue.Keyer) error {
 		s.AddAttributes(trace.StringAttribute("key", key.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(key).Msg(op + ": arg")
 	}
-	{
-		err := key.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := key.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
 
 	s.AddAttributes(trace.Int64Attribute("db.KeyCount", int64(p.db.KeyCount)))
 
 	err := p.db.View(func(tx *nutsdb.Tx) error {
-		err := tx.Delete(p.bucket, key.GetKey())
-		if err != nil {
+		if err := tx.Delete(p.bucket, key.GetKey()); err != nil {
 			const op = op + ".tx.Delete"
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
@@ -199,14 +191,11 @@ func (p *Repository) Get(ctx context.Context, key keyvalue.Keyer) (keyvalue.KeyV
 		s.AddAttributes(trace.StringAttribute("key", key.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(key).Msg(op + ": arg")
 	}
-	{
-		err := key.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return nil, err
-		}
+	if err := key.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return nil, err
 	}
 
 	s.AddAttributes(trace.Int64Attribute("db.KeyCount", int64(p.db.KeyCount)))
@@ -264,14 +253,11 @@ func (p *Repository) Put(ctx context.Context, keyvalue keyvalue.KeyValuer) error
 		s.AddAttributes(trace.StringAttribute("keyvalue", keyvalue.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
-	{
-		err := keyvalue.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := keyvalue.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
 
 	{
@@ -285,8 +271,7 @@ func (p *Repository) Put(ctx context.Context, keyvalue keyvalue.KeyValuer) error
 				trace.Int64Attribute("v0 size", int64(len(v0))),
 				trace.Int64Attribute("v1 size", int64(len(v1))),
 			)
-			err := tx.Put(p.bucket, v0, v1, 0)
-			if err != nil {
+			if err := tx.Put(p.bucket, v0, v1, 0); err != nil {
 				const op = op + ".nutsdb.Tx.Put"
 				err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 				s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})

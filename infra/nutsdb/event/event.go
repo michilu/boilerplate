@@ -42,10 +42,8 @@ func NewRepository() (keyvalue.LoadSaveCloser, func() error, error) {
 	v0 := viper.GetString(k.InfraNutsdbEventPath)
 	{
 		v1 := filepath.Dir(v0)
-		_, err := os.Stat(v1)
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(v1, 0777)
-			if err != nil {
+		if _, err := os.Stat(v1); os.IsNotExist(err) {
+			if err := os.MkdirAll(v1, 0777); err != nil {
 				const op = op + ".os.MkdirAll"
 				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 				return nil, nil, err
@@ -74,8 +72,7 @@ func (p *Repository) Close() error {
 	if p.db == nil {
 		return nil
 	}
-	err := p.db.Close()
-	if err != nil {
+	if err := p.db.Close(); err != nil {
 		const op = op + ".nutsdb.DB.Close"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return err
@@ -103,14 +100,11 @@ func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan
 		s.AddAttributes(trace.StringAttribute("prefix", prefix.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(prefix).Msg(op + ": arg")
 	}
-	{
-		err := prefix.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return nil, err
-		}
+	if err := prefix.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return nil, err
 	}
 
 	err := &errs.Error{Op: op, Code: codes.Unimplemented}
@@ -139,14 +133,11 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 		s.AddAttributes(trace.StringAttribute("keyvalue", keyvalue.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
-	{
-		err := keyvalue.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := keyvalue.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
 
 	{
@@ -159,8 +150,7 @@ func (p *Repository) Save(ctx context.Context, keyvalue keyvalue.KeyValuer) erro
 				trace.Int64Attribute("v0 size", int64(len(v0))),
 				trace.Int64Attribute("v1 size", int64(len(v1))),
 			)
-			err := tx.Put(p.bucket, v0, v1, 0)
-			if err != nil {
+			if err := tx.Put(p.bucket, v0, v1, 0); err != nil {
 				const op = op + ".nutsdb.Tx.Put"
 				err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 				s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})

@@ -28,8 +28,7 @@ func jsonUnmarshalFeed(b []byte) ([]feed, error) {
 	var (
 		v []feed
 	)
-	err := json.Unmarshal(b, &v)
-	if err != nil {
+	if err := json.Unmarshal(b, &v); err != nil {
 		return nil, &errs.Error{Op: op, Err: err}
 	}
 	return v, nil
@@ -40,8 +39,7 @@ func jsonUnmarshalItem(b []byte) (*feed, error) {
 	var (
 		v feed
 	)
-	err := json.Unmarshal(b, &v)
-	if err != nil {
+	if err := json.Unmarshal(b, &v); err != nil {
 		return nil, &errs.Error{Op: op, Err: err}
 	}
 	return &v, nil

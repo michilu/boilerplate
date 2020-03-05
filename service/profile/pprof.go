@@ -25,8 +25,7 @@ func RunPprof(ctx context.Context) error {
 	runtime.SetBlockProfileRate(1)
 	e := gin.Default()
 	pprof.Register(e)
-	err := e.Run(viper.GetString(k.ServiceProfilePprofAddr))
-	if err != nil {
+	if err := e.Run(viper.GetString(k.ServiceProfilePprofAddr)); err != nil {
 		const op = op + ".gin.Run"
 		return &errs.Error{Op: op, Err: err}
 	}
@@ -61,8 +60,7 @@ func Profile(ctx context.Context) error {
 		ctx, s := trace.StartSpan(ctx, op)
 		t := slog.Trace(ctx, s)
 		after := before + "." + now.Now().UTC().Format(time.RFC3339)
-		err := os.Rename(before, after)
-		if err != nil {
+		if err := os.Rename(before, after); err != nil {
 			const op = op + ".os.Rename"
 			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Str("before", before).Str("after", after).Msg(err.Error())
 		} else {

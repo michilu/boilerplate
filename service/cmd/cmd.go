@@ -66,11 +66,9 @@ func initialize(v []config.KV) {
 	semaphore.Init(viper.GetInt(k.ServiceSemaphoreParallel))
 	{
 		s := viper.GetString(k.ServiceConfigFile)
-		_, err := os.Stat(s)
-		if err == nil {
+		if _, err := os.Stat(s); err == nil {
 			viper.SetConfigFile(s)
-			err := viper.ReadInConfig()
-			if err != nil {
+			if err := viper.ReadInConfig(); err != nil {
 				const op = op + ".viper.ReadInConfig"
 				err := &errs.Error{Op: op, Code: codes.Internal, Err: err, Message: fmt.Sprintf("check the format of '%s'", s)}
 				os.Stderr.WriteString(fmt.Sprintf("error: op: %s: %s\n", op, err))
@@ -99,8 +97,7 @@ func NewCommand(
 		initialize(defaults)
 		if resource != nil {
 			slog.Logger().Debug().Str("op", op).Strs("os.Args", os.Args).Msg(op + ": value")
-			err := resource.Init()
-			if err != nil {
+			if err := resource.Init(); err != nil {
 				const op = op + ".init"
 				if os.Args[1] == "run" {
 					os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))

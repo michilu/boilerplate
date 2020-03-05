@@ -86,8 +86,7 @@ func (p *TWithContext) Validate() error {
 		return err
 	}
 	{
-		err := v0.Validate()
-		if err != nil {
+		if err := v0.Validate(); err != nil {
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 			return err
 		}

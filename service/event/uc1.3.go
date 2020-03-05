@@ -43,24 +43,18 @@ func SaveEventPayload(ctx context.Context, repository Saver, keyvalue keyvalue.K
 		s.AddAttributes(trace.StringAttribute("keyvalue", keyvalue.String()))
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(keyvalue).Msg(op + ": arg")
 	}
-	{
-		err := keyvalue.Validate()
-		if err != nil {
-			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := keyvalue.Validate(); err != nil {
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.InvalidArgument), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
-	{
-		err := repository.Save(ctx, keyvalue)
-		if err != nil {
-			const op = op + ".Repository.Save"
-			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
-			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
-			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			return err
-		}
+	if err := repository.Save(ctx, keyvalue); err != nil {
+		const op = op + ".Repository.Save"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})
+		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
+		return err
 	}
 	return nil
 }

@@ -253,8 +253,7 @@ type StackdriverCloser struct {
 func (p *StackdriverCloser) Close() error {
 	const op = op + ".StackdriverCloser.Close"
 	Logger().Debug().Str("op", op).Msg(op + ": start clean up")
-	err := p.client.Close()
-	if err != nil {
+	if err := p.client.Close(); err != nil {
 		const op = op + ".client.Close"
 		return &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
 	}

@@ -64,8 +64,7 @@ func GetPipeTerminate(
 			}
 			select {
 			case <-ctx.Done():
-				err := ctx.Err()
-				if err != nil {
+				if err := ctx.Err(); err != nil {
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return nil
@@ -131,8 +130,7 @@ func GetFanoutTerminate(
 			for _, v4 := range v0 {
 				select {
 				case <-ctx.Done():
-					err := ctx.Err()
-					if err != nil {
+					if err := ctx.Err(); err != nil {
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return nil
