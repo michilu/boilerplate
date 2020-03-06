@@ -75,9 +75,8 @@ func (t *tClienter) Publish(ctx context.Context, c <-chan Clienter) {
 						const op = op + "#func"
 						select {
 						case <-ctx.Done():
-							if err := ctx.Err(); err != nil {
-								slog.Logger().Err(err).Str("op", op).Msg(err.Error())
-							}
+							err := &errs.Error{Op: op, Code: codes.Canceled, Err: ctx.Err()}
+							slog.Logger().Debug().Err(err).Str("op", op).Msg(err.Error())
 							return
 						case c <- v:
 						}
