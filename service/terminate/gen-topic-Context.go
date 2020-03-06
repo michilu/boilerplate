@@ -116,14 +116,11 @@ func (t *tContextContext) Subscribe(c chan<- context.Context) {
 }
 
 type mapContextContext struct {
-	mu sync.RWMutex
-	m  map[interface{}]*tContextContext
+	m sync.Map
 }
 
 func newMapContextContext() *mapContextContext {
-	return &mapContextContext{
-		m: make(map[interface{}]*tContextContext),
-	}
+	return &mapContextContext{}
 }
 
 func (m *mapContextContext) get(topic interface{}) TopicContextContext {
@@ -133,20 +130,14 @@ func (m *mapContextContext) get(topic interface{}) TopicContextContext {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'topic' is nil"})
 	}
 
-	m.mu.RLock()
-	v, ok := m.m[topic]
-	m.mu.RUnlock()
+	v0, ok := m.m.Load(topic)
 	if ok {
-		return v
+		if v1, ok := v0.(TopicContextContext); ok {
+			return v1
+		}
 	}
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	v, ok = m.m[topic]
-	if ok {
-		return v
-	}
-	v = newTContextContext()
-	m.m[topic] = v
-	return v
+	v2 := newTContextContext()
+	m.m.Store(topic, v2)
+	return v2
 }

@@ -116,14 +116,11 @@ func (t *tEventWithContexter) Subscribe(c chan<- EventWithContexter) {
 }
 
 type mapEventWithContexter struct {
-	mu sync.RWMutex
-	m  map[interface{}]*tEventWithContexter
+	m sync.Map
 }
 
 func newMapEventWithContexter() *mapEventWithContexter {
-	return &mapEventWithContexter{
-		m: make(map[interface{}]*tEventWithContexter),
-	}
+	return &mapEventWithContexter{}
 }
 
 func (m *mapEventWithContexter) get(topic interface{}) TopicEventWithContexter {
@@ -133,20 +130,14 @@ func (m *mapEventWithContexter) get(topic interface{}) TopicEventWithContexter {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'topic' is nil"})
 	}
 
-	m.mu.RLock()
-	v, ok := m.m[topic]
-	m.mu.RUnlock()
+	v0, ok := m.m.Load(topic)
 	if ok {
-		return v
+		if v1, ok := v0.(TopicEventWithContexter); ok {
+			return v1
+		}
 	}
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	v, ok = m.m[topic]
-	if ok {
-		return v
-	}
-	v = newTEventWithContexter()
-	m.m[topic] = v
-	return v
+	v2 := newTEventWithContexter()
+	m.m.Store(topic, v2)
+	return v2
 }

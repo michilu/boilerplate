@@ -116,14 +116,11 @@ func (t *tClientWithContexter) Subscribe(c chan<- ClientWithContexter) {
 }
 
 type mapClientWithContexter struct {
-	mu sync.RWMutex
-	m  map[interface{}]*tClientWithContexter
+	m sync.Map
 }
 
 func newMapClientWithContexter() *mapClientWithContexter {
-	return &mapClientWithContexter{
-		m: make(map[interface{}]*tClientWithContexter),
-	}
+	return &mapClientWithContexter{}
 }
 
 func (m *mapClientWithContexter) get(topic interface{}) TopicClientWithContexter {
@@ -133,20 +130,14 @@ func (m *mapClientWithContexter) get(topic interface{}) TopicClientWithContexter
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'topic' is nil"})
 	}
 
-	m.mu.RLock()
-	v, ok := m.m[topic]
-	m.mu.RUnlock()
+	v0, ok := m.m.Load(topic)
 	if ok {
-		return v
+		if v1, ok := v0.(TopicClientWithContexter); ok {
+			return v1
+		}
 	}
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	v, ok = m.m[topic]
-	if ok {
-		return v
-	}
-	v = newTClientWithContexter()
-	m.m[topic] = v
-	return v
+	v2 := newTClientWithContexter()
+	m.m.Store(topic, v2)
+	return v2
 }

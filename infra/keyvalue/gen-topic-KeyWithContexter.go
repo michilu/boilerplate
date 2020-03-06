@@ -116,14 +116,11 @@ func (t *tKeyWithContexter) Subscribe(c chan<- KeyWithContexter) {
 }
 
 type mapKeyWithContexter struct {
-	mu sync.RWMutex
-	m  map[interface{}]*tKeyWithContexter
+	m sync.Map
 }
 
 func newMapKeyWithContexter() *mapKeyWithContexter {
-	return &mapKeyWithContexter{
-		m: make(map[interface{}]*tKeyWithContexter),
-	}
+	return &mapKeyWithContexter{}
 }
 
 func (m *mapKeyWithContexter) get(topic interface{}) TopicKeyWithContexter {
@@ -133,20 +130,14 @@ func (m *mapKeyWithContexter) get(topic interface{}) TopicKeyWithContexter {
 		panic(&errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'topic' is nil"})
 	}
 
-	m.mu.RLock()
-	v, ok := m.m[topic]
-	m.mu.RUnlock()
+	v0, ok := m.m.Load(topic)
 	if ok {
-		return v
+		if v1, ok := v0.(TopicKeyWithContexter); ok {
+			return v1
+		}
 	}
 
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	v, ok = m.m[topic]
-	if ok {
-		return v
-	}
-	v = newTKeyWithContexter()
-	m.m[topic] = v
-	return v
+	v2 := newTKeyWithContexter()
+	m.m.Store(topic, v2)
+	return v2
 }
