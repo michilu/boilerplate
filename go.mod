@@ -3,14 +3,14 @@ module github.com/michilu/boilerplate
 go 1.13
 
 require (
-	cloud.google.com/go v0.53.0
+	cloud.google.com/go v0.54.0
 	cloud.google.com/go/logging v1.0.0
 	contrib.go.opencensus.io/exporter/stackdriver v0.13.0 // indirect
 	github.com/Azure/azure-pipeline-go v0.2.2 // indirect
 	github.com/StudioSol/async v0.0.0-20191018162539-af9fc371e46e
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.29.16 // indirect
+	github.com/aws/aws-sdk-go v1.29.18 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.3.0
 	github.com/getsentry/sentry-go v0.5.1
@@ -19,7 +19,6 @@ require (
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/golang/protobuf v1.3.4
 	github.com/google/go-replayers/grpcreplay v1.0.0 // indirect
-	github.com/google/pprof v0.0.0-20200229191704-1ebb73c60ed3 // indirect
 	github.com/google/uuid v1.1.1
 	github.com/google/wire v0.4.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20190915194858-d3ddacdb130f
@@ -45,11 +44,8 @@ require (
 	github.com/xujiajun/nutsdb v0.5.0
 	go.opencensus.io v0.22.3
 	gocloud.dev v0.19.0
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527 // indirect
-	google.golang.org/api v0.20.0 // indirect
-	google.golang.org/genproto v0.0.0-20200303153909-beee998c1893
+	google.golang.org/genproto v0.0.0-20200305110556-506484158171
 	google.golang.org/grpc v1.27.1
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
