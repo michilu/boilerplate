@@ -66,7 +66,7 @@ func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	if v3, err := fmt.Fprintln(w.logger, v2); err != nil {
+	if v3, err := fmt.Fprintf(w.logger, "%s", v2); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
@@ -112,7 +112,7 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	if v3, err := fmt.Fprintln(w.logger, v2); err != nil {
+	if v3, err := fmt.Fprintf(w.logger, "%s", v2); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
