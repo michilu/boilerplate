@@ -6,14 +6,17 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/logging"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	structpb "github.com/golang/protobuf/ptypes/struct"
+	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/zerolog"
+	"github.com/spf13/viper"
 	logtypepb "google.golang.org/genproto/googleapis/logging/type"
 	logpb "google.golang.org/genproto/googleapis/logging/v2"
 	"google.golang.org/grpc/codes"
@@ -25,34 +28,30 @@ var (
 )
 
 // NewAppengineLogging returns a new AppengineLoggingWriter.
-func NewAppengineLogging(
-	ctx context.Context,
-	projectID string,
-	logID string,
-) (*AppengineLoggingWriter, error) {
+func NewAppengineLogging(ctx context.Context) (*AppengineLoggingWriter, error) {
 	const op = op + ".NewAppengineLogging"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}
 		return nil, err
 	}
-	if projectID == "" {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'project' is ''"}
-		return nil, err
+	v0 := viper.GetString(k.GoogleProjectId)
+	v1 := viper.GetString(k.GcpLoggingId)
+	if v1 == "" {
+		v2 := viper.GetString(k.GcpLoggingIdAlias)
+		if v2 != "" {
+			v1 = strings.ReplaceAll(viper.GetString(v2), ":", "-")
+		}
 	}
-	if logID == "" {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'project' is ''"}
-		return nil, err
-	}
-	v0 := &AppengineLoggingWriter{
+	v3 := &AppengineLoggingWriter{
 		logger:    os.Stdout,
-		projectID: projectID,
+		projectID: v0,
 	}
-	if ok := _logID.MatchString(logID); !ok {
+	if ok := _logID.MatchString(v1); !ok {
 		const op = op + ".Regexp.MatchString"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
 		return nil, err
 	}
-	return v0, nil
+	return v3, nil
 }
 
 // AppengineLogging accepts pre-encoded JSON messages and writes them to Google Appengine Logging

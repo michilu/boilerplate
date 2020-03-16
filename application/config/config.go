@@ -5,6 +5,7 @@ const (
 	GcpLoggingId                       = "gcp.logging.id"
 	GcpLoggingIdAlias                  = "gcp.logging.id.alias"
 	GoogleApplicationCredentials       = "google.application.credentials"
+	GoogleProjectId                    = "google.project.id"
 	InfraNutsdbEventPath               = "infra.nutsdb.event.path"
 	InfraNutsdbKeystoreAutoRecovery    = "infra.nutsdb.keystore.auto-recovery"
 	InfraNutsdbKeystorePath            = "infra.nutsdb.keystore.path"
