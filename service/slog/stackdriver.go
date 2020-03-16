@@ -69,7 +69,7 @@ func NewStackdriverLogging(
 	}
 	if ok := _logID.MatchString(logID); !ok {
 		const op = op + ".Regexp.MatchString"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %q, got %q", _reLogID, logID)}
 		return nil, nil, err
 	}
 	v0.Logger = v1.Logger(

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	"cloud.google.com/go/logging"
@@ -34,23 +33,11 @@ func NewAppengineLogging(ctx context.Context) (*AppengineLoggingWriter, error) {
 		return nil, err
 	}
 	v0 := viper.GetString(k.GoogleProjectId)
-	v1 := viper.GetString(k.GcpLoggingId)
-	if v1 == "" {
-		v2 := viper.GetString(k.GcpLoggingIdAlias)
-		if v2 != "" {
-			v1 = strings.ReplaceAll(viper.GetString(v2), ":", "-")
-		}
-	}
-	v3 := &AppengineLoggingWriter{
+	v1 := &AppengineLoggingWriter{
 		logger:    os.Stdout,
 		projectID: v0,
 	}
-	if ok := _logID.MatchString(v1); !ok {
-		const op = op + ".Regexp.MatchString"
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
-		return nil, err
-	}
-	return v3, nil
+	return v1, nil
 }
 
 // AppengineLogging accepts pre-encoded JSON messages and writes them to Google Appengine Logging
