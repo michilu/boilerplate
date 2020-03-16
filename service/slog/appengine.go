@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/logging"
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	structpb "github.com/golang/protobuf/ptypes/struct"
 	k "github.com/michilu/boilerplate/application/config"
@@ -71,11 +70,22 @@ func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 	v0 := NewEntry(p)
 	v1, err := w.toLogEntry(*v0)
 	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	proto.MarshalText(w.logger, v1)
-	return len(p), nil
+	v2, err := json.Marshal(v1)
+	if err != nil {
+		const op = op + ".json.Marshal"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		return 0, err
+	}
+	if v3, err := w.logger.Write(v2); err != nil {
+		const op = op + ".io.File.Write"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		return 0, err
+	} else {
+		return v3, nil
+	}
 }
 
 // WriteLevel implements zerolog.LevelWriter. It always returns len(p), nil.
@@ -106,11 +116,22 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 	v0.Severity = severity
 	v1, err := w.toLogEntry(*v0)
 	if err != nil {
-		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be %v", _reLogID)}
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	proto.MarshalText(w.logger, v1)
-	return len(p), nil
+	v2, err := json.Marshal(v1)
+	if err != nil {
+		const op = op + ".json.Marshal"
+		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
+		return 0, err
+	}
+	if v3, err := w.logger.Write(v2); err != nil {
+		const op = op + ".io.File.Write"
+		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
+		return 0, err
+	} else {
+		return v3, nil
+	}
 }
 
 // GetTraceIDTemplate returns a template string of the stackdriver traceID.
