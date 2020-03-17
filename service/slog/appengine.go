@@ -145,7 +145,8 @@ func NewAppengineEntry(p []byte) *AppengineEntry {
 	v2, err := fastjson.ParseBytes(v1)
 	if err == nil {
 		v0.Trace = string(v2.GetStringBytes("trace"))
-		v0.Message = string(p)
+		v0.Message = string(v2.GetStringBytes("message"))
+		v0.Data = string(p)
 	}
 	return v0
 }
