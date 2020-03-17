@@ -36,12 +36,12 @@ require (
 	github.com/pkg/profile v1.4.0
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.18.0
+	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.2
-	github.com/srikrsna/protoc-gen-gotag v0.5.0
 	github.com/valyala/fastjson v1.5.0
 	github.com/xujiajun/nutsdb v0.5.0
 	go.opencensus.io v0.22.3

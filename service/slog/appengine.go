@@ -15,7 +15,6 @@ import (
 	"github.com/michilu/boilerplate/service/now"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
-	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	"github.com/valyala/fastjson"
 	"google.golang.org/grpc/codes"
 )
