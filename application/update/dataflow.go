@@ -4,17 +4,17 @@ import (
 	"context"
 
 	"github.com/michilu/boilerplate/service/errs"
-	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
+	"github.com/michilu/boilerplate/service/topic"
 	"github.com/michilu/boilerplate/service/update"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc/codes"
 )
 
 type (
-	topic string
+	_topic string
 )
 
 func Dataflow(ctx context.Context) {
@@ -29,8 +29,8 @@ func Dataflow(ctx context.Context) {
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 
-	t := topic("update")
-	tTick := now.GetTopicContextContext(t)
+	t := _topic("update")
+	tTick := topic.GetTopicContextContext(t)
 	tTerminate := terminate.GetTopicContextContext(t)
 
 	{

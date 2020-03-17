@@ -6,10 +6,10 @@ import (
 
 	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
-	"github.com/michilu/boilerplate/service/now"
 	"github.com/michilu/boilerplate/service/pipe"
 	"github.com/michilu/boilerplate/service/slog"
 	"github.com/michilu/boilerplate/service/terminate"
+	"github.com/michilu/boilerplate/service/topic"
 	"github.com/michilu/boilerplate/service/update"
 	"github.com/spf13/viper"
 	"go.opencensus.io/trace"
@@ -17,7 +17,7 @@ import (
 )
 
 type (
-	topic string
+	_topic string
 )
 
 func Dataflow(ctx context.Context) {
@@ -45,8 +45,8 @@ func Dataflow(ctx context.Context) {
 		}
 	}
 
-	tUpdate := now.GetTopicContextContext(topic("update"))
-	tTerminate := terminate.GetTopicContextContext(topic("terminate"))
+	tUpdate := topic.GetTopicContextContext(_topic("update"))
+	tTerminate := terminate.GetTopicContextContext(_topic("terminate"))
 
 	{
 		iCh, oCh := update.GetPipeUpdate(ctx, update.Update, ErrorHandler)
@@ -54,7 +54,7 @@ func Dataflow(ctx context.Context) {
 		tUpdate.Subscribe(iCh)
 	}
 	{
-		oCh, err := now.ContextTicker(ctx, 3*time.Second)
+		oCh, err := topic.ContextTicker(ctx, 3*time.Second)
 		if err != nil {
 			err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 			s.SetStatus(trace.Status{Code: int32(codes.Internal), Message: err.Error()})

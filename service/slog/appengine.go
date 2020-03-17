@@ -12,16 +12,12 @@ import (
 	"cloud.google.com/go/logging"
 	k "github.com/michilu/boilerplate/application/config"
 	"github.com/michilu/boilerplate/service/errs"
+	"github.com/michilu/boilerplate/service/now"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
 	"github.com/valyala/fastjson"
 	"google.golang.org/grpc/codes"
-)
-
-var (
-	// Now returns a time.Time.
-	Now func() time.Time = time.Now
 )
 
 // NewAppengineLogging returns a new AppengineLoggingWriter.
@@ -143,7 +139,7 @@ func NewAppengineEntry(p []byte) *AppengineEntry {
 	}
 
 	v0 := &AppengineEntry{
-		Time:           Now().Format(time.RFC3339Nano),
+		Time:           now.Now().Format(time.RFC3339Nano),
 		SourceLocation: &location,
 	}
 	v1 := rawJSON(p)
