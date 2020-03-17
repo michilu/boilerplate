@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/logging"
@@ -12,6 +14,8 @@ import (
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
+	_ "github.com/srikrsna/protoc-gen-gotag/tagger"
+	"github.com/valyala/fastjson"
 	"google.golang.org/grpc/codes"
 )
 
@@ -49,7 +53,7 @@ type AppengineLoggingWriter struct {
 // Write always returns len(p), nil.
 func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 	const op = op + ".AppengineLoggingWriter.Write"
-	v0 := NewEntry(p)
+	v0 := NewAppengineEntry(p)
 	v1, err := json.Marshal(v0)
 	if err != nil {
 		const op = op + ".json.Marshal"
@@ -89,8 +93,8 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 		severity = logging.Alert
 	}
 
-	v0 := NewEntry(p)
-	v0.Severity = severity
+	v0 := NewAppengineEntry(p)
+	v0.Severity = severity.String()
 	v1, err := json.Marshal(v0)
 	if err != nil {
 		const op = op + ".json.Marshal"
@@ -120,4 +124,33 @@ func (p *AppengineLoggingWriter) GetTraceURLTemplate() string {
 // https://godoc.org/cloud.google.com/go/logging#NewClient
 func (p *AppengineLoggingWriter) GetParentProjects() string {
 	return "projects/" + p.projectID
+}
+
+// https://github.com/yfuruyama/stackdriver-request-context-log/blob/9427d3313129102b89c613ebf0c60be10f52a5ee/stackdriver.go#L263-L298
+
+//go:generate interfacer -for github.com/michilu/boilerplate/service/slog.AppengineEntry -as AppengineEntryer -o vo-AppengineEntryer.go
+
+func NewAppengineEntry(p []byte) *AppengineEntry {
+	// get source location
+	var location SourceLocation
+	if pc, file, line, ok := runtime.Caller(2); ok {
+		if function := runtime.FuncForPC(pc); function != nil {
+			location.Function = function.Name()
+		}
+		location.Line = fmt.Sprintf("%d", line)
+		parts := strings.Split(file, "/")
+		location.File = parts[len(parts)-1] // use short file name
+	}
+
+	v0 := &AppengineEntry{
+		Time:           Now().Format(time.RFC3339Nano),
+		SourceLocation: &location,
+	}
+	v1 := rawJSON(p)
+	v2, err := fastjson.ParseBytes(v1)
+	if err == nil {
+		v0.Trace = string(v2.GetStringBytes("trace"))
+		v0.Message = string(p)
+	}
+	return v0
 }

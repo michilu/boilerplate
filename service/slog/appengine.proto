@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package michilu.boilerplate.service.slog;
+
+option go_package = "slog";
+
+import "github.com/srikrsna/protoc-gen-gotag/tagger/tagger.proto";
+import "google/protobuf/any.proto";
+
+// AppengineEntry is ValueObject.
+message AppengineEntry {
+  string time = 1;
+  string trace = 2 [(tagger.tags) = "json:\"logging.googleapis.com/trace\""];
+  SourceLocation source_location = 3 [(tagger.tags) = "json:\"logging.googleapis.com/sourceLocation\""];
+  string severity = 4;
+  string message = 5;
+  map<string, google.protobuf.Any> data = 6;
+}
+
+// SourceLocation is ValueObject.
+message SourceLocation {
+  string file = 1;
+  string line = 2;
+  string function = 3;
+}
