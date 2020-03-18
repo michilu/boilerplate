@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	"cloud.google.com/go/logging"
@@ -17,6 +18,10 @@ import (
 	"github.com/spf13/viper"
 	"github.com/valyala/fastjson"
 	"google.golang.org/grpc/codes"
+)
+
+var (
+	_stdoutMu sync.Mutex
 )
 
 // NewAppengineLogging returns a new AppengineLoggingWriter.
@@ -54,6 +59,10 @@ func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
+	}
+	{
+		_stdoutMu.Lock()
+		defer _stdoutMu.Unlock()
 	}
 	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
@@ -94,6 +103,10 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 		const op = op + ".json.Marshal"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
+	}
+	{
+		_stdoutMu.Lock()
+		defer _stdoutMu.Unlock()
 	}
 	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
