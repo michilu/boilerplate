@@ -50,7 +50,9 @@ func SetDefaultLogger(writer []io.Writer) {
 		if writer == nil {
 			writer = []io.Writer{}
 		}
-		writer = append(writer, w)
+		if viper.GetBool(k.ServiceSlogConsole) {
+			writer = append(writer, w)
+		}
 		logger = zerolog.New(zerolog.MultiLevelWriter(writer...)).
 			Hook(&HookMeta{}).With().Caller().Timestamp().Logger()
 		log.SetOutput(logger)

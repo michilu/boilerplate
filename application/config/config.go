@@ -17,6 +17,7 @@ const (
 	ServiceProfileProfilerDebugLogging = "service.profile.profiler.debug-logging"
 	ServiceProfileProfilerEnable       = "service.profile.profiler.enable"
 	ServiceSemaphoreParallel           = "service.semaphore.parallel"
+	ServiceSlogConsole                 = "service.slog.console"
 	ServiceSlogDebug                   = "service.slog.debug"
 	ServiceSlogSentryDsn               = "service.slog.sentry.dsn"
 	ServiceSlogSentryServerName        = "service.slog.sentry.server-name"

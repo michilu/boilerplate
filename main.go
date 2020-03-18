@@ -40,6 +40,7 @@ var (
 
 		{K: k.ServiceProfilePprofAddr, V: ":8888"},
 		{K: k.ServiceProfileProfilerDebugLogging, V: true},
+		{K: k.ServiceSlogConsole, V: true},
 		{K: k.ServiceUpdateChannel, V: "release"},
 		{K: k.ServiceUpdateUrl, V: "http://localhost:8000/"},
 
