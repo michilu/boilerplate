@@ -55,13 +55,12 @@ func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	if v2, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
+	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
-	} else {
-		return v2, nil
 	}
+	return len(p), nil
 }
 
 // WriteLevel implements zerolog.LevelWriter. It always returns len(p), nil.
@@ -96,13 +95,12 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	if v2, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
+	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
-	} else {
-		return v2, nil
 	}
+	return len(p), nil
 }
 
 // GetTraceIDTemplate returns a template string of the stackdriver traceID.
