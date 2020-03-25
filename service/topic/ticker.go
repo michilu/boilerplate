@@ -54,7 +54,7 @@ func ticker(ctx context.Context, duration time.Duration, oCh chan<- context.Cont
 		case <-ctx.Done():
 			err := &errs.Error{Op: op, Code: codes.Canceled, Err: ctx.Err()}
 			slog.Logger().Debug().Err(err).Str("op", op).Msg(err.Error())
-			break
+			return
 		case <-ticker.C:
 		}
 		m, _ := trace.StartSpan(context.Background(), op)
@@ -62,7 +62,7 @@ func ticker(ctx context.Context, duration time.Duration, oCh chan<- context.Cont
 		case <-ctx.Done():
 			err := &errs.Error{Op: op, Code: codes.Canceled, Err: ctx.Err()}
 			slog.Logger().Debug().Err(err).Str("op", op).Msg(err.Error())
-			break
+			return
 		case oCh <- m:
 		}
 	}
