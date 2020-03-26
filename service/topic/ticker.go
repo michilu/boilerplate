@@ -20,8 +20,6 @@ func ContextTicker(ctx context.Context, duration time.Duration) (<-chan context.
 		slog.Logger().Err(err).Str("op", op).Msg(err.Error())
 		return nil, err
 	}
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
 	ctx, s := trace.StartSpan(ctx, op)
 	defer s.End()
 	t := slog.Trace(ctx, s)
