@@ -10,7 +10,7 @@ require (
 	github.com/StudioSol/async v0.0.0-20191018162539-af9fc371e46e
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.29.31 // indirect
+	github.com/aws/aws-sdk-go v1.29.33 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.3.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -27,7 +27,7 @@ require (
 	github.com/jmespath/go-jmespath v0.3.0 // indirect
 	github.com/marusama/semaphore v0.0.0-20190110074507-6952cef993b2
 	github.com/mattn/go-ieproxy v0.0.0-20190805055040-f9202b1cfdeb // indirect
-	github.com/michilu/go-selfupdate v0.0.0-20190902055940-b88c2f57bddf
+	github.com/michilu/go-selfupdate v0.0.0-20200326235554-e735104c8775
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/pelletier/go-toml v1.6.0 // indirect
 	github.com/pkg/profile v1.4.0
@@ -45,7 +45,7 @@ require (
 	gocloud.dev v0.19.0
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/genproto v0.0.0-20200324203455-a04cca1dde73
+	google.golang.org/genproto v0.0.0-20200326112834-f447254575fd
 	google.golang.org/grpc v1.28.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.55.0 // indirect

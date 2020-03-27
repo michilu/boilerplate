@@ -99,7 +99,7 @@ func Update(ctx context.Context) (context.Context, error) {
 		s.End()
 		const op = op + ".Updater.ForegroundRun"
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("v6", v6).Msg(op + ": start")
-		ok, err := v5.ForegroundRun()
+		ok, err := v5.ForegroundRun(ctx)
 		slog.Logger().Debug().Str("op", op).EmbedObject(t).Dict("v6", v6).Msg(op + ": end")
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
