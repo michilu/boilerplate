@@ -21,6 +21,7 @@ import (
 )
 
 var (
+	_stderrMu sync.Mutex
 	_stdoutMu sync.Mutex
 )
 
@@ -33,7 +34,8 @@ func NewAppengineLogging(ctx context.Context) (*AppengineLoggingWriter, error) {
 	}
 	v0 := viper.GetString(k.GoogleProjectId)
 	v1 := &AppengineLoggingWriter{
-		logger:    os.Stdout,
+		stdout:    os.Stdout,
+		stderr:    os.Stderr,
 		projectID: v0,
 	}
 	return v1, nil
@@ -44,7 +46,8 @@ func NewAppengineLogging(ctx context.Context) (*AppengineLoggingWriter, error) {
 // The labels argument is ignored if opts includes CommonLabels.
 // The returned client should be closed before the program exits.
 type AppengineLoggingWriter struct {
-	logger          *os.File
+	stdout          *os.File
+	stderr          *os.File
 	parentProjects  string
 	projectID       string
 	traceIDTemplate string
@@ -64,7 +67,7 @@ func (w *AppengineLoggingWriter) Write(p []byte) (int, error) {
 		_stdoutMu.Lock()
 		defer _stdoutMu.Unlock()
 	}
-	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
+	if _, err := fmt.Fprintf(w.stdout, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
@@ -104,11 +107,16 @@ func (w *AppengineLoggingWriter) WriteLevel(level zerolog.Level, p []byte) (int,
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
 		return 0, err
 	}
-	{
+	v2 := w.stdout
+	if logging.Warning < severity {
+		v2 = w.stderr
+		_stderrMu.Lock()
+		defer _stderrMu.Unlock()
+	} else {
 		_stdoutMu.Lock()
 		defer _stdoutMu.Unlock()
 	}
-	if _, err := fmt.Fprintf(w.logger, "%s\n", v1); err != nil {
+	if _, err := fmt.Fprintf(v2, "%s\n", v1); err != nil {
 		const op = op + ".io.File.Write"
 		err := &errs.Error{Op: op, Code: codes.Internal, Err: err}
 		return 0, err
