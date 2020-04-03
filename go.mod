@@ -10,7 +10,7 @@ require (
 	github.com/StudioSol/async v0.0.0-20191018162539-af9fc371e46e
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.30.1 // indirect
+	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.3.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -43,7 +43,7 @@ require (
 	go.opencensus.io v0.22.3
 	gocloud.dev v0.19.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	google.golang.org/genproto v0.0.0-20200331122359-1ee6d9798940
+	google.golang.org/genproto v0.0.0-20200402124713-8ff61da6d932
 	google.golang.org/grpc v1.28.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/ini.v1 v1.55.0 // indirect
