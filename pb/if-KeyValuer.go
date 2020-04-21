@@ -1,21 +1,17 @@
 // Created by interfacer; DO NOT EDIT
 
-package event
+package pb
 
 import (
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/runtime/protoiface"
-	"time"
 )
 
-// Eventer is an interface generated for "github.com/michilu/boilerplate/service/event.Event".
-type Eventer interface {
-	AddTimePoint(string, time.Time) (Eventer, error)
+// KeyValuer is an interface generated for "github.com/michilu/boilerplate/pb.KeyValue".
+type KeyValuer interface {
 	Descriptor() ([]byte, []int)
-	GetId() []byte
 	GetKey() []byte
-	GetOrigin() string
-	GetTimePoint() []*TimePoint
+	GetValue() []byte
 	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()

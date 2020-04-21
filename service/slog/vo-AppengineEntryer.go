@@ -13,7 +13,7 @@ type AppengineEntryer interface {
 	GetData() map[string]*any.Any
 	GetMessage() string
 	GetSeverity() string
-	GetSourceLocation() *SourceLocation
+	GetSourceLocation() *AppengineSourceLocation
 	GetTime() string
 	GetTrace() string
 	ProtoMessage()

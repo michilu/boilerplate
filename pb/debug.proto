@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package michilu.boilerplate.service.debug;
+package michilu.boilerplate.pb;
 
-option go_package = "debug";
+option go_package = "pb";
 
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 
-// Client is Entity
-message Client {
+// DebugClient is Entity
+message DebugClient {
   string id = 1 [
     (validate.rules).string = {
       min_len: 1

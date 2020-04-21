@@ -5,8 +5,8 @@ import (
 	"time"
 
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/michilu/boilerplate/infra/keyvalue"
+	"github.com/michilu/boilerplate/pb"
 	"github.com/michilu/boilerplate/service/errs"
 	"github.com/rs/xid"
 	"google.golang.org/grpc/codes"
@@ -25,6 +25,10 @@ var (
 )
 
 type (
+	Event     = pb.Event
+	Eventer   = pb.Eventer
+	TimePoint = pb.EventTimePoint
+
 	KeyValueWithContext   = keyvalue.KeyValueWithContext
 	KeyValueWithContexter = keyvalue.KeyValueWithContexter
 )
@@ -56,36 +60,6 @@ func NewEvent(timeStamp *time.Time, origin string) (Eventer, error) {
 	}
 	return v1, nil
 }
-
-// AddTimePoint returns a new Eventer with given the TimePoint.
-func (p *Event) AddTimePoint(tag string, timeStamp time.Time) (Eventer, error) {
-	const op = op + ".Event.AddTimePoint"
-	if tag == "" {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. tag is ''"}
-	}
-	if timeStamp.IsZero() {
-		return nil, &errs.Error{Op: op, Code: codes.InvalidArgument, Message: fmt.Sprintf("must be given. timeStamp is zero(%v)", timeStamp)}
-	}
-	return &Event{
-		Id:     p.GetId(),
-		Origin: p.GetOrigin(),
-		TimePoint: append(p.GetTimePoint(),
-			&TimePoint{
-				Timestamp: &timestamp.Timestamp{
-					Seconds: timeStamp.Unix(),
-					Nanos:   int32(timeStamp.UnixNano()),
-				},
-				Tag: tag,
-			},
-		),
-	}, nil
-}
-
-func (p *Event) GetKey() []byte {
-	return []byte(fmt.Sprintf("%s+%s", p.GetOrigin(), p.GetId()))
-}
-
-//go:generate interfacer -for github.com/michilu/boilerplate/service/event.Event -as event.Eventer -o entity-Eventer.go
 
 //go:generate genny -in=../topic/with-context.go -out=gen-EventWithContext.go -pkg=$GOPACKAGE gen "T=Event Ier=Eventer"
 //go:generate genny -in=../topic/topic.go -out=gen-topic-EventWithContexter.go -pkg=$GOPACKAGE gen "ChanT=EventWithContexter"

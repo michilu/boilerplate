@@ -146,7 +146,7 @@ func (p *AppengineLoggingWriter) GetParentProjects() string {
 
 func NewAppengineEntry(p []byte) *AppengineEntry {
 	// get source location
-	var location SourceLocation
+	var location AppengineSourceLocation
 	if pc, file, line, ok := runtime.Caller(6); ok {
 		if function := runtime.FuncForPC(pc); function != nil {
 			location.Function = function.Name()

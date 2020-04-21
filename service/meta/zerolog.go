@@ -9,6 +9,6 @@ func ZerologObject() zerolog.LogObjectMarshaler {
 	return &m
 }
 
-func (m *Meta) MarshalZerologObject(e *zerolog.Event) {
+func (m Meta) MarshalZerologObject(e *zerolog.Event) {
 	e.RawJSON("meta", m.JSON())
 }

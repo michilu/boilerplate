@@ -1,16 +1,21 @@
 // Created by interfacer; DO NOT EDIT
 
-package keyvalue
+package pb
 
 import (
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/runtime/protoiface"
+	"time"
 )
 
-// Prefixer is an interface generated for "github.com/michilu/boilerplate/infra/keyvalue.Prefix".
-type Prefixer interface {
+// Eventer is an interface generated for "github.com/michilu/boilerplate/pb.Event".
+type Eventer interface {
+	AddTimePoint(string, time.Time) (Eventer, error)
 	Descriptor() ([]byte, []int)
-	GetPrefix() []byte
+	GetId() []byte
+	GetKey() []byte
+	GetOrigin() string
+	GetTimePoint() []*EventTimePoint
 	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()

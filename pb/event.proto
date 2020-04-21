@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package michilu.boilerplate.service.event;
+package michilu.boilerplate.pb;
 
-option go_package = "event";
+option go_package = "pb";
 
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "google/protobuf/timestamp.proto";
@@ -20,15 +20,15 @@ message Event {
       min_len: 1
     }
   ];
-  repeated TimePoint time_point = 3 [
+  repeated EventTimePoint time_point = 3 [
     (validate.rules).repeated = {
       min_items: 1
     }
   ];
 }
 
-// TimePoint is Entity.
-message TimePoint {
+// EventTimePoint is Entity.
+message EventTimePoint {
   google.protobuf.Timestamp timestamp = 1;
   string tag = 2 [
     (validate.rules).string = {

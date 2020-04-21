@@ -1,16 +1,16 @@
 // Created by interfacer; DO NOT EDIT
 
-package keyvalue
+package pb
 
 import (
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/runtime/protoiface"
 )
 
-// Keyer is an interface generated for "github.com/michilu/boilerplate/infra/keyvalue.Key".
-type Keyer interface {
+// DebugClienter is an interface generated for "github.com/michilu/boilerplate/pb.DebugClient".
+type DebugClienter interface {
 	Descriptor() ([]byte, []int)
-	GetKey() []byte
+	GetId() string
 	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()

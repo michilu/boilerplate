@@ -1,17 +1,16 @@
 // Created by interfacer; DO NOT EDIT
 
-package keyvalue
+package pb
 
 import (
 	"github.com/rs/zerolog"
 	"google.golang.org/protobuf/runtime/protoiface"
 )
 
-// KeyValuer is an interface generated for "github.com/michilu/boilerplate/infra/keyvalue.KeyValue".
-type KeyValuer interface {
+// KeyPrefixer is an interface generated for "github.com/michilu/boilerplate/pb.KeyPrefix".
+type KeyPrefixer interface {
 	Descriptor() ([]byte, []int)
-	GetKey() []byte
-	GetValue() []byte
+	GetPrefix() []byte
 	MarshalZerologObject(*zerolog.Event)
 	ProtoMessage()
 	Reset()

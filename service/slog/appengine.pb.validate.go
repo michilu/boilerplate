@@ -33,6 +33,9 @@ var (
 	_ = ptypes.DynamicAny{}
 )
 
+// define the regex for a UUID once up-front
+var _appengine_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // Validate checks the field values on AppengineEntry with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
 // is returned.
@@ -118,10 +121,10 @@ var _ interface {
 	ErrorName() string
 } = AppengineEntryValidationError{}
 
-// Validate checks the field values on SourceLocation with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
-func (m *SourceLocation) Validate() error {
+// Validate checks the field values on AppengineSourceLocation with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *AppengineSourceLocation) Validate() error {
 	if m == nil {
 		return nil
 	}
@@ -135,9 +138,9 @@ func (m *SourceLocation) Validate() error {
 	return nil
 }
 
-// SourceLocationValidationError is the validation error returned by
-// SourceLocation.Validate if the designated constraints aren't met.
-type SourceLocationValidationError struct {
+// AppengineSourceLocationValidationError is the validation error returned by
+// AppengineSourceLocation.Validate if the designated constraints aren't met.
+type AppengineSourceLocationValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -145,22 +148,24 @@ type SourceLocationValidationError struct {
 }
 
 // Field function returns field value.
-func (e SourceLocationValidationError) Field() string { return e.field }
+func (e AppengineSourceLocationValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e SourceLocationValidationError) Reason() string { return e.reason }
+func (e AppengineSourceLocationValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e SourceLocationValidationError) Cause() error { return e.cause }
+func (e AppengineSourceLocationValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e SourceLocationValidationError) Key() bool { return e.key }
+func (e AppengineSourceLocationValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e SourceLocationValidationError) ErrorName() string { return "SourceLocationValidationError" }
+func (e AppengineSourceLocationValidationError) ErrorName() string {
+	return "AppengineSourceLocationValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e SourceLocationValidationError) Error() string {
+func (e AppengineSourceLocationValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -172,14 +177,14 @@ func (e SourceLocationValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sSourceLocation.%s: %s%s",
+		"invalid %sAppengineSourceLocation.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = SourceLocationValidationError{}
+var _ error = AppengineSourceLocationValidationError{}
 
 var _ interface {
 	Field() string
@@ -187,4 +192,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = SourceLocationValidationError{}
+} = AppengineSourceLocationValidationError{}

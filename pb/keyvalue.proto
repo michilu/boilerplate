@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package michilu.boilerplate.infra.keyvalue;
+package michilu.boilerplate.pb;
 
-option go_package = "keyvalue";
+option go_package = "pb";
 
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 
@@ -29,8 +29,8 @@ message KeyValue {
   ];
 }
 
-// Prefix is ValueObject.
-message Prefix {
+// KeyPrefix is ValueObject.
+message KeyPrefix {
   bytes prefix = 1 [
     (validate.rules).bytes = {
       min_len: 1

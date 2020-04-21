@@ -8,14 +8,14 @@ option go_package = "slog";
 message AppengineEntry {
   string time = 1;
   string trace = 2;
-  SourceLocation source_location = 3;
+  AppengineSourceLocation source_location = 3;
   string severity = 4;
   string message = 5;
   string data = 6;
 }
 
-// SourceLocation is ValueObject.
-message SourceLocation {
+// AppengineSourceLocation is ValueObject.
+message AppengineSourceLocation {
   string file = 1;
   string line = 2;
   string function = 3;

@@ -7,7 +7,7 @@ import (
 )
 
 type Loader interface {
-	Load(context.Context, keyvalue.Prefixer) (<-chan keyvalue.KeyValuer, error)
+	Load(context.Context, keyvalue.KeyPrefixer) (<-chan keyvalue.KeyValuer, error)
 }
 
 type Saver interface {

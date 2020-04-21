@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package michilu.boilerplate.pb;
+
+option go_package = "pb";
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+// Bool is ValueObject.
+message Bool {
+  bool value = 1;
+}
+
+// Byte is ValueObject.
+message Byte {
+  bytes value = 1 [
+    (validate.rules).bytes = {
+      min_len: 1
+    }
+  ];
+}

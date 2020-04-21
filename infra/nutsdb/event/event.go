@@ -80,7 +80,7 @@ func (p *Repository) Close() error {
 	return nil
 }
 
-func (p *Repository) Load(ctx context.Context, prefix keyvalue.Prefixer) (<-chan keyvalue.KeyValuer, error) {
+func (p *Repository) Load(ctx context.Context, prefix keyvalue.KeyPrefixer) (<-chan keyvalue.KeyValuer, error) {
 	const op = op + ".Repository.Load"
 	if ctx == nil {
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Message: "must be given. 'ctx' is nil"}

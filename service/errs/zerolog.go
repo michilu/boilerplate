@@ -4,7 +4,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func (p *Error) MarshalZerologObject(e *zerolog.Event) {
+func (p Error) MarshalZerologObject(e *zerolog.Event) {
 	e.
 		Str("message", p.Error()).
 		Str("op", p.Op)
