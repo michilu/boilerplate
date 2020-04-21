@@ -27,3 +27,5 @@ const (
 // type.proto
 //go:generate genny -in=../service/pb/zerolog.go -out=gen-zerolog-Bool.go gen T=Bool
 //go:generate genny -in=../service/pb/zerolog.go -out=gen-zerolog-Byte.go gen T=Byte
+//go:generate interfacer -for github.com/michilu/boilerplate/pb.Bool -as pb.Booler -o if-Booler.go
+//go:generate interfacer -for github.com/michilu/boilerplate/pb.Byte -as pb.Byter  -o if-Byter.go
