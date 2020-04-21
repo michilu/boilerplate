@@ -3,8 +3,8 @@
 package debug
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/rs/zerolog"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
 // Clienter is an interface generated for "github.com/michilu/boilerplate/service/debug.Client".
@@ -18,7 +18,7 @@ type Clienter interface {
 	Validate() error
 	XXX_DiscardUnknown()
 	XXX_Marshal([]byte, bool) ([]byte, error)
-	XXX_Merge(proto.Message)
+	XXX_Merge(protoiface.MessageV1)
 	XXX_Size() int
 	XXX_Unmarshal([]byte) error
 }
