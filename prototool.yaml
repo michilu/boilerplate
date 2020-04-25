@@ -2,6 +2,7 @@
 protoc:
   version: 3.9.0
   includes:
+  - vendor/github.com/googleapis/googleapis
   - vendor
 lint:
   rules:

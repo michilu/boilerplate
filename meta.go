@@ -45,8 +45,7 @@ func init() {
 			Tag:    tag,
 		}
 	}
-	err := meta.Set(m)
-	if err != nil {
+	if err := meta.Set(m); err != nil {
 		const op = op + ".meta.Set"
 		os.Stderr.WriteString(fmt.Sprintf("op: %s: %s\n", op, err))
 	}

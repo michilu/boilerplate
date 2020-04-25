@@ -2,10 +2,21 @@ package pb
 
 import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	"github.com/rs/zerolog"
 )
 
 const (
 	op = "pb"
+)
+
+var (
+	_ zerolog.LogObjectMarshaler = Bool{}
+	_ zerolog.LogObjectMarshaler = Byte{}
+	_ zerolog.LogObjectMarshaler = DebugClient{}
+	_ zerolog.LogObjectMarshaler = Event{}
+	_ zerolog.LogObjectMarshaler = KeyPrefix{}
+	_ zerolog.LogObjectMarshaler = KeyValue{}
+	_ zerolog.LogObjectMarshaler = Key{}
 )
 
 // debug.proto

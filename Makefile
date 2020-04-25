@@ -34,8 +34,8 @@ PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune
 PB_GO:=$(PROTO:.proto=.pb.go)
 PB_VALIDATE_GO:=$(PROTO:.proto=.pb.validate.go)
 IF_GO:=$(shell find . -type d -name vendor -prune\
- -or -type f -name "if-*.go" -print\
  -or -type f -name "entity-*.go" -print\
+ -or -type f -name "if-*.go" -print\
  -or -type f -name "vo-*.go" -print\
 )
 
@@ -54,7 +54,7 @@ GOLIB:=$(LIBGO:.go=.so)
 .go.so:
 	$(GO) build -buildmode=c-shared -o $@ $<
 %.pb.go: %.proto
-	prototool all $<
+	( type prototool > /dev/null 2>&1 ) && prototool all $<
 %.pb.validate.go: %.proto
 	d=$(dir $<);\
  ( type protoc > /dev/null 2>&1 ) && protoc\
@@ -256,6 +256,13 @@ clean:
   sed -i '' 's|"github.com/michilu/boilerplate/vendor/|"|g' $$file;\
   chmod -x $$file;\
   done
+	for file in $$(find pb -type d -name vendor -prune\
+ -or -type f -name "*.go" -print\
+); do\
+  sed -i '' '/"github.com\/michilu\/boilerplate\/pb"/d' $$file;\
+  done
+	sed -i '' -E 's/) pb\./) /g' pb/*.go
+	sed -i '' -E 's/\*pb\./\*/g' pb/*.go
 
 .PHONY: test
 test: deps

@@ -113,12 +113,9 @@ func main() {
 		ctx, s := trace.StartSpan(ctx, op)
 		defer s.End()
 		t := slog.Trace(ctx, s)
-		{
-			err := v2.Close()
-			if err != nil {
-				err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
-				slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
-			}
+		if err := v2.Close(); err != nil {
+			err := &errs.Error{Op: op, Code: codes.Unavailable, Err: err}
+			slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		}
 	}()
 	ch := make(chan struct{})
