@@ -42,15 +42,16 @@ func GetPipeTerminate(
 	outCh := make(chan context.Context)
 
 	go slog.Recover(ctx, func(ctx context.Context) error {
-		const op = op + "#go"
+		const op = op + "#func"
 		defer close(outCh)
-		for i := range inCh {
-			v0, err := fn(i)
+		for v := range inCh {
+			v0 := v
+			v1, err := fn(v0)
 			if err != nil {
 				var vctx context.Context
-				vctx, ok := i.(context.Context)
+				vctx, ok := v0.(context.Context)
 				if !ok {
-					v1, ok := i.(TerminateGetContexter)
+					v1, ok := v0.(TerminateGetContexter)
 					if ok {
 						vctx = v1.GetContext()
 					} else {
@@ -68,7 +69,7 @@ func GetPipeTerminate(
 					fnErr(ctx, &errs.Error{Op: op, Err: err})
 				}
 				return nil
-			case outCh <- v0:
+			case outCh <- v1:
 			}
 		}
 		return nil
@@ -102,39 +103,41 @@ func GetFanoutTerminate(
 	outCh := make(chan context.Context)
 
 	go slog.Recover(ctx, func(ctx context.Context) error {
-		const op = op + "#go"
+		const op = op + "#func"
 		defer close(outCh)
-		for i := range inCh {
-			v0, err := fn(i)
+		for v := range inCh {
+			v0 := v
+			v1, err := fn(v0)
 			if err != nil {
 				var ctx0 context.Context
-				ctx0, ok := i.(context.Context)
+				ctx0, ok := v0.(context.Context)
 				if !ok {
-					v1, ok := i.(TerminateGetContexter)
+					v2, ok := v0.(TerminateGetContexter)
 					if ok {
-						ctx0 = v1.GetContext()
+						ctx0 = v2.GetContext()
 					} else {
 						ctx0 = context.Background()
 					}
 				}
-				v2 := fnErr(ctx0, &errs.Error{Op: op, Err: err})
-				v3 := trace.FromContext(ctx0)
-				if v3 != nil {
-					v3.End()
+				v3 := fnErr(ctx0, &errs.Error{Op: op, Err: err})
+				v4 := trace.FromContext(ctx0)
+				if v4 != nil {
+					v4.End()
 				}
-				if v2 {
+				if v3 {
 					return nil
 				}
 				continue
 			}
-			for _, v4 := range v0 {
+			for _, v := range v1 {
+				v5 := v
 				select {
 				case <-ctx.Done():
 					if err := ctx.Err(); err != nil {
 						fnErr(ctx, &errs.Error{Op: op, Err: err})
 					}
 					return nil
-				case outCh <- v4:
+				case outCh <- v5:
 				}
 			}
 		}

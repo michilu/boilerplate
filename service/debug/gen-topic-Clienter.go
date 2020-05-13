@@ -69,7 +69,9 @@ func (t *tClienter) Publish(ctx context.Context, c <-chan Clienter) {
 		default:
 		}
 		for v := range c {
-			for _, c := range t.c {
+			v0 := v
+			for _, v := range t.c {
+				v1 := v
 				go slog.Recover(ctx, func(ctx context.Context) error {
 					func(c chan<- Clienter, v Clienter) {
 						const op = op + "#func"
@@ -80,7 +82,7 @@ func (t *tClienter) Publish(ctx context.Context, c <-chan Clienter) {
 							return
 						case c <- v:
 						}
-					}(c, v)
+					}(v1, v0)
 					return nil
 				})
 			}

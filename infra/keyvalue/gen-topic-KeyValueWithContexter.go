@@ -69,7 +69,9 @@ func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueW
 		default:
 		}
 		for v := range c {
-			for _, c := range t.c {
+			v0 := v
+			for _, v := range t.c {
+				v1 := v
 				go slog.Recover(ctx, func(ctx context.Context) error {
 					func(c chan<- KeyValueWithContexter, v KeyValueWithContexter) {
 						const op = op + "#func"
@@ -80,7 +82,7 @@ func (t *tKeyValueWithContexter) Publish(ctx context.Context, c <-chan KeyValueW
 							return
 						case c <- v:
 						}
-					}(c, v)
+					}(v1, v0)
 					return nil
 				})
 			}

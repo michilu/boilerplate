@@ -69,7 +69,9 @@ func (t *tContextContext) Publish(ctx context.Context, c <-chan context.Context)
 		default:
 		}
 		for v := range c {
-			for _, c := range t.c {
+			v0 := v
+			for _, v := range t.c {
+				v1 := v
 				go slog.Recover(ctx, func(ctx context.Context) error {
 					func(c chan<- context.Context, v context.Context) {
 						const op = op + "#func"
@@ -80,7 +82,7 @@ func (t *tContextContext) Publish(ctx context.Context, c <-chan context.Context)
 							return
 						case c <- v:
 						}
-					}(c, v)
+					}(v1, v0)
 					return nil
 				})
 			}
