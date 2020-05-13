@@ -1,7 +1,38 @@
 @startuml
 
-package "keyvalue" {
-	class "Key" as keyvalue.Key <<E,#FFCC00>> {
+package "event" {
+	class "Repository" as event.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Load(ctx: context.Context, prefix: pb.KeyPrefixer): (pb.KeyValuer, error)
+		+Save(ctx: context.Context, keyvalue: pb.KeyValuer): error
+	}
+}
+
+
+	event.Repository ..> pb.KeyPrefixer : <<use>> 
+	event.Repository ..> pb.KeyValuer : <<use>> 
+
+package "keystore" {
+	class "Repository" as keystore.Repository <<E,#FFCC00>> {
+		-bucket: string
+		-db: nutsdb.DB
+		+Close(): error
+		+Delete(ctx: context.Context, key: pb.Keyer): error
+		+Get(ctx: context.Context, key: pb.Keyer): (pb.KeyValuer, error)
+		+Put(ctx: context.Context, keyvalue: pb.KeyValuer): error
+	}
+}
+
+
+	keystore.Repository ..> pb.Keyer : <<use>> 
+	keystore.Repository ..> pb.Keyer : <<use>> 
+	keystore.Repository ..> pb.KeyValuer : <<return>> 
+	keystore.Repository ..> pb.KeyValuer : <<use>> 
+
+package "pb" {
+	class "Key" as pb.Key <<E,#FFCC00>> {
 		+Key: []byte
 		+XXX_NoUnkeyedLiteral: struct{}
 		+XXX_unrecognized: []byte
@@ -13,7 +44,7 @@ package "keyvalue" {
 		+Descriptor(): ([]byte, []int)
 		+XXX_Unmarshal(b: []byte): error
 		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
-		+XXX_Merge(src: proto.Message)
+		+XXX_Merge(src: protoiface.MessageV1)
 		+XXX_Size(): int
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
@@ -23,25 +54,27 @@ package "keyvalue" {
 
 
 
-package "keyvalue" {
-	class "KeyValidationError" as keyvalue.KeyValidationError <<V,Orchid>> {
-		-field: string
-		-reason: string
-		-cause: error
-		-key: bool
-		+Field(): string
-		+Reason(): string
-		+Cause(): error
-		+Key(): bool
-		+ErrorName(): string
-		+Error(): string
+package "pb" {
+	interface "KeyPrefixer" as pb.KeyPrefixer {
+		+Descriptor(): ([]byte, []int)
+		+GetPrefix(): []byte
+		+MarshalZerologObject(: zerolog.Event)
+		+ProtoMessage()
+		+Reset()
+		+String(): string
+		+Validate(): error
+		+XXX_DiscardUnknown()
+		+XXX_Marshal(: []byte, : bool): ([]byte, error)
+		+XXX_Merge(: protoiface.MessageV1)
+		+XXX_Size(): int
+		+XXX_Unmarshal(: []byte): error
 	}
 }
 
 
 
-package "keyvalue" {
-	class "KeyValue" as keyvalue.KeyValue <<E,#FFCC00>> {
+package "pb" {
+	class "KeyValue" as pb.KeyValue <<E,#FFCC00>> {
 		+Key: []byte
 		+Value: []byte
 		+XXX_NoUnkeyedLiteral: struct{}
@@ -54,7 +87,7 @@ package "keyvalue" {
 		+Descriptor(): ([]byte, []int)
 		+XXX_Unmarshal(b: []byte): error
 		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
-		+XXX_Merge(src: proto.Message)
+		+XXX_Merge(src: protoiface.MessageV1)
 		+XXX_Size(): int
 		+XXX_DiscardUnknown()
 		+GetKey(): []byte
@@ -68,55 +101,38 @@ package "keyvalue" {
 package "keyvalue" {
 	interface "KeyValueCloser" as keyvalue.KeyValueCloser {
 		+Close(): error
-		+Delete(: context.Context, : keyvalue.Keyer): error
-		+Get(: context.Context, : keyvalue.Keyer): (keyvalue.KeyValuer, error)
-		+Put(: context.Context, : keyvalue.KeyValuer): error
+		+Delete(: context.Context, : pb.Keyer): error
+		+Get(: context.Context, : pb.Keyer): (pb.KeyValuer, error)
+		+Put(: context.Context, : pb.KeyValuer): error
 	}
 }
 
 
-	keyvalue.KeyValueCloser ..> keyvalue.Keyer : <<use>> 
-	keyvalue.KeyValueCloser ..> keyvalue.Keyer : <<use>> 
-	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<return>> 
-	keyvalue.KeyValueCloser ..> keyvalue.KeyValuer : <<use>> 
-
-package "keyvalue" {
-	class "KeyValueValidationError" as keyvalue.KeyValueValidationError <<V,Orchid>> {
-		-field: string
-		-reason: string
-		-cause: error
-		-key: bool
-		+Field(): string
-		+Reason(): string
-		+Cause(): error
-		+Key(): bool
-		+ErrorName(): string
-		+Error(): string
-	}
-}
-
-
+	keyvalue.KeyValueCloser ..> pb.Keyer : <<use>> 
+	keyvalue.KeyValueCloser ..> pb.Keyer : <<use>> 
+	keyvalue.KeyValueCloser ..> pb.KeyValuer : <<return>> 
+	keyvalue.KeyValueCloser ..> pb.KeyValuer : <<use>> 
 
 package "keyvalue" {
 	class "KeyValueWithContext" as keyvalue.KeyValueWithContext <<E,#FFCC00>> {
 		+Context: context.Context
-		+KeyValue: keyvalue.KeyValuer
+		+KeyValue: pb.KeyValuer
 		+GetContext(): context.Context
-		+GetKeyValue(): keyvalue.KeyValuer
+		+GetKeyValue(): pb.KeyValuer
 		+MarshalZerologObject(e: zerolog.Event)
 		+String(): string
 		+Validate(): error
 	}
 }
 
-	keyvalue.KeyValueWithContext --> keyvalue.KeyValuer
+	keyvalue.KeyValueWithContext --> pb.KeyValuer
 
-	keyvalue.KeyValueWithContext ..> keyvalue.KeyValuer : <<return>> 
+	keyvalue.KeyValueWithContext ..> pb.KeyValuer : <<return>> 
 
 package "keyvalue" {
 	interface "KeyValueWithContexter" as keyvalue.KeyValueWithContexter {
 		+GetContext(): context.Context
-		+GetKeyValue(): keyvalue.KeyValuer
+		+GetKeyValue(): pb.KeyValuer
 		+MarshalZerologObject(: zerolog.Event)
 		+String(): string
 		+Validate(): error
@@ -124,10 +140,10 @@ package "keyvalue" {
 }
 
 
-	keyvalue.KeyValueWithContexter ..> keyvalue.KeyValuer : <<return>> 
+	keyvalue.KeyValueWithContexter ..> pb.KeyValuer : <<return>> 
 
-package "keyvalue" {
-	interface "KeyValuer" as keyvalue.KeyValuer {
+package "pb" {
+	interface "KeyValuer" as pb.KeyValuer {
 		+Descriptor(): ([]byte, []int)
 		+GetKey(): []byte
 		+GetValue(): []byte
@@ -138,7 +154,7 @@ package "keyvalue" {
 		+Validate(): error
 		+XXX_DiscardUnknown()
 		+XXX_Marshal(: []byte, : bool): ([]byte, error)
-		+XXX_Merge(: proto.Message)
+		+XXX_Merge(: protoiface.MessageV1)
 		+XXX_Size(): int
 		+XXX_Unmarshal(: []byte): error
 	}
@@ -149,23 +165,23 @@ package "keyvalue" {
 package "keyvalue" {
 	class "KeyWithContext" as keyvalue.KeyWithContext <<E,#FFCC00>> {
 		+Context: context.Context
-		+Key: keyvalue.Keyer
+		+Key: pb.Keyer
 		+GetContext(): context.Context
-		+GetKey(): keyvalue.Keyer
+		+GetKey(): pb.Keyer
 		+MarshalZerologObject(e: zerolog.Event)
 		+String(): string
 		+Validate(): error
 	}
 }
 
-	keyvalue.KeyWithContext --> keyvalue.Keyer
+	keyvalue.KeyWithContext --> pb.Keyer
 
-	keyvalue.KeyWithContext ..> keyvalue.Keyer : <<return>> 
+	keyvalue.KeyWithContext ..> pb.Keyer : <<return>> 
 
 package "keyvalue" {
 	interface "KeyWithContexter" as keyvalue.KeyWithContexter {
 		+GetContext(): context.Context
-		+GetKey(): keyvalue.Keyer
+		+GetKey(): pb.Keyer
 		+MarshalZerologObject(: zerolog.Event)
 		+String(): string
 		+Validate(): error
@@ -173,10 +189,10 @@ package "keyvalue" {
 }
 
 
-	keyvalue.KeyWithContexter ..> keyvalue.Keyer : <<return>> 
+	keyvalue.KeyWithContexter ..> pb.Keyer : <<return>> 
 
-package "keyvalue" {
-	interface "Keyer" as keyvalue.Keyer {
+package "pb" {
+	interface "Keyer" as pb.Keyer {
 		+Descriptor(): ([]byte, []int)
 		+GetKey(): []byte
 		+MarshalZerologObject(: zerolog.Event)
@@ -186,7 +202,7 @@ package "keyvalue" {
 		+Validate(): error
 		+XXX_DiscardUnknown()
 		+XXX_Marshal(: []byte, : bool): ([]byte, error)
-		+XXX_Merge(: proto.Message)
+		+XXX_Merge(: protoiface.MessageV1)
 		+XXX_Size(): int
 		+XXX_Unmarshal(: []byte): error
 	}
@@ -197,73 +213,14 @@ package "keyvalue" {
 package "keyvalue" {
 	interface "LoadSaveCloser" as keyvalue.LoadSaveCloser {
 		+Close(): error
-		+Load(: context.Context, : keyvalue.Prefixer): (<-chan keyvalue.KeyValuer, error)
-		+Save(: context.Context, : keyvalue.KeyValuer): error
+		+Load(: context.Context, : pb.KeyPrefixer): (pb.KeyValuer, error)
+		+Save(: context.Context, : pb.KeyValuer): error
 	}
 }
 
 
-	keyvalue.LoadSaveCloser ..> keyvalue.Prefixer : <<use>> 
-	keyvalue.LoadSaveCloser ..> keyvalue.KeyValuer : <<use>> 
-
-package "keyvalue" {
-	class "Prefix" as keyvalue.Prefix <<E,#FFCC00>> {
-		+Prefix: []byte
-		+XXX_NoUnkeyedLiteral: struct{}
-		+XXX_unrecognized: []byte
-		+XXX_sizecache: int32
-		+MarshalZerologObject(e: zerolog.Event)
-		+Reset()
-		+String(): string
-		+ProtoMessage()
-		+Descriptor(): ([]byte, []int)
-		+XXX_Unmarshal(b: []byte): error
-		+XXX_Marshal(b: []byte, deterministic: bool): ([]byte, error)
-		+XXX_Merge(src: proto.Message)
-		+XXX_Size(): int
-		+XXX_DiscardUnknown()
-		+GetPrefix(): []byte
-		+Validate(): error
-	}
-}
-
-
-
-package "keyvalue" {
-	class "PrefixValidationError" as keyvalue.PrefixValidationError <<V,Orchid>> {
-		-field: string
-		-reason: string
-		-cause: error
-		-key: bool
-		+Field(): string
-		+Reason(): string
-		+Cause(): error
-		+Key(): bool
-		+ErrorName(): string
-		+Error(): string
-	}
-}
-
-
-
-package "keyvalue" {
-	interface "Prefixer" as keyvalue.Prefixer {
-		+Descriptor(): ([]byte, []int)
-		+GetPrefix(): []byte
-		+MarshalZerologObject(: zerolog.Event)
-		+ProtoMessage()
-		+Reset()
-		+String(): string
-		+Validate(): error
-		+XXX_DiscardUnknown()
-		+XXX_Marshal(: []byte, : bool): ([]byte, error)
-		+XXX_Merge(: proto.Message)
-		+XXX_Size(): int
-		+XXX_Unmarshal(: []byte): error
-	}
-}
-
-
+	keyvalue.LoadSaveCloser ..> pb.KeyPrefixer : <<use>> 
+	keyvalue.LoadSaveCloser ..> pb.KeyValuer : <<use>> 
 
 package "keyvalue" {
 	interface "TopicKeyValueWithContexter" as keyvalue.TopicKeyValueWithContexter {
@@ -287,8 +244,7 @@ package "keyvalue" {
 
 package "keyvalue" {
 	class "mapKeyValueWithContexter" as keyvalue.mapKeyValueWithContexter <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*keyvalue.tKeyValueWithContexter
+		-m: sync.Map
 		-get(topic: interface{}): keyvalue.TopicKeyValueWithContexter
 	}
 }
@@ -297,8 +253,7 @@ package "keyvalue" {
 
 package "keyvalue" {
 	class "mapKeyWithContexter" as keyvalue.mapKeyWithContexter <<V,Orchid>> {
-		-mu: sync.RWMutex
-		-m: map[interface{}]*keyvalue.tKeyWithContexter
+		-m: sync.Map
 		-get(topic: interface{}): keyvalue.TopicKeyWithContexter
 	}
 }
@@ -329,44 +284,14 @@ package "keyvalue" {
 
 
 
-package "event" {
-	class "Repository" as event.Repository <<E,#FFCC00>> {
-		-bucket: string
-		-db: nutsdb.DB
-		+Close(): error
-		+Load(ctx: context.Context, prefix: keyvalue.Prefixer): (keyvalue.KeyValuer, error)
-		+Save(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
-	}
-}
-
-
-	event.Repository ..> keyvalue.Prefixer : <<use>> 
-	event.Repository ..> keyvalue.KeyValuer : <<use>> 
-
-package "keystore" {
-	class "Repository" as keystore.Repository <<E,#FFCC00>> {
-		-bucket: string
-		-db: nutsdb.DB
-		+Close(): error
-		+Delete(ctx: context.Context, key: keyvalue.Keyer): error
-		+Get(ctx: context.Context, key: keyvalue.Keyer): (keyvalue.KeyValuer, error)
-		+Put(ctx: context.Context, keyvalue: keyvalue.KeyValuer): error
-	}
-}
-
-
-	keystore.Repository ..> keyvalue.Keyer : <<use>> 
-	keystore.Repository ..> keyvalue.Keyer : <<use>> 
-	keystore.Repository ..> keyvalue.KeyValuer : <<return>> 
-	keystore.Repository ..> keyvalue.KeyValuer : <<use>> 
-
-	keyvalue.Key -up-|> keyvalue.Keyer
-	keyvalue.KeyValue -up-|> keyvalue.KeyValuer
-	keyvalue.KeyValue -up-|> keyvalue.Keyer
+	event.Repository -up-|> keyvalue.LoadSaveCloser
+	keystore.Repository -up-|> keyvalue.KeyValueCloser
+	pb.Key -up-|> pb.Keyer
+	pb.KeyValue -up-|> pb.KeyValuer
+	pb.KeyValue -up-|> pb.Keyer
 	keyvalue.KeyValueWithContext -up-|> keyvalue.KeyValueWithContexter
-	keyvalue.KeyValuer -up-|> keyvalue.Keyer
+	pb.KeyValuer -up-|> pb.Keyer
 	keyvalue.KeyWithContext -up-|> keyvalue.KeyWithContexter
-	keyvalue.Prefix -up-|> keyvalue.Prefixer
 	keyvalue.tKeyValueWithContexter -up-|> keyvalue.TopicKeyValueWithContexter
 	keyvalue.tKeyWithContexter -up-|> keyvalue.TopicKeyWithContexter
 
