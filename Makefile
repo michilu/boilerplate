@@ -54,14 +54,15 @@ GOLIB:=$(LIBGO:.go=.so)
 .go.so:
 	$(GO) build -buildmode=c-shared -o $@ $<
 %.pb.go: %.proto
-	( type prototool > /dev/null 2>&1 ) && prototool all $<
+	( type prototool > /dev/null 2>&1 ) && prototool all $< || :
 %.pb.validate.go: %.proto
 	d=$(dir $<);\
  ( type protoc > /dev/null 2>&1 ) && protoc\
  -I $$d\
  -I vendor\
  --validate_out="lang=go:$$d"\
- $<
+ $<\
+ || :
 
 
 .PHONY: all
@@ -267,7 +268,7 @@ clean:
 .PHONY: test
 test: deps
 	$(GOM) test -race $(PKG)/...
-	[ "$$(./assets/script/blacklist.sh)" = "" ] || (./assets/script/blacklist.sh; exit 1)
+	[ "$$(./assets/script/denylist.sh)" = "" ] || (./assets/script/denylist.sh; exit 1)
 
 .PHONY: pprof
 pprof:
