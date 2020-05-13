@@ -35,14 +35,15 @@ type Resource struct {
 func (p *Resource) Init() error {
 	v0 := make([]io.Closer, 0, len(p.Resource))
 	for _, v := range p.Resource {
-		v1, err := v(p.Context)
+		v1 := v
+		v2, err := v1(p.Context)
 		if err != nil {
 			return err
 		}
-		if v1 == nil {
+		if v2 == nil {
 			continue
 		}
-		v0 = append(v0, v1)
+		v0 = append(v0, v2)
 	}
 	p.closer = v0
 	return nil
@@ -50,7 +51,8 @@ func (p *Resource) Init() error {
 
 func (p Resource) Close() (err error) {
 	for _, v := range p.closer {
-		err = v.Close()
+		v0 := v
+		err = v0.Close()
 	}
 	return
 }
@@ -106,9 +108,10 @@ func NewCommand(
 			}
 		}
 	})
-	for _, f := range subCmd {
+	for _, v := range subCmd {
 		const op = op + ".subCmd"
-		c, err := f()
+		v0 := v
+		c, err := v0()
 		if err != nil {
 			slog.Logger().Err(err).Str("op", op).Msg(err.Error())
 			continue

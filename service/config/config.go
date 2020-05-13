@@ -17,9 +17,11 @@ type (
 
 // SetDefault sets default values to config.
 func SetDefault(config ...[]KV) {
-	for _, c := range config {
-		for _, v := range c {
-			viper.SetDefault(v.K, v.V)
+	for _, v := range config {
+		v0 := v
+		for _, v := range v0 {
+			v1 := v
+			viper.SetDefault(v1.K, v1.V)
 		}
 	}
 }

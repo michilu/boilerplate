@@ -30,23 +30,24 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 	}
 	v1 := make([]*TimePoint, 0, len(v0.TimePoint)+1)
 	occurred := false
-	for _, i := range v0.GetTimePoint() {
-		switch i.GetTag() {
+	for _, v := range v0.GetTimePoint() {
+		v2 := v
+		switch v2.GetTag() {
 		case Entered:
 			continue
 		case Occurred:
 			occurred = true
 		}
-		v1 = append(v1, i)
+		v1 = append(v1, v2)
 	}
-	var v2 Eventer = &Event{
+	var v3 Eventer = &Event{
 		Id:        v0.GetId(),
 		TimePoint: v1,
 	}
-	v3 := now.Now()
+	v4 := now.Now()
 	var err error
 	if !occurred {
-		v2, err = v2.AddTimePoint(Occurred, v3)
+		v3, err = v3.AddTimePoint(Occurred, v4)
 		if err != nil {
 			const op = op + ".AddTimePoint(Occurred)"
 			err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
@@ -55,7 +56,7 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 			return nil, err
 		}
 	}
-	v2, err = v2.AddTimePoint(Entered, v3)
+	v3, err = v3.AddTimePoint(Entered, v4)
 	if err != nil {
 		const op = op + ".AddTimePoint(Entered)"
 		err := &errs.Error{Op: op, Code: codes.InvalidArgument, Err: err}
@@ -63,6 +64,6 @@ func RestoreEvent(ctx context.Context, b []byte) (Eventer, error) {
 		slog.Logger().Err(err).Str("op", op).EmbedObject(t).Msg(err.Error())
 		return nil, err
 	}
-	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v2).Msg(op + ": return")
-	return v2, nil
+	slog.Logger().Debug().Str("op", op).EmbedObject(t).EmbedObject(v3).Msg(op + ": return")
+	return v3, nil
 }
