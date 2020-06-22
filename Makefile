@@ -30,6 +30,9 @@ GOBIN:=$(notdir $(PKG))
 GOLIST:=$(shell $(GO) list ./...)
 GODIR:=$(patsubst $(PKG)/%,%,$(wordlist 2,$(words $(GOLIST)),$(GOLIST)))
 
+STATIK:=$(wildcard assets/gcp/bq/savedqueries/*.sql)
+STATIKGO:=statik/statik.go
+
 PROTO:=$(shell find . -type d -name ".?*" -prune -or -type d -name vendor -prune -or -type f -name "*.proto" -print)
 PB_GO:=$(PROTO:.proto=.pb.go)
 PB_VALIDATE_GO:=$(PROTO:.proto=.pb.validate.go)
@@ -61,12 +64,14 @@ GOLIB:=$(LIBGO:.go=.so)
  -I $$d\
  -I vendor\
  --validate_out="lang=go:$$d"\
- $<\
- || :
+ $<
 
 
 .PHONY: all
 all: $(GOBIN) $(GOLIB) $(APP_DIR_PATH)/build
+.PHONY: cloud-config
+cloud-config:
+	assets/script/cloud-config.sh
 .PHONY: uml
 uml:
 	for i in domain application infra service $(shell find usecase -maxdepth 2 -type d -print); do\
@@ -76,6 +81,10 @@ uml:
   echo -e -n "@startuml\n\n\n\n@enduml\n" | cmp $$i > /dev/null 2>&1\
   && (rm $$i; echo removed empty uml $$i) || echo -n;\
   done
+$(STATIKGO): $(STATIK)
+	( type statik > /dev/null 2>&1 ) && statik -src=$(STATIK)
+.PHONY: statik
+statik: $(STATIKGO)
 $(PB_VALIDATE_GO):
 .PHONY: proto
 proto: vendor $(PB_GO) $(PB_VALIDATE_GO)
@@ -292,6 +301,8 @@ coverage:
 
 .PHONY: lint
 lint:
+	-echo $(PROTO) | xargs -n1 prototool lint
+	@echo
 	-gofmt -s -w .
 	@echo
 	-echo $(GOLIST) | xargs -L1 golint

@@ -17,6 +17,7 @@ var (
 	defaults = []config.KV{
 		{K: k.ServiceSlogVerbose, V: true},
 
+		// GCP
 		{K: k.GcpAppengineHostnameFmt, V: "https://%s-dot-%s.appspot.com%s"},
 		// https://cloud.google.com/pubsub/docs/push#authenticating_standard_urls
 		{K: k.GcpPubsubPushEndpointFmt, V: "/_ah/push-handlers/%s"},
