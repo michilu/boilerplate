@@ -16,7 +16,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/getsentry/sentry-go v0.6.1
 	github.com/gin-contrib/pprof v1.3.0
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.7
 	github.com/golang/protobuf v1.4.1
 	github.com/google/go-replayers/grpcreplay v1.0.0 // indirect
 	github.com/google/pprof v0.0.0-20200507031123-427632fa3b1c // indirect
