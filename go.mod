@@ -10,7 +10,7 @@ require (
 	github.com/StudioSol/async v1.0.0
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535
 	github.com/augustoroman/promise v0.0.0-20151011205337-9164cf1f0cc6
-	github.com/aws/aws-sdk-go v1.30.26 // indirect
+	github.com/aws/aws-sdk-go v1.34.0 // indirect
 	github.com/cheekybits/genny v1.0.0
 	github.com/envoyproxy/protoc-gen-validate v0.3.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
