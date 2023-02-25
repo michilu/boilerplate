@@ -45,7 +45,7 @@ require (
 	gocloud.dev v0.19.0
 	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 	google.golang.org/api v0.24.0 // indirect
 	google.golang.org/appengine v1.6.6
 	google.golang.org/genproto v0.0.0-20200511104702-f5ebc3bea380
