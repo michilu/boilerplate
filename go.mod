@@ -16,8 +16,8 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/getsentry/sentry-go v0.6.1
 	github.com/gin-contrib/pprof v1.3.0
-	github.com/gin-gonic/gin v1.6.3
-	github.com/golang/protobuf v1.4.1
+	github.com/gin-gonic/gin v1.9.0
+	github.com/golang/protobuf v1.5.0
 	github.com/google/go-replayers/grpcreplay v1.0.0 // indirect
 	github.com/google/pprof v0.0.0-20200507031123-427632fa3b1c // indirect
 	github.com/google/uuid v1.1.1
@@ -43,15 +43,12 @@ require (
 	github.com/xujiajun/nutsdb v0.5.0
 	go.opencensus.io v0.22.3
 	gocloud.dev v0.19.0
-	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200511232937-7e40ca221e25 // indirect
 	google.golang.org/api v0.24.0 // indirect
 	google.golang.org/appengine v1.6.6
 	google.golang.org/genproto v0.0.0-20200511104702-f5ebc3bea380
 	google.golang.org/grpc v1.29.1
-	google.golang.org/protobuf v1.22.0
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/ini.v1 v1.56.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	honnef.co/go/js/util v0.0.0-20150216223935-96b8dd9d1621 // indirect
